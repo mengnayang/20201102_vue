@@ -76,9 +76,21 @@ export default{
         login() {
             this.$refs.LoginRef.validate(valid => {
                 if (!valid) return
-                this.$message.success({
-                    message: '登陆成功',
-                    center: true
+                this.$axios.post('/staff/login',this.LoginForm)
+                .then((res) => {
+                    if(res.data.code == 0) {
+                        this.$message.success('登陆成功')
+                        console.log(res.data.obj.token)
+                        console.log(res.data.obj.staffStatus)
+                        window.sessionStorage.setItem('token',res.data.obj.token)
+                        window.sessionStorage.setItem('Status',res.data.obj.staffStatus)
+                        this.$router.push('/home')
+                    } else {
+                        this.$message.error('登陆失败')
+                    }
+                })
+                .catch((err) => {
+                    this.$message.error(err)
                 })
             })
         }
@@ -158,6 +170,7 @@ export default{
     opacity: 1;
     position: absolute;
     left: 50%;
+    cursor: pointer;
     transform: translate(-50%,-50%);
     .iconfont,.icon_title{
         font-size: 90px;

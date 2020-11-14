@@ -18,8 +18,8 @@
                     <el-input type="password" v-model="RegisterForm.staffPassword1" auto-complete="off"></el-input>
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="primary" round size="mini">提交</el-button>
-                     <el-button type="info" round size="mini" @click="reset()">重置</el-button>
+                    <el-button type="primary" round size="mini" @click="submit()">提交</el-button>
+                    <el-button type="info" round size="mini" @click="reset()">重置</el-button>
                     <el-button type="primary" round size="mini" @click="return_login()">返回</el-button>
                 </el-form-item>
             </el-form>
@@ -102,6 +102,30 @@
             //注册表单重置
             reset() {
                 this.$refs.RegisterRef.resetFields()
+            },
+            //提交注册信息
+            submit() {
+                let RegisterForm_1 = {
+                    staffName : this.RegisterForm.staffName,
+                    staffPhone : this.RegisterForm.staffPhone,
+                    staffPassword : this.RegisterForm.staffPassword
+                }
+                this.$axios.post('/staff/register',RegisterForm_1)
+                .then((res) => {
+                    if (res.data.code == 0) {
+                        this.$message.success('注册成功,3s后跳转')
+                        //延迟3s跳转到首页
+                        setInterval(() => {
+                            this.$router.go(-1)
+                        },3000)
+                    } else {
+                        this.$message.error('注册失败')
+                        this.reset()
+                    }
+                })
+                .catch((err) => {
+                    this.$message.error(err)
+                })
             }
         }
     }

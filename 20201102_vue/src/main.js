@@ -7,6 +7,11 @@ import router from './router'
 import './assets/css/global.css'
 //引入全局element组件
 import './plugins/element.js'
+//引入axios并挂载
+import axios from 'axios'
+Vue.prototype.$axios = axios
+//引入mockjs
+import '../mock/mock.js'
 
 Vue.config.productionTip = false
 
