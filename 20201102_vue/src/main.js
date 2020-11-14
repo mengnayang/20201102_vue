@@ -3,6 +3,10 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+//引入全局样式
+import './assets/css/global.css'
+//引入全局element组件
+import './plugins/element.js'
 
 Vue.config.productionTip = false
 
