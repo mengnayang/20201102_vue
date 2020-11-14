@@ -14,7 +14,7 @@
                     <el-form-item label="密码" prop="staffPassword" required>
                         <el-input type="password" v-model="LoginForm.staffPassword" auto-complete="off"></el-input>
                     </el-form-item>
-                    <div class="forget_pwd">
+                    <div class="forget_pwd" @click="forget_pwd()">
                         <span>忘记密码</span><i class="el-icon-question"></i>
                     </div>
                     <el-form-item>
@@ -93,6 +93,9 @@ export default{
                     this.$message.error(err)
                 })
             })
+        },
+        forget_pwd() {
+            this.$router.push('/forgetPwd')
         }
     }
 }

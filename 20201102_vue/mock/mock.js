@@ -1,4 +1,6 @@
+const { Random } = require('mockjs')
 const Mock = require('mockjs')
+var random = Mock.Random
 
 //模拟用户登陆
 Mock.mock('/staff/login',{
@@ -16,7 +18,7 @@ Mock.mock('/staff/login',{
     //   "staffName": "小红",
     //   "staffPassword": 15364646464,
     //   "staffPosition":5,
-    //   "staffStatus":10001,
+    //   "staffStatus":1001,
     //   "token": "65ghjghfd4"
     //  }
 })
@@ -26,5 +28,13 @@ Mock.mock('/staff/register',{
     "code":0,
     "obj":{
         "msg":"新用户注册成功"
+    }
+})
+
+//获取验证码
+Mock.mock('/staff/code',{
+    "code":0,
+    "obj":{
+        "checkCode":random.integer(1000,9999)
     }
 })

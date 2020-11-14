@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Login from '../components/Login'
 import Register from '../components/Register'
 import Home from '../components/Home'
+import ForgerPwd from '../components/ForgetPwd'
 
 Vue.use(Router)
 
@@ -13,13 +14,14 @@ const router = new Router({
     {path:'/',redirect:'/login'},
     {path:'/login', component:Login},
     {path:'/register', component:Register},
-    {path:'/home', component: Home}
+    {path:'/home', component: Home},
+    {path:'/forgetPwd', component: ForgerPwd}
   ]
 })
 
 //挂在路由导航守卫
 router.beforeEach((to,from,next) => {
-  if (to.path == '/login' || to.path == '/register') {
+  if (to.path == '/login' || to.path == '/register' || to.path == '/forgetPwd') {
     return next()
   } 
   const token = window.sessionStorage.getItem('token')
