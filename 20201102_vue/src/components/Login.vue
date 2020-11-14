@@ -71,6 +71,16 @@ export default{
         //注册新用户
         register() {
             this.$router.push('/register')
+        },
+        //用户登陆
+        login() {
+            this.$refs.LoginRef.validate(valid => {
+                if (!valid) return
+                this.$message.success({
+                    message: '登陆成功',
+                    center: true
+                })
+            })
         }
     }
 }
