@@ -27,7 +27,8 @@ Select,
 Option,
 Table,
 TableColumn,
-Dialog
+Dialog,
+DatePicker
 } from 'element-ui'
 Vue.use(Form)
 Vue.use(FormItem)
@@ -53,6 +54,7 @@ Vue.use(Option)
 Vue.use(Table)
 Vue.use(TableColumn)
 Vue.use(Dialog)
+Vue.use(DatePicker)
 
 //全局挂载
 Vue.prototype.$message = Message

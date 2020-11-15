@@ -141,3 +141,21 @@ Mock.mock('/goods/goodsInfo',{
         "standards|1":['200ml','200g','200L','1kg']
     }]
 })
+
+//查询指定需求的商品
+Mock.mock('/goods/searchGood',{
+    "obj|3":[{
+        "goods_img":"@image('100x100','#894FC4', '#ffffff', 'png','" +  random.name() + "')",
+        //"goods_img":Random.image('200x100', '#894FC4', '#FFF', 'png', '!'),
+        "goods_id|1":/\d{3,5}\w{3,5}/,
+        "goods_name|1":['方便面','金典牛奶','银桥牛奶','有机牧场','特仑苏','旺仔牛奶','草莓牛奶'],
+        "goods_category|1":['奶制品','速食类','零食类'],
+        "brand_name|1":['银桥','汇丰','蒙牛','伊利'],
+        "goods_store|1":[random.integer(1000,10000),random.integer(1000,10000),random.integer(1000,10000)],
+        "date_manufacture":"@date()",
+        "shelf_life|1":[random.integer(3,60),random.integer(3,60),random.integer(3,60)],
+        "goods_price|1":[random.integer(10,30),random.integer(10,30),random.integer(10,30)],
+        "unit|1":["桶","袋","包","盒","箱"],
+        "standards|1":['200ml','200g','200L','1kg']
+    }]
+})
