@@ -1,6 +1,50 @@
 <template>
-    <div class="home_comtainer">
-        nimenhao
+    <div class="home_container">
+        <div class="home_title">
+            <div class="home_img">
+                <i class="iconfont icon_title"></i>
+                <span>超市商品管理系统</span>
+            </div>
+            <div class="home_info">
+                <div>
+                    <i class="el-icon-user"></i>
+                    <span>{{staffName}}</span>
+                </div>
+                <div @click="logout()">
+                    <i class="iconfont icon_logout"></i>
+                    <span>退出</span>
+                </div>
+            </div>
+        </div>
+        <div class="home_content">
+            <el-container>
+                <!-- 左边区域 -->
+                <el-aside :width="getWidth()">
+                    <!-- 折叠面板 -->
+                    <div class="toggle-button" @click="toggleCollapse">|||</div>
+                    <!-- 菜单区域 -->
+                    <el-menu :collapse="isCollapse" :collapse-transition="false">
+                        <!-- 一级菜单 -->
+                        <el-submenu :index="item.id + ''" v-for="item in menuList" :key="item.id">
+                            <template slot="title">
+                                <i class="el-icon-user"></i>
+                                <span>{{item.name}}</span>
+                            </template>
+                            <el-menu-item :index="subItem.id + ''" v-for="subItem in item.children" :key="subItem.id">
+                                <template slot="title">
+                                    <i class="el-icon-user"></i>
+                                    <span>{{subItem.name}}</span>
+                                </template>
+                            </el-menu-item>
+                        </el-submenu>
+                    </el-menu>
+                </el-aside>
+                <!-- 主体区域 -->
+                <el-main>
+
+                </el-main>
+            </el-container>
+        </div>
     </div>
 </template>
 
@@ -9,16 +53,133 @@
         name:'Home',
         data() {
             return{
-
+                //职工姓名
+                staffName:'',
+                //是否为正常职工
+                isPower:'',
+                //是否折叠
+                isCollapse:false,
+                //职位
+                position:'',
+                //功能菜单列表
+                menuList:[]
             }
         },
         created() {
+            //获取用户的token、姓名和状态
             var token = window.sessionStorage.getItem('token')
+            var staffId = window.sessionStorage.getItem('staffId')
+            var staffStatus = window.sessionStorage.getItem('staffStatus')
+            var staffName = window.sessionStorage.getItem('staffName')
+            var staffPosition = window.sessionStorage.getItem('staffPosition')
+            this.staffId = staffId
+            this.staffName = staffName
+            this.staffPosition = staffPosition
             console.log(token)
+            console.log(staffStatus)
+            // console.log(staffName)
+            if (staffStatus == 1000) {
+                this.isPower = true
+            } else if (staffStatus == 1001) {
+                this.isPower = false
+            }
+
+            //获取菜单功能点
+            let staffInfo = {
+                staffId: staffId,
+                staffStatus: staffPosition
+            }
+            this.$axios.post('/staff/menu', staffInfo)
+            .then((res) => {
+                this.menuList = res.data.obj
+                console.log(this.menuList)
+            })
+            .catch((err) => {
+                this.$message.success(err)
+            })
+        },
+        methods:{
+            //菜单折叠
+            toggleCollapse() {
+                this.isCollapse = !this.isCollapse
+            },
+            //退出
+            logout() {
+                window.sessionStorage.clear()
+                this.$router.push('/login')
+            },
+            //获取折叠的宽度
+            getWidth(){
+                if (this.isPower) {
+                    if (this.isCollapse) {
+                        return "65px"
+                    } else {
+                        return "250px"
+                    }
+                } else {
+                    return "0px"
+                }
+            }
         }
     }
 </script>
 
 <style lang="less" scoped>
-
+.home_container{
+    width: 100%;
+    height: 100%;
+    background-color: khaki;
+}
+.home_title{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    height: 80px;
+    background-color: #2177b8;
+    .home_img{
+        cursor: pointer;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        width: 400px;
+        i{
+            font-size: 70px;
+        }
+        span{
+            font-size: 30px;
+        }
+    }
+    .home_info{
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        align-items: center;
+        padding-right: 30px;
+        width: 200px;
+        div{
+            cursor: pointer;
+            i{
+                font-size: 23px;
+            }
+            span{
+                font-size: 23px;
+            }
+        }
+    }
+}
+.toggle-button{
+    cursor: pointer;
+    background-color: #0F59A4;
+    color: #fff;
+    letter-spacing: 0.3em;
+    opacity: 0.5;
+    text-align: center;
+    line-height: 30px;
+}
+.el-aside{
+    height: 497px;
+    background-color: #fff;
+}
 </style>

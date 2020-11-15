@@ -80,10 +80,13 @@ export default{
                 .then((res) => {
                     if(res.data.code == 0) {
                         this.$message.success('登陆成功')
-                        console.log(res.data.obj.token)
-                        console.log(res.data.obj.staffStatus)
+                        // console.log(res.data.obj.token)
+                        // console.log(res.data.obj.staffStatus)
                         window.sessionStorage.setItem('token',res.data.obj.token)
-                        window.sessionStorage.setItem('Status',res.data.obj.staffStatus)
+                        window.sessionStorage.setItem('staffId',res.data.obj.staffId)
+                        window.sessionStorage.setItem('staffStatus',res.data.obj.staffStatus)
+                        window.sessionStorage.setItem('staffName',res.data.obj.staffName)
+                        window.sessionStorage.setItem('staffPosition',res.data.obj.staffPosition)
                         this.$router.push('/home')
                     } else {
                         this.$message.error('登陆失败')
