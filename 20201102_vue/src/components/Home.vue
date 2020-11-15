@@ -92,7 +92,7 @@
             this.$axios.post('/staff/menu', staffInfo)
             .then((res) => {
                 this.menuList = res.data.obj
-                console.log(this.menuList)
+                //console.log(this.menuList)
             })
             .catch((err) => {
                 this.$message.success(err)

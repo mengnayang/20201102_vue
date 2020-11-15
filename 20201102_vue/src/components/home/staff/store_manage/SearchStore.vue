@@ -214,6 +214,10 @@
                 </span>
             </el-dialog>
         </el-card>
+        <el-pagination :current-page="queryInfo.pageIndex" :page-sizes="[3]" :page-size="3" 
+            @current-change="currentChange"
+            layout="total, sizes, prev, pager, next, jumper" :total="queryInfo.total">
+        </el-pagination>
     </div>
 </template>
 
@@ -237,20 +241,32 @@
                 //设置修改商品信息的弹窗是否可见
                 editGoodDialog:false,
                 //当前操作的商品信息
-                currentGood:''
+                currentGood:'',
+                //分页信息
+                queryInfo:{
+                    pageIndex:1,
+                    infoCount:3,
+                    total:50
+                }
             }
         },
         mounted(){
-            this.$axios.get('/goods/goodsInfo')
-            .then((res) => {
-                console.log(res.data.obj)
-                this.goodList = res.data.obj
-            })
-            .catch((res) => {
-                this.$message.error(err)
-            })
+            this.getPartGood()
         },
         methods:{
+            //初始获取部分商品
+            getPartGood() {
+                console.log(this.queryInfo.pageIndex)
+                console.log(this.queryInfo.infoCount)
+                this.$axios.post('/goods/goodsInfo', this.queryInfo)
+                .then((res) => {
+                    //console.log(res.data.obj)
+                    this.goodList = res.data.obj
+                })
+                .catch((res) => {
+                    this.$message.error(err)
+                })
+            },
             //查询指定需求的商品
             searchGood(){
                 let searchInfo = {
@@ -290,6 +306,11 @@
                 this.editGoodDialog = false
                 console.log(this.currentGood)
                 this.$message.success('修改成功')
+            },
+            //获取指定页面的信息
+            currentChange(currentPage){
+                this.queryInfo.pageIndex = currentPage
+                this.getPartGood()
             }
         }
     }
@@ -305,5 +326,9 @@
         margin-bottom: 0;
         }
     }
+}
+.el-pagination{
+    margin-top: 10px;
+    padding-left: 120px;
 }
 </style>

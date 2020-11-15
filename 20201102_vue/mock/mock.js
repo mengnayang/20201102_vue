@@ -123,7 +123,7 @@ Mock.mock('/staff/menu',{
     ]
 })
 
-//库存商品数据
+//库存部分商品数据
 Mock.mock('/goods/goodsInfo',{
     "code":0,
     "obj|3":[{
