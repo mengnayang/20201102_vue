@@ -18,9 +18,9 @@
                     <el-input type="password" v-model="RegisterForm.staffPassword1" auto-complete="off"></el-input>
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="primary" round size="mini" @click="submit()">提交</el-button>
-                    <el-button type="info" round size="mini" @click="reset()">重置</el-button>
-                    <el-button type="primary" round size="mini" @click="return_login()">返回</el-button>
+                    <el-button type="primary" round size="small" @click="submit()">提交</el-button>
+                    <el-button type="info" round size="small" @click="reset()">重置</el-button>
+                    <el-button type="primary" round size="small" @click="return_login()">返回</el-button>
                 </el-form-item>
             </el-form>
         </div>

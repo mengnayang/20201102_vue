@@ -17,8 +17,17 @@ Menu,
 Aside,
 Submenu,
 MenuItem,
-MenuItemGroup,
-Main
+Main,
+Breadcrumb,
+BreadcrumbItem,
+Card,
+Row,
+Col,
+Select,
+Option,
+Table,
+TableColumn,
+Dialog
 } from 'element-ui'
 Vue.use(Form)
 Vue.use(FormItem)
@@ -33,8 +42,17 @@ Vue.use(Menu)
 Vue.use(Submenu)
 Vue.use(MenuItem)
 Vue.use(Aside)
-Vue.use(MenuItemGroup)
 Vue.use(Main)
+Vue.use(Breadcrumb)
+Vue.use(BreadcrumbItem)
+Vue.use(Card)
+Vue.use(Row)
+Vue.use(Col)
+Vue.use(Select)
+Vue.use(Option)
+Vue.use(Table)
+Vue.use(TableColumn)
+Vue.use(Dialog)
 
 //全局挂载
 Vue.prototype.$message = Message

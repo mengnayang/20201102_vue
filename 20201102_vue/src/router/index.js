@@ -4,6 +4,8 @@ import Login from '../components/Login'
 import Register from '../components/Register'
 import Home from '../components/Home'
 import ForgerPwd from '../components/ForgetPwd'
+import Welcome from '../components/home/Welcome'
+import SearchStore from '../components/home/staff/store_manage/SearchStore'
 
 Vue.use(Router)
 
@@ -14,7 +16,16 @@ const router = new Router({
     {path:'/',redirect:'/login'},
     {path:'/login', component:Login},
     {path:'/register', component:Register},
-    {path:'/home', component: Home},
+    {
+      path:'/home', 
+      component: Home,
+      redirect:'/welcome',
+      children:[
+        {path:'/', redirect:'/welcome'},
+        {path:'/welcome', component:Welcome},
+        {path:'/storeManage/searchStore', component:SearchStore}
+      ]
+    },
     {path:'/forgetPwd', component: ForgerPwd}
   ]
 })

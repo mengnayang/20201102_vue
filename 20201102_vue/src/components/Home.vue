@@ -1,7 +1,7 @@
 <template>
     <div class="home_container">
         <div class="home_title">
-            <div class="home_img">
+            <div class="home_img" @click="return_welcome()">
                 <i class="iconfont icon_title"></i>
                 <span>超市商品管理系统</span>
             </div>
@@ -23,14 +23,14 @@
                     <!-- 折叠面板 -->
                     <div class="toggle-button" @click="toggleCollapse">|||</div>
                     <!-- 菜单区域 -->
-                    <el-menu :collapse="isCollapse" :collapse-transition="false">
+                    <el-menu :collapse="isCollapse" :collapse-transition="false" unique-opened active-text-color="#12aa9c" router>
                         <!-- 一级菜单 -->
                         <el-submenu :index="item.id + ''" v-for="item in menuList" :key="item.id">
                             <template slot="title">
                                 <i class="el-icon-user"></i>
                                 <span>{{item.name}}</span>
                             </template>
-                            <el-menu-item :index="subItem.id + ''" v-for="subItem in item.children" :key="subItem.id">
+                            <el-menu-item :index="item.url + subItem.url + ''" v-for="subItem in item.children" :key="subItem.id">
                                 <template slot="title">
                                     <i class="el-icon-user"></i>
                                     <span>{{subItem.name}}</span>
@@ -41,7 +41,7 @@
                 </el-aside>
                 <!-- 主体区域 -->
                 <el-main>
-
+                    <router-view></router-view>
                 </el-main>
             </el-container>
         </div>
@@ -119,6 +119,10 @@
                 } else {
                     return "0px"
                 }
+            },
+            //回到主页
+            return_welcome() {
+                this.$router.push('/welcome')
             }
         }
     }
@@ -128,7 +132,6 @@
 .home_container{
     width: 100%;
     height: 100%;
-    background-color: khaki;
 }
 .home_title{
     display: flex;
@@ -180,6 +183,5 @@
 }
 .el-aside{
     height: 497px;
-    background-color: #fff;
 }
 </style>
