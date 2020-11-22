@@ -12,19 +12,19 @@
             <el-row :gutter="10">
                 <el-col :span="8">
                     <span>商品编号</span>
-                    <el-select v-model="selectedGoodId" filterable placeholder="请选择" size="small">
+                    <el-select v-model="selected.selectedGoodId" filterable placeholder="请选择" size="small">
                         <el-option v-for="item in goodList" :label="item.goods_id" :key="item.goods_id" :value="item.goods_id"></el-option>
                     </el-select>
                 </el-col>
                 <el-col :span="8">
                     <span>商品名称</span>
-                    <el-select v-model="selectedGoodName" filterable placeholder="请选择" size="small">
+                    <el-select v-model="selected.selectedGoodName" filterable placeholder="请选择" size="small">
                         <el-option v-for="item in goodList" :label="item.goods_name" :key="item.goods_id" :value="item.goods_name"></el-option>
                     </el-select>
                 </el-col>
                 <el-col :span="8">
                     <span>商品类别</span>
-                    <el-select v-model="selectedGoodCategory" filterable placeholder="请选择" size="small">
+                    <el-select v-model="selected.selectedGoodCategory" filterable placeholder="请选择" size="small">
                         <el-option v-for="item in goodList" :label="item.goods_category" :key="item.goods_id" :value="item.goods_category"></el-option>
                     </el-select>
                 </el-col>
@@ -32,7 +32,7 @@
             <el-row :gutter="10">
                 <el-col :span="8">
                     <span>品牌类别</span>
-                    <el-select v-model="selectedBrandName" filterable placeholder="请选择" size="small">
+                    <el-select v-model="selected.selectedBrandName" filterable placeholder="请选择" size="small">
                         <el-option v-for="item in goodList" :label="item.brand_name" :key="item.goods_id" :value="item.brand_name"></el-option>
                     </el-select>
                 </el-col>
@@ -228,14 +228,13 @@
             return{
                 //商品信息
                 goodList:[],
-                //选中的商品编号
-                selectedGoodId:'',
-                //选中的商品名称
-                selectedGoodName:'',
-                //选中的商品类别
-                selectedGoodCategory:'',
-                //选中的品牌类别
-                selectedBrandName:'',
+                //指定商品需求
+                selected:{
+                    selectedGoodId:'',
+                    selectedGoodName:'',
+                    selectedGoodCategory:'',
+                    selectedBrandName:''
+                },
                 //设置查看商品信息的弹窗是否可见
                 lookGoodDialog:false,
                 //设置修改商品信息的弹窗是否可见
@@ -269,13 +268,7 @@
             },
             //查询指定需求的商品
             searchGood(){
-                let searchInfo = {
-                    goods_id : this.selectedGoodId,
-                    goods_name : this.selectedGoodName,
-                    goods_category : this.selectedGoodCategory,
-                    brand_name : this.selectedBrandName
-                }
-                this.$axios.post('/goods/searchGood',this.searchInfo)
+                this.$axios.post('/goods/searchGood',this.selected)
                 .then((res) => {
                     this.goodList = res.data.obj
                     //console.log(res)
