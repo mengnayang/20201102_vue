@@ -6,13 +6,21 @@ Mock.mock('/staff/login',{
     "code": 0,
     "obj": 
     {
-      "id": 1,
-      "staffName": "小明",
-      "staffPassword": 15353535353,
-      "staffPosition":1,
-      "staffStatus":1000,
-      "token": "1asd123"
-     }
+        "id":'100',
+        "staffName":"管理员",
+        "staffPassword": 15342424242,
+        "staffPosition": 100,
+        "staffStatus":1000,
+        "token":'adui##gca664'
+    }
+    // {
+    //   "id": 1,
+    //   "staffName": "小明",
+    //   "staffPassword": 15353535353,
+    //   "staffPosition":1,
+    //   "staffStatus":1000,
+    //   "token": "1asd123"
+    //  }
     //  {
     //   "id": '2',
     //   "staffName": "小红",
@@ -36,6 +44,112 @@ Mock.mock('/staff/code',{
     "code":0,
     "obj":{
         "checkCode":random.integer(1000,9999)
+    }
+})
+
+//请求管理员的功能菜单
+Mock.mock('/administer/menu',{
+    "code":0,
+    "obj":[
+        {
+            "id":100,
+            "name":"用户管理",
+            "url":"/userManage",
+            "children":[
+                {
+                    "id":101,
+                    "name":"用户列表",
+                    "url":"/userList"
+                }
+            ]
+        },{
+            "id":200,
+            "name":"权限管理",
+            "url":"/accessManage",
+            "children:":[
+                {
+                    "id":201,
+                    "name":"角色列表",
+                    "url":"/roleList"
+                }
+            ]
+        },{
+            "id":300,
+            "name":"权限管理",
+            "url":"/accessManage",
+            "children:":[
+                {
+                    "id":301,
+                    "name":"角色列表",
+                    "url":"/roleList"
+                }
+            ]
+        },{
+            "id":400,
+            "name":"销售统计",
+            "url":"/sellStatistic",
+            "children":[
+                {
+                    "id":401,
+                    "name":"年月季度",
+                    "url":"/monthYear"
+                }
+            ]
+        },{
+            "id":500,
+            "name":"发布公告",
+            "url":"/issueNotice",
+            "children":[
+                {
+                    "id":501,
+                    "name":"公告信息",
+                    "url":"/noticeInfo"
+                },
+                {
+                    "id":502,
+                    "name":"添加公告",
+                    "url":"/addNotice"
+                }
+            ]
+        }
+    ]
+})
+
+//获取用户信息
+Mock.mock('/user/userList',{
+    "code":0,
+    "obj|4":[
+        {
+            "staffId":/^[0-9a-zA-z]{3}$/,
+            "staffName":"@name()",
+            "staffPhone":/^1\d{10}$/,
+            "staffPassword":/^[0-9a-zA-Z]{10}$/,
+            "staffPosition":/^[1-6]{1}$/,
+            "staffStatus|1":[1000,1001,0,-1]
+        }
+    ]
+})
+
+//添加新用户
+Mock.mock('/user/addUser',{
+    "code":0,
+    "obj":{
+        "msg":"添加成功"
+    }
+})
+
+//添加新用户
+Mock.mock('/user/editUser',{
+    "code":0,
+    "obj":{
+        "msg":"修改成功"
+    }
+})
+
+Mock.mock('/user/deleteUser',{
+    "code":0,
+    "obj":{
+        "msg":"删除成功"
     }
 })
 

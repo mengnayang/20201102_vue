@@ -89,14 +89,27 @@
                 staffId: staffId,
                 staffStatus: staffPosition
             }
-            this.$axios.post('/staff/menu', staffInfo)
-            .then((res) => {
-                this.menuList = res.data.obj
-                //console.log(this.menuList)
-            })
-            .catch((err) => {
-                this.$message.success(err)
-            })
+            
+            //角色判断
+            if (staffPosition == 1) {
+                this.$axios.post('/staff/menu', staffInfo)
+                .then((res) => {
+                    this.menuList = res.data.obj
+                    //console.log(this.menuList)
+                })
+                .catch((err) => {
+                    this.$message.success(err)
+                })
+            } else if (staffPosition == 100) {
+                this.$axios.post('/administer/menu', staffInfo)
+                .then((res) => {
+                    this.menuList = res.data.obj
+                    //console.log(this.menuList)
+                })
+                .catch((err) => {
+                    this.$message.success(err)
+                })
+            }
         },
         methods:{
             //菜单折叠

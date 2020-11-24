@@ -5,6 +5,8 @@ import Register from '../components/Register'
 import Home from '../components/Home'
 import ForgerPwd from '../components/ForgetPwd'
 import Welcome from '../components/home/Welcome'
+import UserList from '../components/home/administer/user_manage/UserList'
+import RoleList from '../components/home/administer/access_manage/RoleList'
 import SearchStore from '../components/home/staff/store_manage/SearchStore'
 import OrderInfo from '../components/home/staff/store_manage/OrderInfo'
 import BookEnter from '../components/home/staff/store_manage/BookEnter'
@@ -26,6 +28,8 @@ const router = new Router({
       children:[
         {path:'/', redirect:'/welcome'},
         {path:'/welcome', component:Welcome},
+        {path:'/userManage/userList', component:UserList},
+        {path:'/accessManage/roleList', component: RoleList},
         {path:'/storeManage/searchStore', component:SearchStore},
         {path:'/storeManage/orderInfo',component:OrderInfo},
         {path:'/storeManage/bookEnter',component:BookEnter},

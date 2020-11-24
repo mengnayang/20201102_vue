@@ -29,7 +29,9 @@ Table,
 TableColumn,
 Dialog,
 DatePicker,
-Pagination
+Pagination,
+Tooltip,
+MessageBox
 } from 'element-ui'
 Vue.use(Form)
 Vue.use(FormItem)
@@ -57,6 +59,8 @@ Vue.use(TableColumn)
 Vue.use(Dialog)
 Vue.use(DatePicker)
 Vue.use(Pagination)
+Vue.use(Tooltip)
 
 //全局挂载
 Vue.prototype.$message = Message
+Vue.prototype.$confirm = MessageBox.confirm

@@ -36,9 +36,9 @@
                         <el-option v-for="item in enterStoreList" :key="item.goods_id" :value="item.goods_id" :label="item.godown_entry_status"></el-option>
                     </el-select>
                 </el-col>
-                <el-row>
+                <el-col>
                     <el-button type="primary" size="small" @click="searchBookEnter()">查询</el-button>
-                </el-row>
+                </el-col>
             </el-row>
             <!-- 表单区域 -->
         <el-table :data="enterStoreList" border>
