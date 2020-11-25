@@ -9,6 +9,7 @@ import './assets/css/global.css'
 import './plugins/element.js'
 //引入axios并挂载
 import axios from 'axios'
+axios.defaults.baseURL='http://localhost:8080';
 Vue.prototype.$axios = axios
 //引入mockjs
 import '../mock/mock.js'

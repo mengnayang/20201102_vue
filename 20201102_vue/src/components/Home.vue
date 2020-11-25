@@ -70,7 +70,7 @@
         created() {
             //获取用户的token、姓名和状态
             var staffToken = window.sessionStorage.getItem('staffToken')
-            console.log(staffToken)
+            //console.log(staffToken)
             var staffId = window.sessionStorage.getItem('staffId')
             var staffStatus = window.sessionStorage.getItem('staffStatus')
             var staffName = window.sessionStorage.getItem('staffName')
@@ -78,14 +78,19 @@
             var staffStatus = window.sessionStorage.getItem('staffStatus')
             var primaryList = window.sessionStorage.getItem('primaryMenuList')
             var secondaryList = window.sessionStorage.getItem('secondaryMenuList')
-            //console.log(primaryList)
-            //console.log(secondaryList)
+            
             this.staffId = staffId
             this.staffName = staffName
             this.staffPosition = staffPosition
         
             this.primaryMenuList = JSON.parse(primaryList)
             this.secondaryMenuList = JSON.parse(secondaryList)
+
+            // 一级菜单
+            console.log(this.primaryMenuList)
+            // 二级菜单
+            console.log(this.secondaryMenuList)
+
             //console.log(this.primaryMenuList)
             //console.log(this.secondaryMenuList)
             //console.log(staffName)
@@ -132,7 +137,7 @@
                 // let staffToken = window.sessionStorage.getItem('staffToken')
                 // console.log(staffToken)
                 let data = ''
-                this.$axios.post('http://localhost:8080/logout', this.$qs.stringify(data), {
+                this.$axios.post('/logout', this.$qs.stringify(data), {
                     headers:{
                         staffToken: window.sessionStorage.getItem('staffToken')
                     }

@@ -115,7 +115,7 @@
                     staff: JSON.stringify(RegisterForm_1)
                 }
 
-                this.$axios.post('http://localhost:8080/staff/insert',this.$qs.stringify(data))
+                this.$axios.post('/staff/insert',this.$qs.stringify(data))
                 .then((res) => {
                     if (res.data.success) {
                         this.$message.success('注册成功,3s后跳转')

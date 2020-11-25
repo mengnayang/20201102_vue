@@ -24,14 +24,14 @@
                 <el-table-column label="#" type="index" align="center"></el-table-column>
                 <el-table-column label="姓名" prop="staffName" align="center" width="180px"></el-table-column>
                 <el-table-column label="电话" width="170px" prop="staffPhone" align="center"></el-table-column>
-                <el-table-column label="角色" width="170px" prop="staffPosition" align="center">
+                <el-table-column label="角色" width="170px" prop="staffPositionId" align="center">
                     <template slot-scope="scope">
-                        <span v-if="scope.row.staffPosition == 1">经理</span>
-                        <span v-else-if="scope.row.staffPosition == 2">副经理</span>
-                        <span v-else-if="scope.row.staffPosition == 3">财务</span>
-                        <span v-else-if="scope.row.staffPosition == 4">库房管理员</span>
-                        <span v-else-if="scope.row.staffPosition == 5">职工</span>
-                        <span v-else-if="scope.row.staffPosition == 6">营业员</span>
+                        <span v-if="scope.row.staffPositionId == 1">总经理</span>
+                        <span v-else-if="scope.row.staffPositionId == 2">副经理</span>
+                        <span v-else-if="scope.row.staffPositionId == 3">财务</span>
+                        <span v-else-if="scope.row.staffPositionId == 4">库房管理员</span>
+                        <span v-else-if="scope.row.staffPositionId == 5">职工</span>
+                        <span v-else-if="scope.row.staffPositionId == 6">营业员</span>
                     </template>
                 </el-table-column>
                 <el-table-column label="状态" prop="staffStatus" align="center">
@@ -51,7 +51,7 @@
                             <el-button type="danger" size="mini" icon="el-icon-delete" @click="removeUserById(scope.row)"></el-button>
                         </el-tooltip>
                         <el-tooltip effect="light" placement="top" content="分配角色" :enterable="false">
-                            <el-button type="warning" size="mini" icon="el-icon-setting"></el-button>
+                            <el-button type="warning" size="mini" icon="el-icon-setting" @click="handRoleDialog1(scope.row)"></el-button>
                         </el-tooltip>
                     </template>
                 </el-table-column>
@@ -64,7 +64,7 @@
         layout="total, sizes, prev, pager, next, jumper">
         </el-pagination>
         <!-- 添加用户的信息弹框 -->
-        <el-dialog title="添加用户" :visible.sync="addUserDialog" width="390px">
+        <el-dialog title="添加用户" :visible.sync="addUserDialog" width="390px" @close="addUserReset()">
             <!-- 添加新用户的信息表单 -->
             <el-form :model="newStaff" label-width="100px" :rules="newStaffRules" ref="newStaffRef">
                 <el-form-item label="用户名" required prop="staffName">
@@ -83,7 +83,7 @@
             </span>
         </el-dialog>
         <!-- 修改用户信息的弹框 -->
-        <el-dialog title="修改用户信息"  :visible.sync="editUserDialog" width="390px" :rules="newStaffRules">
+        <el-dialog title="修改用户信息"  :visible.sync="editUserDialog" width="390px"  :rules="newStaffRules">
             <!-- 修改用户的信息表单 -->
             <el-form :model="editStaff" label-width="100px">
                 <el-form-item label="用户名" required prop="staffName"> 
@@ -96,17 +96,36 @@
                     <el-input type="password" v-model="editStaff.staffPassword"></el-input>
                 </el-form-item>
                 <el-form-item label="状态">
-                    <el-select :model="getEditStatus()">
-                        <el-option key="1001" value="刚注册">刚注册</el-option>
-                        <el-option key="1000" value="正常">正常</el-option>
-                        <el-option key="0" value="无权限">无权限</el-option>
-                        <el-option key="-1" value="刚离职">离职</el-option>
+                    <el-select v-model="editStaff.staffStatus">
+                        <el-option key="1001" value="1001" label="刚注册">刚注册</el-option>
+                        <el-option key="1000" value="1000" label="正常">正常</el-option>
+                        <el-option key="0" value="0" label="无权限">无权限</el-option>
+                        <el-option key="-1" value="-1" label="离职">离职</el-option>
                     </el-select>
                 </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button type="success" @click="editUser()">修改</el-button>
-                <el-button type="primary" @click="editUserDialog=false">取消</el-button>
+                <el-button type="primary" @click="editUserDialog = false">取消</el-button>
+            </span>
+        </el-dialog>
+        <!-- 分配角色的信息弹框 -->
+        <el-dialog title="分配角色" :visible.sync="handRoleDialog" width="390px">
+            <!-- 分配角色的单选框 -->
+            <template>
+                <el-radio-group v-model="editRole.radio">
+                    <el-radio :label="1">总经理</el-radio>
+                    <el-radio :label="2">副经理</el-radio>
+                    <el-radio :label="3">财务</el-radio>
+                    <el-radio :label="4">库房管理员</el-radio>
+                    <el-radio :label="5">职工</el-radio>
+                    <el-radio :label="6">营业员</el-radio>
+                    <el-radio :label="7">超级管理员</el-radio>
+                </el-radio-group>
+            </template>
+            <span slot="footer" class="dialog-footer">
+                <el-button type="primary" @click="handRole()">分配角色</el-button>
+                <el-button type="primary" @click="handRoleDialog = false">取消</el-button>
             </span>
         </el-dialog>
     </div>
@@ -122,6 +141,7 @@
                 if (value == '') {
                     callback(new Error('姓名不能为空'))
                 } 
+                callback()
             } 
             //校验电话号码
             var checkPhone = (rule, value, callback) => {
@@ -132,6 +152,7 @@
                     if (isNull == null) {
                         callback(new Error('联系方式不合法'))
                     }
+                    callback()
                 }
             }
             //校验密码
@@ -142,6 +163,7 @@
                     if (value.length < 8 || value.length > 16) {
                         callback(new Error('密码必须满足8~16位'))
                     }
+                    callback()
                 }
             }
             return{
@@ -149,9 +171,9 @@
                 userList:[],
                 //获取部分用户信息的先决条件
                 queryInfo:{
-                    total:50,
-                    pageIndex:0,
-                    infoCount:3
+                    total:0,
+                    pageIndex:1,
+                    infoCount:4
                 },
                 //指定查询需求
                 selected:{
@@ -159,8 +181,6 @@
                 },
                 //添加用户信息弹框
                 addUserDialog:false,
-                //修改用户信息弹框
-                editUserDialog:false,
                 //存储新用户信息
                 newStaff:{
                     staffName:'',
@@ -179,13 +199,24 @@
                         {validator:checkPassword, trigger:"blur"}
                     ]
                 },
+                //修改用户信息弹框
+                editUserDialog:false,
                 //所编辑用户的信息
                 editStaff:{
+                    staffId:'',
                     staffName:'',
                     staffPhone:'',
                     staffPassword:'',
                     staffStatus:''
                 },
+                //修改用户信息弹框
+                handRoleDialog:false,
+                //修改用户角色的信息
+                editRole:{
+                    radio: 0,
+                    staffId: '',
+                    staffStatus:0
+                }
             }
         },
         created(){
@@ -195,20 +226,21 @@
             //初始获取部分用户信息
             getUserList() {
                 let staffToken = window.sessionStorage.getItem('staffToken')
-                console.log(staffToken)
+                //console.log(staffToken)
                 let data = {
                     pageIndex: this.queryInfo.pageIndex,
                     pageSize: this.queryInfo.infoCount
                 }
-                console.log(data)
-                this.$axios.post('http://localhost:8080/stafflist', this.$qs.stringify(data),{
+                //console.log(data)
+                this.$axios.post('/stafflist', this.$qs.stringify(data),{
                     headers:{
                         staffToken: window.sessionStorage.getItem('staffToken')
                     }
                 })
                 .then((res) => {
-                    console.log(res)
+                    this.queryInfo.total = res.data.recordSum
                     this.userList = res.data.staffAList
+                    // console.log(this.userList)
                 })
                 .catch((err) => {
                     this.$message.error(err.message)
@@ -231,23 +263,24 @@
             },
             //添加用户
             addUser() {
-                let flag = true
                 this.$refs.newStaffRef.validate(valid => {
-                    if (!valid) flag = false
-                })
-                if (flag) {
+                    if (!valid) return
+
                     let data = {
                         staff : JSON.stringify(this.newStaff)
                     }
-                    this.$axios.post('http://localhost:8080/staff/insert',this.$qs.stringify(data))
+                    //console.log(data)
+                    this.$axios.post('/staff/insert',this.$qs.stringify(data))
                     .then((res) => {
                         this.$message.success("添加成功")
+                        this.getUserList()
                     })
                     .catch((err) => {
+                        this.$refs.newStaffRef.resetFields()
                         this.$message.error(err.message)
                     })
                     this.addUserDialog = false
-                }
+                })
             },
             //重置添加用户表单
             addUserReset() {
@@ -257,20 +290,49 @@
             //编辑用户信息弹窗
             editUserDialog1(Staff) {
                 this.editUserDialog=true
+                this.editStaff.staffId = Staff.staffId
                 this.editStaff.staffName = Staff.staffName
                 this.editStaff.staffPhone = Staff.staffPhone
                 this.editStaff.staffPassword = Staff.staffPassword
-                this.editStaff.staffPosition = Staff.staffPosition
-                this.editStaff.staffStatus = Staff.staffStatus
+                if (Staff.staffPosition == null) {
+                    this.editStaff.staffPosition = '无'
+                }
+                if (Staff.staffStatus == 1000) {
+                    this.editStaff.staffStatus = '正常'
+                } else if (Staff.staffStatus == 1001) {
+                    this.editStaff.staffStatus = '刚注册'
+                } else if (Staff.staffStatus == 0) {
+                    this.editStaff.staffStatus = '无权限'
+                } else {
+                    this.editStaff.staffStatus = '离职'
+                }
+                
             },
             //修改用户
             editUser() {
-                this.$axios.post('/user/editUser')
+                let staff ={
+                    staffId: this.editStaff.staffId,
+                    staffName: this.editStaff.staffName,
+                    staffPassword: this.editStaff.staffPassword,
+                    staffPhone: this.editStaff.staffPhone,
+                    staffStatus: this.editStaff.staffStatus
+                }
+                let data = {
+                    staffA: JSON.stringify(staff)
+                }
+                // console.log(data)
+                this.$axios.post('/stafflist/modifycommit', this.$qs.stringify(data), {
+                    headers:{
+                        staffToken: window.sessionStorage.getItem("staffToken")
+                    }
+                })
                 .then((res) => {
+                    // console.log(res)
                     this.$message.success("修改成功")
+                    this.getUserList()
                 })
                 .catch((err) => {
-                    this.$message.error(err.message)
+                    this.$message.error(err.errMsg)
                 })
                 this.editUserDialog = false
             },
@@ -278,17 +340,28 @@
             async removeUserById(staff) {
                 const confirmResult = await this.$confirm('此操作不可恢复，确认要永久删除用户？','删除用户',{
                     confirmButtonText:'确认',
-                    showCancelButton:true
+                    showCancelButton:true,
+                    type: 'warning'
                 })
                 .catch(err => {
-                    this.$message.info('取消修改')
+                    this.$message.info('已取消删除')
                 })
 
                 if (confirmResult == 'confirm') {
-                    console.log("1")
-                    this.$axios.post('/user/deleteUser',staff.staffId)
+                    //console.log(staff.staffId)
+                    //console.log(window.sessionStorage.getItem('staffToken'))
+                    let data = {
+                        staffId: staff.staffId
+                    }
+                    this.$axios.post('/stafflist/deletestaff',this.$qs.stringify(data),{
+                        headers:{
+                            staffToken:window.sessionStorage.getItem('staffToken')
+                        }
+                    })
                     .then((res) => {
+                        //console.log(res)
                         this.$message.success('删除成功')
+                        this.getUserList()
                     })
                     .catch((err) => {
                         this.$message.error(err.message)
@@ -305,6 +378,69 @@
                 } else {
                     this.editStaff.staffStatus = '离职'
                 }
+            },
+            //编辑用户角色分配弹窗
+            handRoleDialog1(staff) {
+                this.handRoleDialog = true
+
+                //存储用户的相关信息,以便角色分配
+                this.editRole.staffId = staff.staffId
+                this.editRole.staffStatus = staff.staffStatus
+
+                //发送请求,获取用户的角色信息
+                let data = {
+                    staffId : staff.staffId
+                }
+                this.$axios.post('/stafflist/positiondistribution',this.$qs.stringify(data),{
+                    headers:{
+                        staffToken: window.sessionStorage.getItem('staffToken')
+                    }
+                })
+                .then((res) => {
+                    // console.log(res)
+                    // console.log(res.data.staffPositionList)
+                    console.log(res.data.staffPositionRelation)
+                    // console.log(res.data.staffPositionList)
+                    // console.log(res.data.staffPositionRelation.staffPositionId)
+                    // 判断是否存在角色
+                    if (res.data.staffPositionRelation != null) {
+                        this.editRole.radio = res.data.staffPositionRelation.staffPositionId
+                    } else {
+                        this.editRole.radio = 0
+                    }
+                    
+                })
+                .catch((err) => {
+                    this.$message.error(err.errMsg)
+                })
+            },
+            //分配角色
+            handRole() {
+                //console.log(this.editRole.radio)
+                let staffPositionRelation = {
+                    staffId: this.editRole.staffId,
+                    staffPositionId: this.editRole.radio,
+                    staffPositionStatus: this.editRole.staffStatus
+                }
+
+                let data = {
+                    staffPositionRelation: JSON.stringify(staffPositionRelation)
+                }
+                console.log(data)
+                this.$axios.post('/stafflist/positiondistributioncommit',this.$qs.stringify(data),{
+                    headers:{
+                        staffToken: window.sessionStorage.getItem('staffToken')
+                    }
+                })
+                .then((res) => {
+                    console.log(res)
+                    this.$message.success('角色分配成功')
+                    this.getUserList()
+                })
+                .catch((err) => {
+                    this.$message.error(err.errMsg)
+                })
+                this.handRoleDialog = false
             }
         }
     }
@@ -325,7 +461,7 @@
     margin-right: 30px;
 }
 .el-pagination{
-    margin-top: 10px;
-    padding-left: 120px;
+    width: 50%;
+    margin: 10px auto;
 }
 </style>
