@@ -25,15 +25,15 @@
                     <!-- 菜单区域 -->
                     <el-menu :collapse="isCollapse" :collapse-transition="false" unique-opened active-text-color="#12aa9c" router>
                         <!-- 一级菜单 -->
-                        <el-submenu :index="item.id + ''" v-for="item in menuList" :key="item.id">
+                        <el-submenu :index="item.primaryMenuId + ''" v-for="item in primaryMenuList" :key="item.primaryMenuId">
                             <template slot="title">
                                 <i class="el-icon-user"></i>
-                                <span>{{item.name}}</span>
+                                <span>{{item.primaryMenuName}}</span>
                             </template>
-                            <el-menu-item :index="item.url + subItem.url + ''" v-for="subItem in item.children" :key="subItem.id">
+                            <el-menu-item :index="subItem.secondaryMenuUrl + ''" v-for="subItem in secondaryMenuList" :key="subItem.secondaryMenuId">
                                 <template slot="title">
                                     <i class="el-icon-user"></i>
-                                    <span>{{subItem.name}}</span>
+                                    <span>{{subItem.secondaryMenuName}}</span>
                                 </template>
                             </el-menu-item>
                         </el-submenu>
@@ -61,23 +61,34 @@
                 isCollapse:false,
                 //职位
                 position:'',
-                //功能菜单列表
-                menuList:[]
+                //一级功能菜单列表
+                primaryMenuList:[],
+                //二级功能菜单列表
+                secondaryMenuList:[],
             }
         },
         created() {
             //获取用户的token、姓名和状态
-            var token = window.sessionStorage.getItem('token')
+            var staffToken = window.sessionStorage.getItem('staffToken')
+            console.log(staffToken)
             var staffId = window.sessionStorage.getItem('staffId')
             var staffStatus = window.sessionStorage.getItem('staffStatus')
             var staffName = window.sessionStorage.getItem('staffName')
             var staffPosition = window.sessionStorage.getItem('staffPosition')
+            var staffStatus = window.sessionStorage.getItem('staffStatus')
+            var primaryList = window.sessionStorage.getItem('primaryMenuList')
+            var secondaryList = window.sessionStorage.getItem('secondaryMenuList')
+            //console.log(primaryList)
+            //console.log(secondaryList)
             this.staffId = staffId
             this.staffName = staffName
             this.staffPosition = staffPosition
-            console.log(token)
-            console.log(staffStatus)
-            // console.log(staffName)
+        
+            this.primaryMenuList = JSON.parse(primaryList)
+            this.secondaryMenuList = JSON.parse(secondaryList)
+            //console.log(this.primaryMenuList)
+            //console.log(this.secondaryMenuList)
+            //console.log(staffName)
             if (staffStatus == 1000) {
                 this.isPower = true
             } else if (staffStatus == 1001) {
@@ -91,25 +102,25 @@
             }
             
             //角色判断
-            if (staffPosition == 1) {
-                this.$axios.post('/staff/menu', staffInfo)
-                .then((res) => {
-                    this.menuList = res.data.obj
-                    //console.log(this.menuList)
-                })
-                .catch((err) => {
-                    this.$message.success(err)
-                })
-            } else if (staffPosition == 100) {
-                this.$axios.post('/administer/menu', staffInfo)
-                .then((res) => {
-                    this.menuList = res.data.obj
-                    //console.log(this.menuList)
-                })
-                .catch((err) => {
-                    this.$message.success(err)
-                })
-            }
+            // if (staffPosition == 1) {
+            //     this.$axios.post('/staff/menu', staffInfo)
+            //     .then((res) => {
+            //         this.primaryMenuList = res.data.primaryMenuList
+            //         //console.log(this.menuList)
+            //     })
+            //     .catch((err) => {
+            //         this.$message.success(err)
+            //     })
+            // } else if (staffPosition == 100) {
+            //     this.$axios.post('/administer/menu', staffInfo)
+            //     .then((res) => {
+            //         //this.menuList = res.data.obj
+            //         //console.log(this.menuList)
+            //     })
+            //     .catch((err) => {
+            //         this.$message.success(err)
+            //     })
+            // }
         },
         methods:{
             //菜单折叠
@@ -118,8 +129,22 @@
             },
             //退出
             logout() {
-                window.sessionStorage.clear()
-                this.$router.push('/login')
+                // let staffToken = window.sessionStorage.getItem('staffToken')
+                // console.log(staffToken)
+                let data = ''
+                this.$axios.post('http://localhost:8080/logout', this.$qs.stringify(data), {
+                    headers:{
+                        staffToken: window.sessionStorage.getItem('staffToken')
+                    }
+                })
+                .then((res) => {
+                    this.$message.success('成功退出')
+                    window.sessionStorage.clear()
+                    this.$router.push('/login')
+                })
+                .catch((err) => {
+                    this.$message.error(err.message)
+                })
             },
             //获取折叠的宽度
             getWidth(){

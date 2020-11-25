@@ -76,14 +76,6 @@
                 <el-form-item label="密码" required prop="staffPassword">
                     <el-input type="password" v-model="newStaff.staffPassword"></el-input>
                 </el-form-item>
-                <el-form-item label="状态" required>
-                    <el-select v-model="newStaff.staffStatus">
-                        <el-option key="1001" value="刚注册">刚注册</el-option>
-                        <el-option key="1000" value="正常">正常</el-option>
-                        <el-option key="0" value="无权限">无权限</el-option>
-                        <el-option key="-1" value="刚离职">离职</el-option>
-                    </el-select>
-                </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button type="primary" @click="addUser()">添加</el-button>
@@ -101,10 +93,10 @@
                     <el-input type="text" v-model="editStaff.staffPhone"></el-input>
                 </el-form-item>
                 <el-form-item label="密码" required prop="staffPassword">
-                    <el-input type="text" v-model="editStaff.staffPassword"></el-input>
+                    <el-input type="password" v-model="editStaff.staffPassword"></el-input>
                 </el-form-item>
                 <el-form-item label="状态">
-                    <el-select v-model="editStaff.staffStatus">
+                    <el-select :model="getEditStatus()">
                         <el-option key="1001" value="刚注册">刚注册</el-option>
                         <el-option key="1000" value="正常">正常</el-option>
                         <el-option key="0" value="无权限">无权限</el-option>
@@ -158,8 +150,8 @@
                 //获取部分用户信息的先决条件
                 queryInfo:{
                     total:50,
-                    pageIndex:1,
-                    infoCount:4
+                    pageIndex:0,
+                    infoCount:3
                 },
                 //指定查询需求
                 selected:{
@@ -173,8 +165,7 @@
                 newStaff:{
                     staffName:'',
                     staffPhone:'',
-                    staffPassword:'',
-                    staffStatus:'刚注册'
+                    staffPassword:''
                 },
                 //新用户的表单验证规则
                 newStaffRules:{
@@ -203,13 +194,24 @@
         methods:{
             //初始获取部分用户信息
             getUserList() {
-                this.$axios.get('/user/userList')
+                let staffToken = window.sessionStorage.getItem('staffToken')
+                console.log(staffToken)
+                let data = {
+                    pageIndex: this.queryInfo.pageIndex,
+                    pageSize: this.queryInfo.infoCount
+                }
+                console.log(data)
+                this.$axios.post('http://localhost:8080/stafflist', this.$qs.stringify(data),{
+                    headers:{
+                        staffToken: window.sessionStorage.getItem('staffToken')
+                    }
+                })
                 .then((res) => {
-                    this.userList = res.data.obj
                     console.log(res)
+                    this.userList = res.data.staffAList
                 })
                 .catch((err) => {
-                    this.$message.error(err)
+                    this.$message.error(err.message)
                 })
             },
             //查询指定需求的用户信息
@@ -219,7 +221,7 @@
                     this.userList = res.data.obj
                 })
                 .catch((res) => {
-                    this.$message.error(err)
+                    this.$message.error(err.message)
                 })
             },
             //获取指定页面的信息
@@ -229,14 +231,23 @@
             },
             //添加用户
             addUser() {
-                this.$axios.post('/user/addUser',this.newStaff)
+                let flag = true
+                this.$refs.newStaffRef.validate(valid => {
+                    if (!valid) flag = false
+                })
+                if (flag) {
+                    let data = {
+                        staff : JSON.stringify(this.newStaff)
+                    }
+                    this.$axios.post('http://localhost:8080/staff/insert',this.$qs.stringify(data))
                     .then((res) => {
                         this.$message.success("添加成功")
                     })
                     .catch((err) => {
-                        this.$message.error(err)
+                        this.$message.error(err.message)
                     })
                     this.addUserDialog = false
+                }
             },
             //重置添加用户表单
             addUserReset() {
@@ -259,7 +270,7 @@
                     this.$message.success("修改成功")
                 })
                 .catch((err) => {
-                    this.$message.error(err)
+                    this.$message.error(err.message)
                 })
                 this.editUserDialog = false
             },
@@ -280,8 +291,19 @@
                         this.$message.success('删除成功')
                     })
                     .catch((err) => {
-                        this.$message.error(err)
+                        this.$message.error(err.message)
                     })
+                }
+            },
+            getEditStatus() {
+                if (this.editStaff.staffStatus == 1001) {
+                    this.editStaff.staffStatus = '刚注册'
+                } else if (this.editStaff.staffStatus == 1000) {
+                    this.editStaff.staffStatus = '正常'
+                } else if (this.editStaff.staffStatus == 0) {
+                    this.editStaff.staffStatus = '无权限'
+                } else {
+                    this.editStaff.staffStatus = '离职'
                 }
             }
         }

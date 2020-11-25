@@ -110,13 +110,18 @@
                     staffPhone : this.RegisterForm.staffPhone,
                     staffPassword : this.RegisterForm.staffPassword
                 }
-                this.$axios.post('/staff/register',RegisterForm_1)
+
+                let data = {
+                    staff: JSON.stringify(RegisterForm_1)
+                }
+
+                this.$axios.post('http://localhost:8080/staff/insert',this.$qs.stringify(data))
                 .then((res) => {
-                    if (res.data.code == 0) {
+                    if (res.data.success) {
                         this.$message.success('注册成功,3s后跳转')
                         //延迟3s跳转到首页
-                        setInterval(() => {
-                            this.$router.go(-1)
+                        setTimeout(() => {
+                            this.$router.back()
                         },3000)
                     } else {
                         this.$message.error('注册失败')

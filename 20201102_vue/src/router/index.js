@@ -28,7 +28,7 @@ const router = new Router({
       children:[
         {path:'/', redirect:'/welcome'},
         {path:'/welcome', component:Welcome},
-        {path:'/userManage/userList', component:UserList},
+        {path:'/stafflist', component:UserList},
         {path:'/accessManage/roleList', component: RoleList},
         {path:'/storeManage/searchStore', component:SearchStore},
         {path:'/storeManage/orderInfo',component:OrderInfo},
@@ -45,8 +45,8 @@ router.beforeEach((to,from,next) => {
   if (to.path == '/login' || to.path == '/register' || to.path == '/forgetPwd') {
     return next()
   } 
-  const token = window.sessionStorage.getItem('token')
-  if (!token) {
+  const staffToken = window.sessionStorage.getItem('staffToken')
+  if (!staffToken) {
     return next('/login')
   } else {
     next()

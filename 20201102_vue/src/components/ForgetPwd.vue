@@ -156,8 +156,8 @@
                     }   
                     this.textInfo = '已完成'
                 } else if (this.activeIndex == 3) {
-                    this.$message.success('密码修改成功，2s后请重新登陆')
-                    setInterval(() => {
+                    this.$message.success('密码修改成功，3s后请重新登陆')
+                    setTimeout(() => {
                         this.$router.go(-1)
                     },3000)
                 }

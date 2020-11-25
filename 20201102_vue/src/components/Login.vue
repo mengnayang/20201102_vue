@@ -76,24 +76,29 @@ export default{
         login() {
             this.$refs.LoginRef.validate(valid => {
                 if (!valid) return
-                this.$axios.post('/staff/login',this.LoginForm)
+
+                let data = {
+                    staffA: JSON.stringify(this.LoginForm)
+                }
+
+                this.$axios.post('http://localhost:8080/staff/login',this.$qs.stringify(data))
                 .then((res) => {
-                    if(res.data.code == 0) {
+                    console.log(res)
+                    if(res.data.success) {
                         this.$message.success('登陆成功')
-                        // console.log(res.data.obj.token)
-                        // console.log(res.data.obj.staffStatus)
-                        window.sessionStorage.setItem('token',res.data.obj.token)
-                        window.sessionStorage.setItem('staffId',res.data.obj.staffId)
-                        window.sessionStorage.setItem('staffStatus',res.data.obj.staffStatus)
-                        window.sessionStorage.setItem('staffName',res.data.obj.staffName)
-                        window.sessionStorage.setItem('staffPosition',res.data.obj.staffPosition)
+                        window.sessionStorage.setItem('staffToken',res.data.staffToken)
+                        window.sessionStorage.setItem('staffId',res.data.staffId)
+                        window.sessionStorage.setItem('staffName',res.data.staffA.staffName)
+                        window.sessionStorage.setItem('staffStatus',res.data.staffA.staffStatus)
+                        window.sessionStorage.setItem('staffPosition',res.data.staffA.staffPosition)
+                        window.sessionStorage.setItem('staffPassword',res.data.staffA.staffPassword)
+                        window.sessionStorage.setItem('primaryMenuList',JSON.stringify(res.data.primaryMenuList))
+                        window.sessionStorage.setItem('secondaryMenuList',JSON.stringify(res.data.secondaryMenuList))
                         this.$router.push('/home')
-                    } else {
-                        this.$message.error('登陆失败')
-                    }
+                    } 
                 })
                 .catch((err) => {
-                    this.$message.error(err)
+                    this.$message.error(err.message)
                 })
             })
         },
