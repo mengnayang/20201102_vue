@@ -98,6 +98,10 @@
                 this.isPower = true
             } else if (staffStatus == 1001) {
                 this.isPower = false
+            } else if (staffStatus == 0) {
+                this.isPower = false
+            } else if (staffStatus == -1) {
+                this.isPower = false
             }
 
             //获取菜单功能点

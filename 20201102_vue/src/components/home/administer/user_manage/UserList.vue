@@ -245,7 +245,7 @@
                     if (res.data.functionList != undefined) {
                         this.functionList = res.data.functionList
                     }
-                    console.log(this.functionList)
+                    // console.log(this.functionList)
                     this.queryInfo.total = res.data.recordSum
                     this.userList = res.data.staffAList
                     // console.log(this.userList)
@@ -297,37 +297,38 @@
             },
             //编辑用户信息弹窗
             editUserDialog1(Staff) {
+                // console.log(Staff)
                 this.editUserDialog=true
                 this.editStaff.staffId = Staff.staffId
                 this.editStaff.staffName = Staff.staffName
                 this.editStaff.staffPhone = Staff.staffPhone
                 this.editStaff.staffPassword = Staff.staffPassword
                 if (Staff.staffPosition == null) {
-                    this.editStaff.staffPosition = '无'
+                    this.editStaff.staffPosition = "无"
                 }
                 if (Staff.staffStatus == 1000) {
-                    this.editStaff.staffStatus = '正常'
+                    this.editStaff.staffStatus = "正常"
                 } else if (Staff.staffStatus == 1001) {
-                    this.editStaff.staffStatus = '刚注册'
+                    this.editStaff.staffStatus = "刚注册"
                 } else if (Staff.staffStatus == 0) {
-                    this.editStaff.staffStatus = '无权限'
+                    this.editStaff.staffStatus = "无权限"
                 } else {
-                    this.editStaff.staffStatus = '离职'
+                    this.editStaff.staffStatus = "离职"
                 }
                 
             },
             //修改用户
             editUser() {
-                if (this.editStaff.staffStatus == '正常') {
+                if (this.editStaff.staffStatus == "正常") {
                     this.editStaff.staffStatus = 1000
-                } else if (this.editStaff.staffStatus == '刚注册') {
+                } else if (this.editStaff.staffStatus == "刚注册") {
                     this.editStaff.staffStatus = 1001
-                } else if (this.editStaff.staffStatus == '无权限') {
+                } else if (this.editStaff.staffStatus == "无权限") {
                     this.editStaff.staffStatus = 0
-                } else {
+                } else if (this.editStaff.staffStatus == "离职") {
                     this.editStaff.staffStatus = -1
                 }
-                let staff ={
+                let staff = {
                     staffId: this.editStaff.staffId,
                     staffName: this.editStaff.staffName,
                     staffPassword: this.editStaff.staffPassword,
@@ -337,7 +338,7 @@
                 let data = {
                     staffA: JSON.stringify(staff)
                 }
-                console.log(data)
+                // console.log(data)
                 this.$axios.post('/stafflist/modifycommit', this.$qs.stringify(data), {
                     headers:{
                         staffToken: window.sessionStorage.getItem("staffToken")
