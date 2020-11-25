@@ -14,6 +14,13 @@
                     <el-button type="primary">添加角色</el-button>
                 </el-col>
             </el-row>
+            <!-- 角色列表区域 -->
+            <el-table>
+                <el-table-column type="index" label="序号" align="center"></el-table-column>
+                <el-table-column label="角色名称" prop="" align="center"></el-table-column>
+                <el-table-column prop="角色描述" align="center"></el-table-column>
+                <el-table-column prop="操作" align="center"></el-table-column>
+            </el-table>
         </el-card>
     </div>
 </template>
@@ -26,8 +33,26 @@
 
             }
         },
+        created() {
+            this.getRoleList()
+        },
         methods:{
-
+            getRoleList() {
+                let data = {
+                    
+                }
+                this.$axios.post('',this.$qs.stringify(data),{
+                    headers:{
+                        staffToken: window.sessionStorage.getItem('staffToken')
+                    }
+                })
+                .then((res) => {
+                    console.log(res)
+                })
+                .catch((err) => {
+                    this.$message.error(err.errMsg)
+                })
+            }
         }
     }
 </script>

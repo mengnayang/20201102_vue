@@ -318,6 +318,15 @@
             },
             //修改用户
             editUser() {
+                if (this.editStaff.staffStatus == '正常') {
+                    this.editStaff.staffStatus = 1000
+                } else if (this.editStaff.staffStatus == '刚注册') {
+                    this.editStaff.staffStatus = 1001
+                } else if (this.editStaff.staffStatus == '无权限') {
+                    this.editStaff.staffStatus = 0
+                } else {
+                    this.editStaff.staffStatus = -1
+                }
                 let staff ={
                     staffId: this.editStaff.staffId,
                     staffName: this.editStaff.staffName,
@@ -328,7 +337,7 @@
                 let data = {
                     staffA: JSON.stringify(staff)
                 }
-                 console.log(data)
+                console.log(data)
                 this.$axios.post('/stafflist/modifycommit', this.$qs.stringify(data), {
                     headers:{
                         staffToken: window.sessionStorage.getItem("staffToken")
