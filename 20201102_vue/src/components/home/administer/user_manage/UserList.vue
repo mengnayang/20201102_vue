@@ -32,6 +32,7 @@
                         <span v-else-if="scope.row.staffPositionId == 4">库房管理员</span>
                         <span v-else-if="scope.row.staffPositionId == 5">职工</span>
                         <span v-else-if="scope.row.staffPositionId == 6">营业员</span>
+                        <span v-else-if="scope.row.staffPositionId == 7">超级管理员</span>
                     </template>
                 </el-table-column>
                 <el-table-column label="状态" prop="staffStatus" align="center">
@@ -169,10 +170,12 @@
             return{
                 //用户列表
                 userList:[],
+                //功能菜单
+                functionList:[],
                 //获取部分用户信息的先决条件
                 queryInfo:{
                     total:0,
-                    pageIndex:1,
+                    pageIndex:0,
                     infoCount:4
                 },
                 //指定查询需求
@@ -238,6 +241,11 @@
                     }
                 })
                 .then((res) => {
+                    // console.log(res)
+                    if (res.data.functionList != undefined) {
+                        this.functionList = res.data.functionList
+                    }
+                    console.log(this.functionList)
                     this.queryInfo.total = res.data.recordSum
                     this.userList = res.data.staffAList
                     // console.log(this.userList)
@@ -320,7 +328,7 @@
                 let data = {
                     staffA: JSON.stringify(staff)
                 }
-                // console.log(data)
+                 console.log(data)
                 this.$axios.post('/stafflist/modifycommit', this.$qs.stringify(data), {
                     headers:{
                         staffToken: window.sessionStorage.getItem("staffToken")
@@ -420,7 +428,7 @@
                 let staffPositionRelation = {
                     staffId: this.editRole.staffId,
                     staffPositionId: this.editRole.radio,
-                    staffPositionStatus: this.editRole.staffStatus
+                    staffPositionStatus: 1
                 }
 
                 let data = {

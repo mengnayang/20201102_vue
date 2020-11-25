@@ -30,7 +30,7 @@
                                 <i class="el-icon-user"></i>
                                 <span>{{item.primaryMenuName}}</span>
                             </template>
-                            <el-menu-item :index="subItem.secondaryMenuUrl + ''" v-for="subItem in secondaryMenuList" :key="subItem.secondaryMenuId">
+                            <el-menu-item :index="subItem.secondaryMenuUrl + ''" v-for="subItem in secondaryMenuList" :key="subItem.secondaryMenuId" v-if="item.primaryMenuId == subItem.primaryMenuId">
                                 <template slot="title">
                                     <i class="el-icon-user"></i>
                                     <span>{{subItem.secondaryMenuName}}</span>
@@ -87,9 +87,9 @@
             this.secondaryMenuList = JSON.parse(secondaryList)
 
             // 一级菜单
-            console.log(this.primaryMenuList)
+            // console.log(this.primaryMenuList)
             // 二级菜单
-            console.log(this.secondaryMenuList)
+            // console.log(this.secondaryMenuList)
 
             //console.log(this.primaryMenuList)
             //console.log(this.secondaryMenuList)

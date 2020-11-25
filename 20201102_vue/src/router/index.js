@@ -29,7 +29,7 @@ const router = new Router({
         {path:'/', redirect:'/welcome'},
         {path:'/welcome', component:Welcome},
         {path:'/stafflist', component:UserList},
-        {path:'/accessManage/roleList', component: RoleList},
+        {path:'/stafflistjurisdiction', component: RoleList},
         {path:'/storeManage/searchStore', component:SearchStore},
         {path:'/storeManage/orderInfo',component:OrderInfo},
         {path:'/storeManage/bookEnter',component:BookEnter},
