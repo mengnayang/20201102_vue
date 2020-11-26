@@ -87,7 +87,7 @@ export default{
                     if(res.data.success) {
                         this.$message.success('登陆成功')
                         window.sessionStorage.setItem('staffToken',res.data.staffToken)
-                        window.sessionStorage.setItem('staffId',res.data.staffId)
+                        window.sessionStorage.setItem('staffId',res.data.staffA.staffId)
                         window.sessionStorage.setItem('staffName',res.data.staffA.staffName)
                         window.sessionStorage.setItem('staffStatus',res.data.staffA.staffStatus)
                         window.sessionStorage.setItem('staffPosition',res.data.staffA.staffPosition)

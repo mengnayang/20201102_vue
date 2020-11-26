@@ -7,6 +7,7 @@ Form,
 FormItem,
 Input,
 Button,
+ButtonGroup,
 Message,
 Steps,
 Step,
@@ -37,6 +38,7 @@ Vue.use(Form)
 Vue.use(FormItem)
 Vue.use(Input)
 Vue.use(Button)
+Vue.use(ButtonGroup)
 Vue.use(Steps)
 Vue.use(Step)
 Vue.use(RadioGroup)

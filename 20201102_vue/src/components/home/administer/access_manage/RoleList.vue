@@ -15,7 +15,13 @@
                 </el-col>
             </el-row>
             <!-- 角色列表区域 -->
-            <el-table>
+            <el-table :data="staffList" border stripe @expand-change="getRoleById()">
+                <!-- 展开列 -->
+                <el-table-column type="expand">
+                    <template slot-scope="scope">
+                    </template>
+                </el-table-column>
+                <!-- 索引列 -->
                 <el-table-column type="index" label="序号" align="center"></el-table-column>
                 <el-table-column label="用户名称" prop="staffName" align="center"></el-table-column>
                 <el-table-column label="角色名称" prop="staffPositionName" align="center"></el-table-column>
@@ -27,13 +33,19 @@
                         <el-tooltip effect="light" placement="top" content="删除" :enterable="false">
                             <el-button type="danger" size="mini" icon="el-icon-delete"></el-button>
                         </el-tooltip>
-                        <el-tooltip effect="light" placement="top" content="分配角色" :enterable="false">
+                        <el-tooltip effect="light" placement="top" content="分配权限" :enterable="false">
                             <el-button type="warning" size="mini" icon="el-icon-setting"></el-button>
                         </el-tooltip>
                     </template>
                 </el-table-column>
             </el-table>
         </el-card>
+        <el-pagination
+        :current-page="queryInfo.pageIndex" :page-sizes="[queryInfo.infoCount]" 
+        :page-size="queryInfo.infoCount" :total="queryInfo.total"
+        @current-change="currentChange"
+        layout="total, sizes, prev, pager, next, jumper">
+        </el-pagination>
     </div>
 </template>
 
@@ -50,7 +62,11 @@
                 },
                 //二级菜单列表
                 secondaryMenuList:[],
-                secondaryMenuId:''
+                secondaryMenuId:'',
+                //权限列表
+                staffList:[],
+                //功能列表
+                functionList:[]
             }
         },
         created() {
@@ -61,37 +77,69 @@
             getRoleList() {
                 // 获取当前二级菜单的id
                 this.secondaryMenuList = window.sessionStorage.getItem('secondaryMenuList')
-                console.log(this.secondaryMenuList)
                 this.secondaryMenuList = JSON.parse(this.secondaryMenuList)
-                console.log(this.secondaryMenuList)
+                // console.log(this.secondaryMenuList)
 
-                // while(true) {
-                //     let i = 0
-                //     if (this.secondaryMenuList[i].secondaryMenuUrl == this.$route.path && i < this.secondaryMenuList.length) {
-                //         this.secondaryMenuId = this.secondaryMenuList[i].secondaryMenu
-                //         break;
-                //     }
-                // }
+                for(var i = 0; i < this.secondaryMenuList.length; i++) {
+                    if (this.secondaryMenuList[i].secondaryMenuUrl == this.$route.path) {
+                        // console.log(this.secondaryMenuList[i].secondaryMenuId)
+                        this.secondaryMenuId = this.secondaryMenuList[i].secondaryMenuId
+                    }
+                }
 
                 let data = {
                     pageIndex:this.queryInfo.pageIndex,
                     pageSize:this.queryInfo.infoCount,
-                    staffId:window.sessionStorage.getItem('staffId'),
+                    userId:window.sessionStorage.getItem('staffId'),
                     secondaryMenuId:this.secondaryMenuId
                 }
-                console.log(data)
-                // this.$axios.post('http://localhost:8080/stafflistjurisdiction',this.$qs.stringify(data),{
+                // console.log(data)
+                this.$axios.post('/stafflistjurisdiction',this.$qs.stringify(data),{
+                    headers:{
+                        staffToken: window.sessionStorage.getItem('staffToken')
+                    }
+                })
+                .then((res) => {
+                    // console.log(res)
+                    if (res.data.success) {
+                        this.staffList = res.data.staffAList
+                        // console.log(this.staffList)
+                        this.queryInfo.total = res.data.recordSum
+                        if (res.data.functionList != null) {
+                            this.functionList = res.data.functionList
+                        }
+                    }    
+                })
+                .catch((err) => {
+                    this.$message.error(err.errMsg)
+                })
+            },
+            //获取指定用户的权限
+            getRoleById(row, expandedRows) {
+                console.log(row)
+                console.log(expandedRows)
+                // let data = {
+                //     staffId:staffId,
+                //     UserId:window.sessionStorage.getItem('staffId')
+                // }
+                // console.log(data)
+                // this.$axios.post('/stafflistjurisdiction/jurisdictiondistribution',this.$qs.stringify(data),{
                 //     headers:{
-                //         staffToken: window.sessionStorage.getItem('staffToken')
+                //         satffToken:window.sessionStorage.getItem('staffToken')
                 //     }
                 // })
                 // .then((res) => {
                 //     console.log(res)
                 // })
                 // .catch((err) => {
-                //     this.$message.error(err.errMsg)
+                //     console.log(err.errMsg)
                 // })
-            }
+            },
+            //获取指定权限列表的信息
+            currentChange(currentPage){
+                this.queryInfo.pageIndex = currentPage
+                this.getRoleList()
+            },
         }
     }
 </script>
@@ -106,5 +154,12 @@
             margin-bottom: 0;
         }
     }
+}
+.el-form{
+    margin-right: 30px;
+}
+.el-pagination{
+    width: 50%;
+    margin: 10px auto;
 }
 </style>

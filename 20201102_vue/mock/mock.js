@@ -341,8 +341,3 @@ Mock.mock('/enterStore/enterStoreInfo',{
         "godown_entry_ paid|1":/\d{2,3}/
     }]
 })
-
-//查询权限列表
-Mock.mock('http://localhost:8080/stafflistjurisdiction',{
-    "code":20
-})

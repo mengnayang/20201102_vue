@@ -45,7 +45,12 @@
                 </el-table-column>
                 <el-table-column label="操作" width="190px" align="center">
                     <template slot-scope="scope">
-                        <el-tooltip effect="light" placement="top" content="编辑" :enterable="false">
+                        <el-button-group v-for="func in functionList_one" :key="func.functionId">
+                            <el-tooltip effect="light" placement="top" :content="func.functionName" :enterable="false">
+                                <el-button :type="func.btnType" size="mini" :icon="func.btnIcon" @click="getButtonStatus(scope.row,func.functionId)"></el-button>
+                            </el-tooltip>
+                        </el-button-group>
+                        <!-- <el-tooltip effect="light" placement="top" content="编辑" :enterable="false">
                             <el-button type="success" size="mini" icon="el-icon-edit" @click="editUserDialog1(scope.row)"></el-button>
                         </el-tooltip>
                         <el-tooltip effect="light" placement="top" content="删除" :enterable="false">
@@ -53,7 +58,7 @@
                         </el-tooltip>
                         <el-tooltip effect="light" placement="top" content="分配角色" :enterable="false">
                             <el-button type="warning" size="mini" icon="el-icon-setting" @click="handRoleDialog1(scope.row)"></el-button>
-                        </el-tooltip>
+                        </el-tooltip> -->
                     </template>
                 </el-table-column>
             </el-table>
@@ -125,7 +130,7 @@
                 </el-radio-group>
             </template>
             <span slot="footer" class="dialog-footer">
-                <el-button type="primary" @click="handRole()">分配角色</el-button>
+                <el-button type="primary" v-show="isExistsHandRole" @click="handRole()">分配角色</el-button>
                 <el-button type="primary" @click="handRoleDialog = false">取消</el-button>
             </span>
         </el-dialog>
@@ -172,6 +177,12 @@
                 userList:[],
                 //功能菜单
                 functionList:[],
+                //一级功能菜单
+                functionList_one:[],
+                //二级功能菜单
+                functionList_two:[],
+                //是否已经渲染功能按钮
+                isDraw:false,
                 //获取部分用户信息的先决条件
                 queryInfo:{
                     total:0,
@@ -219,7 +230,9 @@
                     radio: 0,
                     staffId: '',
                     staffStatus:0
-                }
+                },
+                //是否存在角色分配
+                isExistsHandRole:false
             }
         },
         created(){
@@ -249,6 +262,31 @@
                     this.queryInfo.total = res.data.recordSum
                     this.userList = res.data.staffAList
                     // console.log(this.userList)
+                    console.log(this.functionList)
+
+                    //渲染功能按钮
+                    if(!this.isDraw) {
+                        for (let i = 0; i < this.functionList.length; i++) {
+                            if (this.functionList[i].functionId == 34) {
+                                this.$set(this.functionList[i],"btnType","success")
+                                this.$set(this.functionList[i],"btnIcon","el-icon-edit")
+                                this.functionList_one.push(this.functionList[i])
+                            } else if (this.functionList[i].functionId == 35) {
+                                this.$set(this.functionList[i],"btnType","danger")
+                                this.$set(this.functionList[i],"btnIcon","el-icon-delete")
+                                this.functionList_one.push(this.functionList[i])
+                            } else if (this.functionList[i].functionId == 36) {
+                                this.$set(this.functionList[i],"btnType","warning")
+                                this.$set(this.functionList[i],"btnIcon","el-icon-setting")
+                                this.functionList_one.push(this.functionList[i])
+                            } else if (this.functionList[i].functionId == 37) {
+                                this.$set(this.functionList[i],"btnType","primary")
+                                this.functionList_two.push(this.functionList[i])
+                                this.isExistsHandRole = true
+                            }
+                            this.isDraw = true
+                        }
+                    }
                 })
                 .catch((err) => {
                     this.$message.error(err.message)
@@ -280,12 +318,15 @@
                     //console.log(data)
                     this.$axios.post('/staff/insert',this.$qs.stringify(data))
                     .then((res) => {
-                        this.$message.success("添加成功")
-                        this.getUserList()
+                        // console.log(res)
+                        if (res.data.success) {
+                            this.$message.success("添加成功")
+                            this.getUserList()
+                        }
                     })
                     .catch((err) => {
                         this.$refs.newStaffRef.resetFields()
-                        this.$message.error(err.message)
+                        this.$message.error(err.errMsg)
                     })
                     this.addUserDialog = false
                 })
@@ -294,6 +335,19 @@
             addUserReset() {
                 this.$refs.newStaffRef.resetFields()
                 this.addUserDialog = false
+            },
+            //获取按钮功能
+            getButtonStatus(rowInfo,functionId) {
+                // console.log(rowInfo)
+                if (functionId == 34) {
+                    this.editUserDialog1(rowInfo)
+                } else if (functionId == 35) {
+                    this.removeUserById(rowInfo)
+                } else if (functionId == 36) {
+                    this.handRoleDialog1(rowInfo)
+                } else if (functionId == 37) {
+                    this.handRole()
+                }
             },
             //编辑用户信息弹窗
             editUserDialog1(Staff) {
@@ -346,8 +400,10 @@
                 })
                 .then((res) => {
                     // console.log(res)
-                    this.$message.success("修改成功")
-                    this.getUserList()
+                    if (res.data.success) {
+                        this.$message.success("修改成功")
+                        this.getUserList()
+                    }
                 })
                 .catch((err) => {
                     this.$message.error(err.errMsg)
@@ -378,8 +434,10 @@
                     })
                     .then((res) => {
                         //console.log(res)
-                        this.$message.success('删除成功')
-                        this.getUserList()
+                        if (res.data.success) {
+                            this.$message.success('删除成功')
+                            this.getUserList()
+                        }
                     })
                     .catch((err) => {
                         this.$message.error(err.message)
@@ -417,7 +475,7 @@
                 .then((res) => {
                     // console.log(res)
                     // console.log(res.data.staffPositionList)
-                    console.log(res.data.staffPositionRelation)
+                    // console.log(res.data.staffPositionRelation)
                     // console.log(res.data.staffPositionList)
                     // console.log(res.data.staffPositionRelation.staffPositionId)
                     // 判断是否存在角色
@@ -426,7 +484,6 @@
                     } else {
                         this.editRole.radio = 0
                     }
-                    
                 })
                 .catch((err) => {
                     this.$message.error(err.errMsg)
@@ -444,16 +501,18 @@
                 let data = {
                     staffPositionRelation: JSON.stringify(staffPositionRelation)
                 }
-                console.log(data)
+                // console.log(data)
                 this.$axios.post('/stafflist/positiondistributioncommit',this.$qs.stringify(data),{
                     headers:{
                         staffToken: window.sessionStorage.getItem('staffToken')
                     }
                 })
                 .then((res) => {
-                    console.log(res)
-                    this.$message.success('角色分配成功')
-                    this.getUserList()
+                    // console.log(res)
+                    if (res.data.success) {
+                         this.$message.success('角色分配成功')
+                        this.getUserList()
+                    }
                 })
                 .catch((err) => {
                     this.$message.error(err.errMsg)
@@ -477,6 +536,9 @@
 }
 .el-form{
     margin-right: 30px;
+}
+.el-button{
+    margin: 0 5px;
 }
 .el-pagination{
     width: 50%;

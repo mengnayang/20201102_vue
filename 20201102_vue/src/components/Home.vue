@@ -207,7 +207,7 @@
         justify-content: space-around;
         align-items: center;
         padding-right: 30px;
-        width: 200px;
+        width: 280px;
         div{
             cursor: pointer;
             i{

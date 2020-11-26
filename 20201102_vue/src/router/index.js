@@ -7,10 +7,10 @@ import ForgerPwd from '../components/ForgetPwd'
 import Welcome from '../components/home/Welcome'
 import UserList from '../components/home/administer/user_manage/UserList'
 import RoleList from '../components/home/administer/access_manage/RoleList'
-import SearchStore from '../components/home/staff/store_manage/SearchStore'
-import OrderInfo from '../components/home/staff/store_manage/OrderInfo'
-import BookEnter from '../components/home/staff/store_manage/BookEnter'
-import NoticeInfo from '../components/home/staff/issue_notice/NoticeInfo'
+import SearchStore from '../components/home/manage/store_manage/SearchStore'
+import OrderInfo from '../components/home/manage/store_manage/OrderInfo'
+import BookEnter from '../components/home/manage/store_manage/BookEnter'
+import NoticeInfo from '../components/home/manage/issue_notice/NoticeInfo'
 
 Vue.use(Router)
 
@@ -30,7 +30,7 @@ const router = new Router({
         {path:'/welcome', component:Welcome},
         {path:'/stafflist', component:UserList},
         {path:'/stafflistjurisdiction', component: RoleList},
-        {path:'/storeManage/searchStore', component:SearchStore},
+        {path:'/showinventory', component:SearchStore},
         {path:'/storeManage/orderInfo',component:OrderInfo},
         {path:'/storeManage/bookEnter',component:BookEnter},
         {path:'/issueNotice/noticeInfo',component:NoticeInfo}
