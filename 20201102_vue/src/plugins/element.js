@@ -32,7 +32,9 @@ Dialog,
 DatePicker,
 Pagination,
 Tooltip,
-MessageBox
+MessageBox,
+Tree,
+Tag
 } from 'element-ui'
 Vue.use(Form)
 Vue.use(FormItem)
@@ -62,6 +64,8 @@ Vue.use(Dialog)
 Vue.use(DatePicker)
 Vue.use(Pagination)
 Vue.use(Tooltip)
+Vue.use(Tree)
+Vue.use(Tag)
 
 //全局挂载
 Vue.prototype.$message = Message

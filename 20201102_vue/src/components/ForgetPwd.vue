@@ -24,6 +24,10 @@
                             </el-form-item>
                             <el-form-item label="验证码" required prop="checkCode">
                                 <el-input type="text" v-model="info.checkCode" auto-complete="off"></el-input>  
+                                <div @click="changeCode()">
+                                    <!-- 引入验证码组件 -->
+                                    <identify :identifyCode="identifyCode"></identify>
+                                </div>
                             </el-form-item>
                         </el-form>
                     </div>
@@ -45,8 +49,12 @@
 </template>
 
 <script>
+import identify from '../components/Identify'
     export default{
         name:'ForgetPwd',
+            components:{
+                identify
+            },
         data() {
             var checkPhone = (rule, value, callback) => {
                 if (value == '') {
@@ -55,16 +63,17 @@
                     let isNull = value.match(/^1(3\d|4[4-9]|5[0-35-9]|6[67]|7[013-8]|8\d|9\d)\d{8}$/)
                     if (isNull == null) {
                         callback(new Error('联系方式不合法'))
-                    } else {
-                        this.$axios.get('/staff/code')
-                        .then((res) => {
-                            console.log(res.data.obj.checkCode)
-                            this.returnCode = res.data.obj.checkCode
-                        })
-                        .catch((err) => {
-                            this.$message.error(err)
-                        })
-                    }
+                    } 
+                    // else {
+                    //     this.$axios.get('/staff/code')
+                    //     .then((res) => {
+                    //         console.log(res.data.obj.checkCode)
+                    //         this.returnCode = res.data.obj.checkCode
+                    //     })
+                    //     .catch((err) => {
+                    //         this.$message.error(err.message)
+                    //     })
+                    // }
                 }
             }
             var checkCode = (rule, value, callback) => {
@@ -101,6 +110,10 @@
                 }
             }
             return{
+                // 验证码初始值
+                identifyCode: '1234',
+                // 验证码的随机取值范围
+                identifyCodes: '1234567890',
                 activeIndex:0,
                 isDisabled:true,
                 radio:'',
@@ -133,7 +146,28 @@
                 
             }
         },
+        mounted() {
+            // 刷新页面就生成随机验证码
+            this.identifyCode = ''
+            this.makeCode(this.identifyCodes, 4)
+        },
         methods:{
+            // 点击验证码刷新验证码
+            changeCode () {
+                this.identifyCode = ''
+                this.makeCode(this.identifyCodes, 4)
+            },
+            // 生成一个随机整数  randomNum(0, 10) 0 到 10 的随机整数， 包含 0 和 10
+            randomNum (min, max) {
+                max = max + 1
+                return Math.floor(Math.random() * (max - min) + min)
+            },
+            // 随机生成验证码字符串
+            makeCode (data, len) {
+                for (let i = 0; i < len; i++) {
+                    this.identifyCode += data[this.randomNum(0, data.length - 1)]
+                }
+            },
             //操作的下一步跳转
             next() {
                 console.log(this.activeIndex)

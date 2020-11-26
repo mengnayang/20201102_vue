@@ -89,9 +89,9 @@
             </span>
         </el-dialog>
         <!-- 修改用户信息的弹框 -->
-        <el-dialog title="修改用户信息"  :visible.sync="editUserDialog" width="390px"  :rules="newStaffRules">
+        <el-dialog title="修改用户信息"  :visible.sync="editUserDialog" width="390px">
             <!-- 修改用户的信息表单 -->
-            <el-form :model="editStaff" label-width="100px">
+            <el-form :model="editStaff" label-width="100px" :rules="newStaffRules">
                 <el-form-item label="用户名" required prop="staffName"> 
                     <el-input type="text" v-model="editStaff.staffName"></el-input>
                 </el-form-item>
@@ -183,6 +183,8 @@
                 functionList_two:[],
                 //是否已经渲染功能按钮
                 isDraw:false,
+                //是否存在角色分配
+                isExistsHandRole:false,
                 //获取部分用户信息的先决条件
                 queryInfo:{
                     total:0,
@@ -231,8 +233,6 @@
                     staffId: '',
                     staffStatus:0
                 },
-                //是否存在角色分配
-                isExistsHandRole:false
             }
         },
         created(){
@@ -262,7 +262,7 @@
                     this.queryInfo.total = res.data.recordSum
                     this.userList = res.data.staffAList
                     // console.log(this.userList)
-                    console.log(this.functionList)
+                    // console.log(this.functionList)
 
                     //渲染功能按钮
                     if(!this.isDraw) {
@@ -537,8 +537,10 @@
 .el-form{
     margin-right: 30px;
 }
-.el-button{
-    margin: 0 5px;
+.el-button-group{
+    .el-button{
+        margin: 0 5px;
+    }
 }
 .el-pagination{
     width: 50%;
