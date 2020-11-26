@@ -15,7 +15,7 @@
                 </el-col>
             </el-row> -->
             <!-- 角色列表区域 -->
-            <el-table :data="staffList" border stripe @expand-change="expandSelect">
+            <el-table :data="staffList"  border stripe @expand-change="expandSelect">
                 <!-- 展开列 -->
                 <el-table-column type="expand">
                     <template slot-scope="scope">
@@ -73,10 +73,10 @@
         </el-pagination>
         <!-- 编辑用户权限 -->
         <el-dialog title="编辑用户权限" :visible.sync="editUserDialog" width="390px">
-            <el-tree :data="roleList" show-checkbox default-expand-all ref="tree" highlight-current
+            <!-- <el-tree :data="roleList" show-checkbox default-expand-all ref="tree" highlight-current
             :props="defaultProps">
 
-            </el-tree>
+            </el-tree> -->
             <span slot="footer" class="dialog-footer">
                 <el-button type="success" @click="editRole()">修改</el-button>
                 <el-button type="primary" @click="editUserDialog = false">取消</el-button>
@@ -133,6 +133,10 @@
             this.getRoleList()
         },
         methods:{
+            //默认展开行
+            getRowKeys(row) {
+                return row.id
+            },
             //检测行被点击事件,获取操作用户staffId
             expandSelect(row, expandedRows) {
                 console.log(row,expandedRows)
@@ -144,7 +148,15 @@
                 //     this.expandKeys.shift()
                 //     return;
                 // }
-
+                var that = this
+                if (expandedRows.length) {
+                    that.expands = []
+                    if (row) {
+                        that.expands.push(row.id)// 每次push进去的是每行的ID
+                    }
+                } else {
+                    that.expands = []// 默认不展开
+                }
                 
 
                 // if (expandedRows.length) {
@@ -267,9 +279,9 @@
                 } else if (functionId == 35) {
                     this.removeUserById(rowInfo)
                 } else if (functionId == 36) {
-                    // this.handRoleDialog1(rowInfo)
+                    this.handRoleDialog1(rowInfo)
                 } else if (functionId == 37) {
-                    // this.handRole()
+                    this.handRole()
                 }
             },
             // 编辑用户权限弹框
@@ -359,17 +371,28 @@
                 }
                 console.log(this.roleList)
 
+                const confirmResult =  this.$confirm('此操作不可恢复，确认要删除该角色信息？','删除角色',{
+                    confirmButtonText:'确认',
+                    showCancelButton:true,
+                    type: 'warning'
+                })
+                .catch(err => {
+                    this.$message.info('已取消删除')
+                })
+
                 let newRoleList = []
-                for (let i = 0; i < this.roleList.length; i++) {
-                    for (let j = 0; j < this.roleList[i].secondaryMenuTreeList.length; j++) {
-                        for (let k = 0; k < this.roleList[i].secondaryMenuTreeList[j].functionTreeList.length; k++) {
-                            if (this.roleList[i].secondaryMenuTreeList[j].functionTreeList[k].functionId) {
-                                let list = {
-                                    staffId:staff.staffId,
-                                    functionId:this.roleList[i].secondaryMenuTreeList[j].functionTreeList[k].functionId,
-                                    jurisdictionStatus:1
+                if (confirmResult == 'confirm') {
+                    for (let i = 0; i < this.roleList.length; i++) {
+                        for (let j = 0; j < this.roleList[i].secondaryMenuTreeList.length; j++) {
+                            for (let k = 0; k < this.roleList[i].secondaryMenuTreeList[j].functionTreeList.length; k++) {
+                                if (this.roleList[i].secondaryMenuTreeList[j].functionTreeList[k].functionId) {
+                                    let list = {
+                                        staffId:staff.staffId,
+                                        functionId:this.roleList[i].secondaryMenuTreeList[j].functionTreeList[k].functionId,
+                                        jurisdictionStatus:1
+                                    }
+                                    newRoleList.push(list)
                                 }
-                                newRoleList.push(list)
                             }
                         }
                     }
@@ -380,7 +403,8 @@
                     userId:window.sessionStorage.getItem('staffId')
                 }
                 
-                console.log(data)
+                // console.log(data)
+
                 this.$axios.post('/stafflistjurisdiction/jurisdictiondeletecommit',this.$qs.stringify(data),{
                     headers:{
                         staffToken: window.sessionStorage.getItem('staffToken')
@@ -395,6 +419,71 @@
                 .catch((err) => {
                     this.$message.error(err.message)
                 })
+                
+            },
+            //编辑用户角色分配弹窗
+            handRoleDialog1(staff) {
+                this.handRoleDialog = true
+
+                //存储用户的相关信息,以便角色分配
+                this.editRole.staffId = staff.staffId
+                this.editRole.staffStatus = staff.staffStatus
+
+                //发送请求,获取用户的角色信息
+                let data = {
+                    staffId : staff.staffId
+                }
+                this.$axios.post('/stafflist/positiondistribution',this.$qs.stringify(data),{
+                    headers:{
+                        staffToken: window.sessionStorage.getItem('staffToken')
+                    }
+                })
+                .then((res) => {
+                    // console.log(res)
+                    // console.log(res.data.staffPositionList)
+                    // console.log(res.data.staffPositionRelation)
+                    // console.log(res.data.staffPositionList)
+                    // console.log(res.data.staffPositionRelation.staffPositionId)
+                    // 判断是否存在角色
+                    if (res.data.staffPositionRelation != null) {
+                        this.editRole.radio = res.data.staffPositionRelation.staffPositionId
+                    } else {
+                        this.editRole.radio = 0
+                    }
+                })
+                .catch((err) => {
+                    this.$message.error(err.errMsg)
+                })
+            },
+            //分配角色
+            handRole() {
+                //console.log(this.editRole.radio)
+                let staffPositionRelation = {
+                    staffId: this.editRole.staffId,
+                    staffPositionId: this.editRole.radio,
+                    staffPositionStatus: 1
+                }
+
+                let data = {
+                    staffPositionRelation: JSON.stringify(staffPositionRelation)
+                }
+                // console.log(data)
+                this.$axios.post('/stafflist/positiondistributioncommit',this.$qs.stringify(data),{
+                    headers:{
+                        staffToken: window.sessionStorage.getItem('staffToken')
+                    }
+                })
+                .then((res) => {
+                    // console.log(res)
+                    if (res.data.success) {
+                         this.$message.success('角色分配成功')
+                        this.getUserList()
+                    }
+                })
+                .catch((err) => {
+                    this.$message.error(err.errMsg)
+                })
+                this.handRoleDialog = false
             }
         }
     }
