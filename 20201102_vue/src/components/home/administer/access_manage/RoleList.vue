@@ -100,8 +100,7 @@
         </el-dialog>
         <!-- 编辑用户权限 -->
         <el-dialog title="编辑用户权限" :visible.sync="handRoleDialog" width="390px">
-            <el-tree :props="props" :default-checked-keys="selectedNode" show-checkbox accordion ref="rootTree" node-key="id" :data="roleList">
-
+            <el-tree :props="props" :default-checked-keys="selectedNode"  show-checkbox accordion ref="rootTree" node-key="id" :data="roleList">
             </el-tree>
             <span slot="footer" class="dialog-footer">
                 <el-button type="success" @click="handRole()">修改</el-button>
@@ -160,7 +159,9 @@
                     label: 'label'
                 },
                 //存储选中的节点
-                selectedNode:[]
+                selectedNode:[],
+                //编辑权限的用户id
+                editRoleId:''
             }
         },
         created() {
@@ -495,6 +496,7 @@
             handRoleDialog1(rowInfo) {
                 this.handRoleDialog = true
 
+                this.editRoleId = rowInfo.staffId
                 //发送请求,获取用户的角色信息
                 let data = {
                     staffId : rowInfo.staffId
@@ -518,33 +520,48 @@
             },
             //分配角色
             handRole() {
-                console.log(this.$refs.rootTree.getCheckedNodes());
+                // console.log(this.$refs.rootTree.getCheckedNodes());
+                this.selectedNode = this.$refs.rootTree.getCheckedNodes()
+                let selectedFunctionId = []
+                for (let i = 0; i < this.selectedNode.length; i++) {
+                    if (this.selectedNode[i].children == undefined) {
+                        selectedFunctionId.push(this.selectedNode[i].id)
+                    } 
+                }
+                console.log(selectedFunctionId)
                 //console.log(this.editRole.radio)
-                // let staffPositionRelation = {
-                //     staffId: this.editRole.staffId,
-                //     staffPositionId: this.editRole.radio,
-                //     staffPositionStatus: 1
-                // }
+                let staffJurisdictionList = []
+                for (let i = 0; i < selectedFunctionId.length; i++) {
+                    let staffJurisdiction = {
+                        staffId: this.editRoleId,
+                        functionId: selectedFunctionId[i],
+                        jurisdictionStatus: 1
+                    }
+                    staffJurisdictionList.push(staffJurisdiction)
+                }
 
-                // let data = {
-                //     staffPositionRelation: JSON.stringify(staffPositionRelation)
-                // }
+                let data = {
+                    staffJurisdictionList: JSON.stringify(staffJurisdictionList),
+                    userId:window.sessionStorage.getItem('staffId')
+                }
                 // console.log(data)
-                // this.$axios.post('/stafflistjurisdiction/jurisdictiondistributioncommit',this.$qs.stringify(data),{
-                //     headers:{
-                //         staffToken: window.sessionStorage.getItem('staffToken')
-                //     }
-                // })
-                // .then((res) => {
-                //     // console.log(res)
-                //     if (res.data.success) {
-                //          this.$message.success('角色分配成功')
-                //         this.getUserList()
-                //     }
-                // })
-                // .catch((err) => {
-                //     this.$message.error(err.errMsg)
-                // })
+                this.$axios.post('/stafflistjurisdiction/jurisdictiondistributioncommit',this.$qs.stringify(data),{
+                    headers:{
+                        staffToken: window.sessionStorage.getItem('staffToken')
+                    }
+                })
+                .then((res) => {
+                    // console.log(res)
+                    if (res.data.success) {
+                        this.$message.success('角色权限更改成功')
+                        this.getRoleList()
+                    } else {
+                        this.$message.error(res.message)
+                    }
+                })
+                .catch((err) => {
+                    this.$message.error(err.message)
+                })
                 this.handRoleDialog = false
             },
             //把权限信息转换成树
@@ -556,6 +573,7 @@
                 // console.log(this.roleList)
                 for (let i = 0; i < this.roleList.length; i++) {
                     // console.log(this.roleList[i].primaryMenuName)
+                    second_arr = []
                     for (let j = 0; j < this.roleList[i].secondaryMenuTreeList.length; j++) {
                         // console.log(this.roleList[i].secondaryMenuTreeList[j].secondaryMenuName)
                         third_arr = []
@@ -567,6 +585,7 @@
                             third_arr.push(third)
                             if (this.roleList[i].secondaryMenuTreeList[j].functionTreeList[k].isSelected == 1) {
                                 this.selectedNode.push(this.roleList[i].secondaryMenuTreeList[j].functionTreeList[k].functionId)
+                                // this.selectedNode.push(third)
                             }
                             // console.log(third)
                         }
@@ -587,7 +606,8 @@
                 // console.log(first_arr)
                 this.roleList = first_arr
                 //显示所有选中节点
-                console.log(this.selectedNode)
+                // console.log(this.selectedNode)
+                // this.$refs.rootTree.setCheckedNodes(this.selectedNode)
             },
         }
     }

@@ -403,6 +403,8 @@
                     if (res.data.success) {
                         this.$message.success("修改成功")
                         this.getUserList()
+                    } else {
+                        this.$message.error(res.errMsg)
                     }
                 })
                 .catch((err) => {
