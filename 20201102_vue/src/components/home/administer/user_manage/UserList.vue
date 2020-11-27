@@ -225,7 +225,7 @@
                     staffPassword:'',
                     staffStatus:''
                 },
-                //修改用户信息弹框
+                //修改用户角色弹框
                 handRoleDialog:false,
                 //修改用户角色的信息
                 editRole:{
@@ -391,7 +391,7 @@
                 }
                 let data = {
                     staffA: JSON.stringify(staff)
-                }
+                } 
                 // console.log(data)
                 this.$axios.post('/stafflist/modifycommit', this.$qs.stringify(data), {
                     headers:{

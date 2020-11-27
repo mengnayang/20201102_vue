@@ -95,7 +95,9 @@ export default{
                         window.sessionStorage.setItem('primaryMenuList',JSON.stringify(res.data.primaryMenuList))
                         window.sessionStorage.setItem('secondaryMenuList',JSON.stringify(res.data.secondaryMenuList))
                         this.$router.push('/home')
-                    } 
+                    } else {
+                        this.$message.error(res.data.errMsg)
+                    }
                 })
                 .catch((err) => {
                     this.$message.error(err.errMsg)

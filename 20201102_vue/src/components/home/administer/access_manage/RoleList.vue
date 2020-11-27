@@ -15,7 +15,7 @@
                 </el-col>
             </el-row> -->
             <!-- 角色列表区域 -->
-            <el-table :data="staffList"  border stripe @expand-change="expandSelect">
+            <el-table :data="staffList" ref="refTable"  border stripe @expand-change="expandSelect">
                 <!-- 展开列 -->
                 <el-table-column type="expand">
                     <template slot-scope="scope">
@@ -71,17 +71,44 @@
         @current-change="currentChange"
         layout="total, sizes, prev, pager, next, jumper">
         </el-pagination>
-        <!-- 编辑用户权限 -->
-        <el-dialog title="编辑用户权限" :visible.sync="editUserDialog" width="390px">
-            <!-- <el-tree :data="roleList" show-checkbox default-expand-all ref="tree" highlight-current
-            :props="defaultProps">
-
-            </el-tree> -->
+        <!-- 修改用户信息的弹框 -->
+        <el-dialog title="修改用户信息"  :visible.sync="editUserDialog" width="390px">
+            <!-- 修改用户的信息表单 -->
+            <el-form :model="editStaff" label-width="100px" >
+                <el-form-item label="用户名" required prop="staffName"> 
+                    <el-input type="text" v-model="editStaff.staffName"></el-input>
+                </el-form-item>
+                <el-form-item label="联系方式" required prop="staffPhone">
+                    <el-input type="text" v-model="editStaff.staffPhone"></el-input>
+                </el-form-item>
+                <el-form-item label="密码" required prop="staffPassword">
+                    <el-input type="password" v-model="editStaff.staffPassword"></el-input>
+                </el-form-item>
+                <el-form-item label="状态">
+                    <el-select v-model="editStaff.staffStatus">
+                        <el-option key="1001" value="1001" label="刚注册">刚注册</el-option>
+                        <el-option key="1000" value="1000" label="正常">正常</el-option>
+                        <el-option key="0" value="0" label="无权限">无权限</el-option>
+                        <el-option key="-1" value="-1" label="离职">离职</el-option>
+                    </el-select>
+                </el-form-item>
+            </el-form>
             <span slot="footer" class="dialog-footer">
-                <el-button type="success" @click="editRole()">修改</el-button>
+                <el-button type="success" @click="editUser()">修改</el-button>
                 <el-button type="primary" @click="editUserDialog = false">取消</el-button>
             </span>
         </el-dialog>
+        <!-- 编辑用户权限 -->
+        <!-- <el-dialog title="编辑用户权限" :visible.sync="editUserDialog" width="390px">
+            <el-tree :data="roleList" :props="props" :load="loadNode" lazy show-checkbox
+            @check-change="handleCheckChange">
+
+            </el-tree>
+            <span slot="footer" class="dialog-footer">
+                <el-button type="success" @click="editRole()">修改</el-button>
+                <el-button type="primary" @click="editRoleDialog = false">取消</el-button>
+            </span>
+        </el-dialog> -->
     </div>
 </template>
 
@@ -111,95 +138,93 @@
                 isDraw:false,
                 //是否存在角色分配
                 isExistsHandRole:false,
-                // 获取row的key值
-                // getRowKeys(row) {
-                //     return row.id;
-                // },
                 //存储展开项的信息
                 expands:[],
                 //修改用户权限弹框
-                editUserDialog:false,
-                //树形关系
-                // defaultProps: {
-                //     children: 'children',
-                //     label: 'label'
-                // },
+                editRoleDialog:false,
                 roleList:[],
-                //新增
-                // expandKeys:[]
+                //修改用户信息弹框
+                editUserDialog:false,
+                //所编辑用户的信息
+                editStaff:{
+                    staffId:'',
+                    staffName:'',
+                    staffPhone:'',
+                    staffPassword:'',
+                    staffStatus:''
+                },
+                // 每行展开状态
+                expandedStatus:0,
+                //树形关系
+                props: {
+                    children: 'children',
+                    label: 'label'
+                },
             }
         },
         created() {
             this.getRoleList()
         },
         methods:{
-            //默认展开行
-            getRowKeys(row) {
-                return row.id
-            },
-            //检测行被点击事件,获取操作用户staffId
+            //展开事件日志列表
+            // clickTable(row, column, cell, event){
+            //     if(cell.cellIndex!=3 && cell.cellIndex!=10){
+            //         this.$refs.refTable.toggleRowExpansion(row);
+            //     }
+            //     this.getnoTicketReason("",row.businessType);
+            // },
+            //默认展开一行
             expandSelect(row, expandedRows) {
-                console.log(row,expandedRows)
-                // if(expandedRows.length> 1){
-                //     expandedRows.shift()
-                // }
-
-                // if (this.expandKeys.indexOf(row.id) >= 0) {
-                //     this.expandKeys.shift()
-                //     return;
-                // }
                 var that = this
-                if (expandedRows.length) {
-                    that.expands = []
-                    if (row) {
-                        that.expands.push(row.id)// 每次push进去的是每行的ID
+                var temp=[]
+                if (expandedRows.length == 1 && this.expandedStatus==0){
+                    this.expandedStatus == 1
+                    let data = {
+                        staffId:row.staffId,
+                        userId:window.sessionStorage.getItem('staffId')
                     }
-                } else {
-                    that.expands = []// 默认不展开
+                    // console.log(data)
+                    this.$axios.post('/stafflistjurisdiction/jurisdictiondelete',this.$qs.stringify(data),{
+                        headers:{
+                            staffToken:window.sessionStorage.getItem('staffToken'),
+                        }
+                    }).then((res) => {
+                        temp = res.data.primaryMenuTreeList
+                        this.roleList = res.data.primaryMenuTreeList
+                    })
+                    .catch((err) => {
+                        this.$message.error(err.errMsg)
+                    })
                 }
-                
-
-                // if (expandedRows.length) {
-                //     this.expands = []
-                //     if (row) {
-                //         this.expands.push(row.id)// 每次push进去的是每行的ID
-                //     }
-                // } else {
-                //     this.expands = []// 默认不展开
-                // }
-                // console.log(row)
-                // console.log(expandedRows)
-
-                // if (this.expands.includes(row.id)) {
-                //     this.expands = this.expands.filter(val => val !== row.id);
-                // } else {
-                //     this.expands.push(row.id);
-                // }; 
-
-                // console.log(row,expandedRows)
-                let data = {
-                    staffId:row.staffId,
-                    userId:window.sessionStorage.getItem('staffId')
-                }
-                // console.log(data)
-                this.$axios.post('/stafflistjurisdiction/jurisdictiondelete',this.$qs.stringify(data),{
-                    headers:{
-                        staffToken:window.sessionStorage.getItem('staffToken'),
-                    }
-                })
-                .then((res) => {
-                    this.roleList = res.data.primaryMenuTreeList
-                    // console.log(this.roleList)
-                })
-                .catch((err) => {
-                    console.log(err.errMsg)
-                })
-
                 if (expandedRows.length > 1) {
-                    //只展开当前选项
-                    expandedRows.shift()
+                    if(this.expandedStatus == 0) {
+                        this.expandedStatus = 1
+                    }
+                    this.roleList = []
+                    let data = {
+                        staffId:row.staffId,
+                        userId:window.sessionStorage.getItem('staffId')
+                    }
+                    this.$axios.post('/stafflistjurisdiction/jurisdictiondelete',this.$qs.stringify(data),{
+                        headers:{
+                            staffToken:window.sessionStorage.getItem('staffToken'),
+                        }
+                    }).then((res) => {
+                        this.roleList = res.data.primaryMenuTreeList
+                    })
+                    .catch((err) => {
+                        this.$message.error(err.errMsg)
+                    })
+                    if (this.roleList) {
+                        this.roleList=[]
+                    }
+                    this.$refs.refTable.toggleRowExpansion(expandedRows[0])
+                } else if (expandedRows.length == 0){
+                    this.expandedStatus=0
+                    this.roleList=[]
+                } else {
+                    this.roleList=[]
                 }
-                console.log(expandedRows.length)
             },
             //获取部分权限列表
             getRoleList() {
@@ -273,7 +298,7 @@
             },
             //获取按钮功能
             getButtonStatus(rowInfo,functionId) {
-                console.log(rowInfo)
+                // console.log(rowInfo)
                 if (functionId == 34) {
                     this.editUserDialog1(rowInfo)
                 } else if (functionId == 35) {
@@ -285,23 +310,65 @@
                 }
             },
             // 编辑用户权限弹框
-            editUserDialog1(rowInfo) {
-                let data = {
-                    staffId:rowInfo.staffId,
-                    userId:window.sessionStorage.getItem('staffId')
+            editUserDialog1(Staff) {
+                // console.log(Staff)
+                this.editUserDialog=true
+                this.editStaff.staffId = Staff.staffId
+                this.editStaff.staffName = Staff.staffName
+                this.editStaff.staffPhone = Staff.staffPhone
+                this.editStaff.staffPassword = Staff.staffPassword
+                if (Staff.staffPosition == null) {
+                    this.editStaff.staffPosition = "无"
                 }
+                if (Staff.staffStatus == 1000) {
+                    this.editStaff.staffStatus = "正常"
+                } else if (Staff.staffStatus == 1001) {
+                    this.editStaff.staffStatus = "刚注册"
+                } else if (Staff.staffStatus == 0) {
+                    this.editStaff.staffStatus = "无权限"
+                } else {
+                    this.editStaff.staffStatus = "离职"
+                }
+            },
+            //修改用户
+            editUser() {
+                if (this.editStaff.staffStatus == "正常") {
+                    this.editStaff.staffStatus = 1000
+                } else if (this.editStaff.staffStatus == "刚注册") {
+                    this.editStaff.staffStatus = 1001
+                } else if (this.editStaff.staffStatus == "无权限") {
+                    this.editStaff.staffStatus = 0
+                } else if (this.editStaff.staffStatus == "离职") {
+                    this.editStaff.staffStatus = -1
+                }
+                let staff = {
+                    staffId: this.editStaff.staffId,
+                    staffName: this.editStaff.staffName,
+                    staffPassword: this.editStaff.staffPassword,
+                    staffPhone: this.editStaff.staffPhone,
+                    staffStatus: this.editStaff.staffStatus
+                }
+                let data = {
+                    staffA: JSON.stringify(staff)
+                } 
                 // console.log(data)
-                this.$axios.post('/stafflistjurisdiction/jurisdictiondistribution',this.$qs.stringify(data),{
+                this.$axios.post('/stafflistjurisdiction/modifycommit', this.$qs.stringify(data), {
                     headers:{
-                        satffToken:window.sessionStorage.getItem('staffToken')
+                        staffToken: window.sessionStorage.getItem("staffToken")
                     }
                 })
                 .then((res) => {
-                    console.log(res)
+                    if (res.data.success) {
+                        this.$message.success("修改成功")
+                        this.getRoleList()
+                    } else {
+                        this.$message.error(res.data.errMsg)
+                    }
                 })
                 .catch((err) => {
-                    console.log(err)
+                    this.$message.error(err.message)
                 })
+                this.editUserDialog = false
             },
             //删除指定用户的权限
             async removeUserById(staff) {
@@ -397,7 +464,7 @@
                         }
                     }
                 }
-                // console.log(newRoleList)
+                console.log(newRoleList)
                 let data = {
                     staffJurisdictionList:JSON.stringify(newRoleList),
                     userId:window.sessionStorage.getItem('staffId')
@@ -433,7 +500,7 @@
                 let data = {
                     staffId : staff.staffId
                 }
-                this.$axios.post('/stafflist/positiondistribution',this.$qs.stringify(data),{
+                this.$axios.post('/stafflistjurisdiction/jurisdictiondistribution',this.$qs.stringify(data),{
                     headers:{
                         staffToken: window.sessionStorage.getItem('staffToken')
                     }
@@ -468,7 +535,7 @@
                     staffPositionRelation: JSON.stringify(staffPositionRelation)
                 }
                 // console.log(data)
-                this.$axios.post('/stafflist/positiondistributioncommit',this.$qs.stringify(data),{
+                this.$axios.post('/stafflistjurisdiction/jurisdictiondistributioncommit',this.$qs.stringify(data),{
                     headers:{
                         staffToken: window.sessionStorage.getItem('staffToken')
                     }
