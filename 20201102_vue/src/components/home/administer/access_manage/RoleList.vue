@@ -290,7 +290,7 @@
                     }    
                 })
                 .catch((err) => {
-                    this.$message.error(err.errMsg)
+                    this.$message.error(err.message)
                 })
             },
             //获取指定权限列表的信息
@@ -400,6 +400,8 @@
                         if (res.data.success) {
                             this.$message.success('删除成功')
                             this.getRoleList()
+                        } else {
+                            this.$message.error(res.data.errMsg)
                         }
                     })
                     .catch((err) => {
@@ -485,6 +487,8 @@
                     // console.log(res)
                     if (res.data.success) {
                         this.$message.success('角色功能删除成功')
+                    } else {
+                        this.$message.error(res.data.errMsg)
                     }
                 })
                 .catch((err) => {
@@ -556,7 +560,7 @@
                         this.$message.success('角色权限更改成功')
                         this.getRoleList()
                     } else {
-                        this.$message.error(res.message)
+                        this.$message.error(res.data.errMsg)
                     }
                 })
                 .catch((err) => {

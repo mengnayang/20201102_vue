@@ -322,6 +322,8 @@
                         if (res.data.success) {
                             this.$message.success("添加成功")
                             this.getUserList()
+                        } else {
+                            this.$message.error(res.data.errMsg)
                         }
                     })
                     .catch((err) => {
@@ -404,11 +406,11 @@
                         this.$message.success("修改成功")
                         this.getUserList()
                     } else {
-                        this.$message.error(res.errMsg)
+                        this.$message.error(res.data.errMsg)
                     }
                 })
                 .catch((err) => {
-                    this.$message.error(err.errMsg)
+                    this.$message.error(err.message)
                 })
                 this.editUserDialog = false
             },
@@ -439,6 +441,8 @@
                         if (res.data.success) {
                             this.$message.success('删除成功')
                             this.getUserList()
+                        } else {
+                            this.$message.error(res.data.errMsg)
                         }
                     })
                     .catch((err) => {
@@ -513,11 +517,13 @@
                     // console.log(res)
                     if (res.data.success) {
                          this.$message.success('角色分配成功')
-                        this.getUserList()
+                         this.getUserList()
+                    } else {
+                        this.$message.error(res.data.errMsg)
                     }
                 })
                 .catch((err) => {
-                    this.$message.error(err.errMsg)
+                    this.$message.error(err.message)
                 })
                 this.handRoleDialog = false
             }
