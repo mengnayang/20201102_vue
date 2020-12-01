@@ -14,7 +14,7 @@
                     <el-row>
                         <el-col :span="7">盘点时间:</el-col>
                         <el-col :span="5">
-                            <el-date-picker style="width:150px" type="date" placeholder="请选择查询的盘点时间" size="mini" v-model="recordTime">
+                            <el-date-picker style="width:150px" type="date" placeholder="请选择盘点时间" size="mini" v-model="selected.stocktakingCommitDate">
                             </el-date-picker>
                         </el-col>
                     </el-row>
@@ -23,9 +23,12 @@
                     <el-row>
                         <el-col :span="2">第</el-col>
                         <el-col :span="9">
-                            <!-- <el-select size="mini">
-                                <el-option></el-option>
-                            </el-select> -->
+                            <el-select size="mini" v-model="selected.stocktakingId">
+                                <el-option :value="0" :label="'全部'"></el-option>
+                                <el-option :value="1" :labal="1"></el-option>
+                                <el-option :value="2" :labal="2"></el-option>
+                                <el-option :value="3" :labal="3"></el-option>
+                            </el-select>
                         </el-col>
                         <el-col :span="6">次盘点</el-col>
                     </el-row>
@@ -40,9 +43,9 @@
                     <el-row>
                         <el-col :span="7">发起员工:</el-col>
                         <el-col :span="15">
-                            <!-- <el-select size="mini">
-                                <el-option></el-option>
-                            </el-select> -->
+                            <el-select size="mini" v-model="selected.stocktakingLaunchedStaffId">
+                                <el-option v-for="item in staffList" :value="item.staffId" :key="item.staffId" :label="item.staffName"></el-option>
+                            </el-select>
                         </el-col>
                     </el-row>
                 </el-col>
@@ -50,9 +53,9 @@
                     <el-row>
                         <el-col :span="7">提交员工:</el-col>
                         <el-col :span="15">
-                            <!-- <el-select size="mini">
-                                <el-option></el-option>
-                            </el-select> -->
+                            <el-select size="mini" v-model="selected.stocktakingSubmitStaffId">
+                                <el-option v-for="item in staffList" :value="item.staffId" :key="item.staffId" :label="item.staffName"></el-option>
+                            </el-select>
                         </el-col>
                     </el-row>
                 </el-col>
@@ -60,24 +63,26 @@
                     <el-row>
                         <el-col :span="7">盘点状态:</el-col>
                         <el-col :span="15">
-                            <!-- <el-select size="mini">
-                                <el-option></el-option>
-                            </el-select> -->
+                            <el-select size="mini"  v-model="selected.stocktakingAllStatus">
+                                <el-option :value="0" :label="'全部'"></el-option>
+                                <el-option :value="1" :labal="'已盘点'"></el-option>
+                                <el-option :value="2" :labal="'未盘点'"></el-option>
+                            </el-select>
                         </el-col>
                     </el-row>
                 </el-col>
                 <el-col :span="6">
-                    <el-button type="primary" round size="mini">查询</el-button>
+                    <el-button type="primary" round size="mini" @click="searchPartStock()">查询</el-button>
                 </el-col>
             </el-row>
             <!-- 表单区域 -->
             <el-table :data="stockList" border stripe>
                 <el-table-column label="#" type="index" align="center"></el-table-column>
-                <el-table-column label="盘点编号" prop="" align="center" width="180px"></el-table-column>
-                <el-table-column label="发起员工" width="170px" prop="" align="center"></el-table-column>
-                <el-table-column label="提交员工" width="170px" prop="" align="center"></el-table-column>
-                <el-table-column label="盈亏状态" width="170px" prop="" align="center"></el-table-column>
-                <el-table-column label="盘点状态" width="170px" prop="" align="center"></el-table-column>
+                <el-table-column label="盘点编号" prop="stocktakingId" align="center" width="180px"></el-table-column>
+                <el-table-column label="发起员工" width="170px" prop="stocktakingLaunchedStaffId" align="center"></el-table-column>
+                <el-table-column label="提交员工" width="170px" prop="stocktakingSubmitStaffId" align="center"></el-table-column>
+                <el-table-column label="盈亏状态" width="170px" prop="stocktakingProfitLossPrice" align="center"></el-table-column>
+                <el-table-column label="盘点状态" width="170px" prop="stocktakingAllStatus" align="center"></el-table-column>
                 <el-table-column label="操作" width="190px" align="center"></el-table-column>
             </el-table>
         </el-card>
@@ -95,7 +100,6 @@
         name:'StockTaking',
         data() {
             return{
-                recordTime:'',
                 //库存列表
                 stockList:[],
                 //查询条件
@@ -113,7 +117,15 @@
                 //员工列表
                 staffList:[],
                 //员工盘点记录列表
-                stocktakingRecordList:[]
+                stocktakingRecordList:[],
+                //查询的条件
+                selected:{
+                    stocktakingId:'',
+                    stocktakingLaunchedStaffId:'',
+                    stocktakingSubmitStaffId:'',
+                    stocktakingAllStatus:'',
+                    stocktakingCommitDate:''
+                }
             }
         },
         created() {
@@ -146,8 +158,8 @@
                     }
                 })
                 .then((res) => {
+                     console.log(res)
                     if (res.data.success) {
-                        // console.log(res)
                         this.functionList = res.data.functionList
                         this.staffList = res.data.staffList
                         this.stocktakingRecordList = res.data.stocktakingRecordList
@@ -158,6 +170,10 @@
                 .catch((err) => {
                     this.$message.error(err.message)
                 })
+            },
+            //模糊查询部分库存信息
+            searchPartStock() {
+                console.log(this.selected)
             },
             //根据指定页码获取相应的库存信息
             currentChange(currentPage) {

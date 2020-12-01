@@ -11,7 +11,7 @@
             <!-- 功能区域 -->
             <el-row :gutter="20">
                 <el-col :span="10">
-                    <el-input placeholder="请输入你要查询的用户" v-model="selected.selectedStaffName" clearable @clear="getUserList()">
+                    <el-input placeholder="请输入你要查询的用户" v-model="selected.selectedStaffName" clearable>
                         <el-button slot="append" icon="el-icon-search" @click="searchUserList()"></el-button>
                     </el-input>
                 </el-col>    
@@ -241,20 +241,18 @@
         methods:{
             //初始获取部分用户信息
             getUserList() {
-                let staffToken = window.sessionStorage.getItem('staffToken')
-                //console.log(staffToken)
                 let data = {
                     pageIndex: this.queryInfo.pageIndex,
                     pageSize: this.queryInfo.infoCount
                 }
-                //console.log(data)
+                // console.log(data)
                 this.$axios.post('/stafflist', this.$qs.stringify(data),{
                     headers:{
                         staffToken: window.sessionStorage.getItem('staffToken')
                     }
                 })
                 .then((res) => {
-                    // console.log(res)
+                    console.log(res)
                     if (res.data.functionList != undefined) {
                         this.functionList = res.data.functionList
                     }
@@ -264,7 +262,41 @@
                     // console.log(this.userList)
                     // console.log(this.functionList)
 
-                    //渲染功能按钮
+                    this.drawBtn()
+                })
+                .catch((err) => {
+                    this.$message.error(err.message)
+                })
+            },
+            //模糊查询
+            searchUserList(){
+                let data = {
+                    pageIndex: this.queryInfo.pageIndex,
+                    pageSize: this.queryInfo.infoCount,
+                    staffName: this.selected.selectedStaffName 
+                }
+                console.log(data)
+                this.$axios.post('/stafflistbystaffname', this.$qs.stringify(data),{
+                    headers:{
+                        staffToken: window.sessionStorage.getItem('staffToken')
+                    }
+                })
+                .then((res) => {
+                    console.log(res)
+                    if (res.data.functionList != undefined) {
+                        this.functionList = res.data.functionList
+                    }
+                    this.queryInfo.total = res.data.recordSum
+                    this.userList = res.data.staffAList
+                    this.drawBtn()
+                })
+                .catch((err) => {
+                    this.$message.error(err.message)
+                })
+            },
+            //动态渲染按钮
+            drawBtn() {
+                //渲染功能按钮
                     if(!this.isDraw) {
                         for (let i = 0; i < this.functionList.length; i++) {
                             if (this.functionList[i].functionId == 34) {
@@ -287,20 +319,6 @@
                             this.isDraw = true
                         }
                     }
-                })
-                .catch((err) => {
-                    this.$message.error(err.message)
-                })
-            },
-            //查询指定需求的用户信息
-            searchUserList() {
-                this.$axios.post('/user/userList')
-                .then((res) => {
-                    this.userList = res.data.obj
-                })
-                .catch((res) => {
-                    this.$message.error(err.message)
-                })
             },
             //获取指定页面的信息
             currentChange(currentPage){
@@ -394,7 +412,7 @@
                 let data = {
                     staffA: JSON.stringify(staff)
                 } 
-                // console.log(data)
+                console.log(data)
                 this.$axios.post('/stafflist/modifycommit', this.$qs.stringify(data), {
                     headers:{
                         staffToken: window.sessionStorage.getItem("staffToken")
