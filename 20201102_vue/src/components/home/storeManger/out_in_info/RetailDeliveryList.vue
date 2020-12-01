@@ -9,12 +9,65 @@
         <!-- 卡片区域 -->
         <el-card>
             <!-- 功能区域 -->
-            <el-row>
-                <el-col>
-                    
+            <el-row :gutter="10">
+                <el-col :span="8">
+                    <span>出库编号</span>
+                    <!-- <el-select size="small">
+                        <el-option></el-option>
+                    </el-select> -->
+                </el-col>
+                <el-col :span="8">
+                    <span>订单编号</span>
+                    <!-- <el-select size="small">
+                        <el-option></el-option>
+                    </el-select> -->
+                </el-col>
+                <el-col :span="8">
+                    <span>订单发起人</span>
+                    <!-- <el-select size="small">
+                        <el-option></el-option>
+                    </el-select> -->
                 </el-col>
             </el-row>
+            <el-row :gutter="10">
+                <el-col :span="8">
+                    <span>状态</span>
+                    <!-- <el-select size="small">
+                        <el-option></el-option>
+                    </el-select> -->
+                </el-col>
+                <el-col :span="4">
+                    <el-button type="primary" size="small" @click="searchGood()">查询</el-button>
+                </el-col>
+            </el-row>
+            <!-- 表单区域 -->
+            <el-table :data="retailRecordList" border stripe>
+                <el-table-column label="出库编号" prop="deliveryId" fixed width="120" align="center"></el-table-column>
+                <el-table-column label="已付款项" prop="deliveryPaid" fixed width="120" align="center"></el-table-column>
+                <el-table-column label="出库状态" prop="deliveryStatus"  width="120" align="center"></el-table-column>
+                <el-table-column label="发起职工" prop="deliveryLaunchedStaffId"  width="120" align="center"></el-table-column>
+                <el-table-column label="处理职工" prop="deliveryHandleStaffId" width="120" align="center"></el-table-column>
+                <el-table-column label="总价格" prop="deliveryTotalPrice" width="120" align="center"></el-table-column>
+                <el-table-column label="结账状态" prop="deliveryCheckOutStatus" width="80" align="center"></el-table-column>
+                <el-table-column label="退款状态" prop="deliveryRefundStatus" width="180" align="center"></el-table-column>
+                <el-table-column label="入库时间" prop="deliveryCreateDate" width="80" align="center"></el-table-column>
+                <el-table-column label="操作" fixed="right" width="120" align="center">
+                    <template slot-scope="scope">
+                        <el-button-group v-for="func in functionList" :key="func.functionId">
+                            <el-tooltip effect="light" placement="top" :content="func.functionName" :enterable="false">
+                                <el-button :type="func.btnType" size="mini" :icon="func.btnIcon" @click="getButtonStatus(scope.row,func.functionId)"></el-button>
+                            </el-tooltip>
+                        </el-button-group>
+                    </template>
+                </el-table-column>
+            </el-table>
         </el-card>
+        <el-pagination
+        :current-page="queryInfo.pageIndex" :page-sizes="[queryInfo.infoCount]" 
+        :page-size="queryInfo.infoCount" :total="queryInfo.total"
+        @current-change="currentChange"
+        layout="total, sizes, prev, pager, next, jumper">
+        </el-pagination>
     </div>
 </template>
 
@@ -23,8 +76,73 @@
         name:'RetailSaleDeleveryList',
         data() {
             return {
-                
+                //查询零售单的先决条件
+                queryInfo:{
+                    total:0,
+                    pageIndex:0,
+                    infoCount:4
+                },
+                //二级菜单
+                secondaryMenuList:[],
+                //二级菜单id
+                secondaryMenuId:'',
+                //功能列表
+                functionList:[],
+                //零售单列表
+                retailRecordList:[],
+                //员工列表
+                staffList:[]
             }
+        },
+        created() {
+            this.getRetailList()
+        },
+        methods:{
+            //获取部分采购入库单
+            getRetailList() {
+                // 获取当前二级菜单的id
+                this.secondaryMenuList = window.sessionStorage.getItem('secondaryMenuList')
+                this.secondaryMenuList = JSON.parse(this.secondaryMenuList)
+                // console.log(this.secondaryMenuList)
+
+                for(var i = 0; i < this.secondaryMenuList.length; i++) {
+                    if (this.secondaryMenuList[i].secondaryMenuUrl == this.$route.path) {
+                        // console.log(this.secondaryMenuList[i].secondaryMenuId)
+                        this.secondaryMenuId = this.secondaryMenuList[i].secondaryMenuId
+                    }
+                }
+                // console.log(this.secondaryMenuId)
+                let data = {
+                    pageIndex: this.queryInfo.pageIndex,
+                    pageSize: this.queryInfo.infoCount,
+                    secondaryMenuId: this.secondaryMenuId
+                }
+                this.$axios.post('/retaildeliverylist',this.$qs.stringify(data),{
+                    headers:{
+                        staffToken: window.sessionStorage.getItem('staffToken')
+                    }
+                })
+                .then((res) => {
+                    if (res.data.success) {
+                        // console.log(res)
+                        this.functionList = res.data.functionList
+                        this.queryInfo.infoCount = res.data.recordSum
+                        this.retailRecordList = res.data.retailRecordList
+                        this.staffList = res.data.staffList
+                        console.log(this.retailRecordList)
+                    } else {
+                        this.$message.error(res.data.errMsg)
+                    }
+                })
+                .catch((err) => {
+                    this.$message.error(err.message)
+                })
+            },
+            //根据指定页码获取相应的库存信息
+            currentChange(currentPage) {
+                this.queryInfo.pageIndex(currentPage)
+                this.getRetailList()
+            },
         }
     }
 </script>

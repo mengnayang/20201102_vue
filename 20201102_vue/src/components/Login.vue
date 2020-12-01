@@ -18,9 +18,9 @@
                         <span>忘记密码</span><i class="el-icon-question"></i>
                     </div>
                     <el-form-item>
-                        <el-button type="primary" round size="small" @click="login()">登陆</el-button>
-                        <el-button type="info" round size="small" @click="reset()">重置</el-button>
                         <el-button type="primary" round size="small" @click="register()">注册</el-button>
+                        <el-button type="info" round size="small" @click="reset()">重置</el-button>
+                        <el-button type="primary" round size="small" @click="login()">登陆</el-button>
                     </el-form-item>
                 </el-form>
            </div>
