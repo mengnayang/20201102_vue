@@ -10,70 +10,98 @@
         <el-card>
             <!-- 功能区域 -->
             <el-row :gutter="10">
-                <el-col :span="8">
+                <!-- <el-col :span="8">
                     <span>商品编号</span>
                     <el-select v-model="selected.selectedGoodId" filterable placeholder="请选择" size="small">
                         <el-option v-for="item in goodList" :label="item.goods_id" :key="item.goods_id" :value="item.goods_id"></el-option>
                     </el-select>
-                </el-col>
-                <el-col :span="8">
+                </el-col> -->
+                <!-- <el-col :span="8">
                     <span>商品名称</span>
                     <el-select v-model="selected.selectedGoodName" filterable placeholder="请选择" size="small">
                         <el-option v-for="item in goodList" :label="item.goods_name" :key="item.goods_id" :value="item.goods_name"></el-option>
                     </el-select>
-                </el-col>
+                </el-col> -->
                 <el-col :span="8">
                     <span>商品类别</span>
-                    <el-select v-model="selected.selectedGoodCategory" filterable placeholder="请选择" size="small">
-                        <el-option v-for="item in goodList" :label="item.goods_category" :key="item.goods_id" :value="item.goods_category"></el-option>
+                    <el-select v-model="selected.goodsCategory" placeholder="请选择" size="small">
+                        <el-option v-for="item in categoryList" :label="item.categoryName" :key="item.categoryid" :value="item.categoryid"></el-option>
                     </el-select>
                 </el-col>
-            </el-row>
-            <el-row :gutter="10">
                 <el-col :span="8">
                     <span>品牌类别</span>
-                    <el-select v-model="selected.selectedBrandName" filterable placeholder="请选择" size="small">
-                        <el-option v-for="item in goodList" :label="item.brand_name" :key="item.goods_id" :value="item.brand_name"></el-option>
+                    <el-select v-model="selected.goodsBrand" placeholder="请选择" size="small">
+                        <el-option v-for="item in goodList" :label="item.goodsBrand" :key="item.goodsId" :value="item.goodId"></el-option>
                     </el-select>
                 </el-col>
-                <el-col :span="4">
+                <el-col :span="8">
                     <el-button type="primary" size="small" @click="searchGood()">查询</el-button>
+                    <template>
+                        <el-button-group v-for="func in functionList_three" :key="func.functionId">
+                            <el-button :type="func.btnType" size="small"  @click="addNewGoodInfo()">{{func.functionName}}</el-button>
+                        </el-button-group>
+                    </template>
+                    <el-button type="primary" size="small" @click="rollback()" :disabled="isFirst">返回上一层</el-button>
                 </el-col>
             </el-row>
             <!-- 列表区域 -->
-            <el-table :data="goodList" border>
+            <!-- 一级 -->
+            <el-table :data="goodList" border v-show="isFirst">
                 <el-table-column label="商品图片" fixed width="100" align="center">
                     <template slot-scope="scope">
                         <img :src="scope.row.goodsPicture" width="30px" height="20px" alt="图片">
                     </template>
                 </el-table-column>
-                <el-table-column label="商品编号" prop="goodsId" fixed width="120" align="center"></el-table-column>
-                <el-table-column label="商品名称" prop="goodsName" fixed width="120" align="center"></el-table-column>
-                <el-table-column label="商品类别" prop="goodsCategory" width="120" align="center"></el-table-column>
+                <el-table-column label="商品编号" prop="goodsId" fixed width="140" align="center"></el-table-column>
+                <el-table-column label="商品名称" prop="goodsName" fixed width="180" align="center"></el-table-column>
+                <el-table-column label="商品类别" prop="goodsCategory" width="120" align="center">
+                    <template slot-scope="scpoe">
+                        <span v-for="item in categoryList" :key="item.categoryId" v-if="scpoe.row.goodsCategoryId == item.categoryId">{{item.categoryName}}</span>
+                    </template>
+                </el-table-column>
                 <el-table-column label="品牌类别" prop="goodsBrand" width="120" align="center"></el-table-column>
-                <el-table-column label="库存量" prop="stockInventory" width="80" align="center"></el-table-column>
-                <el-table-column label="保质期/天" prop="stocGoodsShelfLife" width="90" align="center"></el-table-column>
-                <el-table-column label="售价/元" prop="stockGoodsPrice" width="80" align="center"></el-table-column>
-                <el-table-column label="生产日期" prop="stockGoodsProductionDate" width="180" align="center"></el-table-column>
-                <el-table-column label="单位" prop="stockUnitId" width="80" align="center"></el-table-column>
-                <el-table-column label="规格" prop="goodsSpecifications" width="80" align="center"></el-table-column>
-                <el-table-column label="操作" fixed="right" width="120" align="center">
+                <el-table-column label="库存量" prop="stockInventoryNum" width="80" align="center"></el-table-column>
+                <el-table-column label="规格" prop="goodsSpecifications" width="100" align="center"></el-table-column>
+                <el-table-column label="操作" fixed="right" width="100" align="center">
                     <template slot-scope="scope">
                         <el-button-group v-for="func in functionList_one" :key="func.functionId">
                             <el-tooltip effect="light" placement="top" :content="func.functionName" :enterable="false">
-                                <el-button :type="func.btnType" size="mini" :icon="func.btnIcon" @click="getButtonStatus(scope.row,func.functionId)"></el-button>
+                                <el-button :type="func.btnType" size="mini" :icon="func.btnIcon" @click="getButtonStatus(scope.row,func.functionWeight)"></el-button>
                             </el-tooltip>
                         </el-button-group>
-                        <!-- <el-button type="text" @click="getGoodInfo(scope.row)">查看</el-button>
-                        <el-button type="text" @click="editGoodInfo(scope.row)">修改</el-button> -->
+                    </template>
+                </el-table-column>
+            </el-table>
+            <!-- 二级 -->
+            <el-table :data="goodDetailList" border v-show="isSecond">
+                <el-table-column label="超市商品编号" prop="stockGoodsId" fixed width="150" align="center"></el-table-column>
+                <el-table-column label="仓库编号" prop="stockId" fixed width="80" align="center"></el-table-column>
+                <el-table-column label="产品编号" prop="goodsStockId" width="140" align="center"> </el-table-column>
+                <el-table-column label="销售单位" prop="stockUnitId" width="90" align="center">
+                    <template slot-scope="scope">
+                        <span v-for="item in unitList" :key="item.unitId" v-if="item.unitId == scope.row.stockUnitId">{{item.unitName}}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="产品批号" prop="stockGoodsBatchNumber" width="100" align="center"></el-table-column>
+                <el-table-column label="生产日期" prop="stockGoodsProductionDate" width="130" align="center"></el-table-column>
+                <el-table-column label="保质期" prop="stockGoodsShelfLife" width="100" align="center"></el-table-column>
+                <el-table-column label="售价" prop="stockGoodsPrice" width="100" align="center"></el-table-column>
+                <el-table-column label="实时库存" prop="stockInventory" width="100" align="center"></el-table-column>
+                <el-table-column label="操作" fixed="right" width="150" align="center">
+                    <template slot-scope="scope">
+                        <el-button-group v-for="func in functionList_two" :key="func.functionId">
+                            <el-tooltip effect="light" placement="top" :content="func.functionName" :enterable="false">
+                                <el-button :type="func.btnType" size="mini" :icon="func.btnIcon" @click="getButtonStatus(scope.row,func.functionWeight)"></el-button>
+                            </el-tooltip>
+                        </el-button-group>
                     </template>
                 </el-table-column>
             </el-table>
             <!-- 查看商品信息弹框 -->
             <el-dialog title="商品信息详情" :visible.sync="lookGoodDialog" width="700px">
-                <el-form label-width="80px">
+                <el-form label-width="100px">
                     <el-row>
-                        <el-col :span="9">
+                        <el-col :span="12">
                             <el-form-item label="商品图片"> 
                                 <!-- eslint-disable-next-line -->
                                 <template slot-scope="scope">
@@ -81,60 +109,83 @@
                                 </template>
                             </el-form-item>
                         </el-col>
+                    </el-row>
+                    <el-row>
                         <el-col :span="8">
-                            <el-form-item label="商品名称"> 
-                                <el-input type="text" v-model="currentGood.goodsName"></el-input>
+                            <el-form-item label="商品编号:"> 
+                                <span>{{currentGood.goodsId}}</span>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="9">
+                            <el-form-item label="超市商品编号:">
+                                <span>{{currentGood.stockGoodsId}}</span>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="7">
+                            <el-form-item label="产品批号:">
+                                <span>{{currentGood.stockGoodsBatchNumber}}</span>
                             </el-form-item>
                         </el-col>
                     </el-row>
                     <el-row>
                         <el-col :span="8">
-                            <el-form-item label="商品编号">
-                                <el-input type="text" v-model="currentGood.stockGoodsId"></el-input>
+                            <el-form-item label="商品名称:"> 
+                                <span>{{currentGood.goodsName}}</span>
                             </el-form-item>
                         </el-col>
-                        <el-col :span="8">
-                            <el-form-item label="商品类别"> 
-                                <el-input type="text" v-model="currentGood.goodsCategory"></el-input>
+                        <el-col :span="9">
+                            <el-form-item label="入库编号:"> 
+                                <span>{{currentGood.stockExportBillId}}</span>
                             </el-form-item>
                         </el-col>
-                        <el-col :span="8">
-                            <el-form-item label="品牌类别"> 
-                                <el-input type="text" v-model="currentGood.brandName"></el-input>
-                            </el-form-item>
+                        <el-col :span="7">
+                            <el-form-item label="商品类别:"> 
+                                <!-- eslint-disable-next-line -->
+                                <template slot-scope="scope">
+                                    <span v-for="item in categoryList" :key="item.categoryId" v-if="item.categoryId == currentGood.goodsCategoryId">{{item.categoryName}}</span>
+                                </template>
+                            </el-form-item>   
                         </el-col>
                     </el-row>
-                    <el-row :gutter="100">
-                        <el-col :span="10">
-                            <el-form-item label="生产日期"> 
-                                <el-date-picker v-model="currentGood.stockGoodsProductionDate" type="date" placeholder="选择日期" format="yyyy年MM月dd日" value-format="yyyy-MM-dd"></el-date-picker>
+                    <el-row>
+                        <el-col :span="8">
+                            <el-form-item label="品牌类别:"> 
+                                <span>{{currentGood.goodsBrand}}</span>
                             </el-form-item>
                         </el-col>
-                        <el-col :span="8">
-                            <el-form-item label="库存量"> 
-                                <el-input type="text" v-model="currentGood.stockInventory"></el-input>
+                        <el-col :span="9">
+                            <el-form-item label="生产日期:"> 
+                                <span>{{currentGood.stockGoodsProductionDate}}</span>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="7">
+                            <el-form-item label="实时库存:"> 
+                                <span>{{currentGood.stockInventory}}</span>
                             </el-form-item>
                         </el-col>
                     </el-row>
                     <el-row>
-                        <el-col :span="5">
-                            <el-form-item label="保质期/天"> 
-                                <el-input type="text" v-model="currentGood.stocGoodsShelfLife"></el-input>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="5">
-                            <el-form-item label="售价/元"> 
-                                <el-input type="text" v-model="currentGood.goods_price"></el-input>
+                        <el-col :span="6">
+                            <el-form-item label="保质期/天:"> 
+                                <span>{{currentGood.stockGoodsShelfLife}}</span>
                             </el-form-item>
                         </el-col>
                         <el-col :span="6">
-                            <el-form-item label="规格"> 
-                                <el-input type="text" v-model="currentGood.standards"></el-input>
+                            <el-form-item label="售价/元:"> 
+                                <span>{{currentGood.stockGoodsPrice}}</span>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="6">
+                            <el-form-item label="规格:"> 
+                                <span>{{currentGood.goodsSpecifications}}</span>
                             </el-form-item>
                         </el-col>
                         <el-col :span="5">
-                            <el-form-item label="单位"> 
-                                <el-input type="text" v-model="currentGood.unit"></el-input>
+                            <el-form-item label="单位:"> 
+                                <!-- eslint-disable-next-line -->
+                                <template slot-scope="scope">
+                                    <span v-for="item in unitList" :key="item.unitId" v-if="item.unitId == currentGood.stockUnitId">{{item.unitName}}</span>
+                                </template>
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -145,70 +196,98 @@
             </el-dialog>
             <!-- 修改商品信息弹框 -->
             <el-dialog title="修改商品信息" :visible.sync="editGoodDialog" width="700px">
-                <el-form label-width="80px">
+                <el-form label-width="100px">
                     <el-row>
-                        <el-col :span="9">
+                        <el-col :span="12">
                             <el-form-item label="商品图片"> 
                                 <!-- eslint-disable-next-line -->
                                 <template slot-scope="scope">
-                                    <img :src="currentGood.goods_img" alt="图片">
+                                    <img :src="currentGood.goodsPicture" alt="图片">
                                 </template>
                             </el-form-item>
                         </el-col>
-                        <el-col :span="8">
-                            <el-form-item label="商品名称"> 
-                                <el-input type="text" v-model="currentGood.goods_name"></el-input>
-                            </el-form-item>
-                        </el-col>
                     </el-row>
                     <el-row>
-                        <el-col :span="8">
-                            <el-form-item label="商品编号">
-                                <el-input type="text" v-model="currentGood.goods_id"></el-input>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="8">
-                            <el-form-item label="商品类别"> 
-                                <el-input type="text" v-model="currentGood.goods_category"></el-input>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="8">
-                            <el-form-item label="品牌类别"> 
-                                <el-input type="text" v-model="currentGood.brand_name"></el-input>
-                            </el-form-item>
-                        </el-col>
-                    </el-row>
-                    <el-row :gutter="100">
                         <el-col :span="10">
-                            <el-form-item label="生产日期"> 
-                                <el-date-picker v-model="currentGood.date_manufacture" type="date" placeholder="请选择日期" format="yyyy年MM月dd日" value-format="yyyy-MM-dd"></el-date-picker>
+                            <el-form-item label="商品编号:"> 
+                                <el-input auto-complete="off" v-model="currentGood.goodsId" disabled></el-input>
                             </el-form-item>
                         </el-col>
-                        <el-col :span="8">
-                            <el-form-item label="库存量"> 
-                                <el-input type="text" v-model="currentGood.goods_store"></el-input>
+                        <el-col :span="10" :offset="1">
+                            <el-form-item label="超市商品编号:">
+                                <el-input auto-complete="off" v-model="currentGood.stockGoodsId" disabled></el-input>
                             </el-form-item>
                         </el-col>
                     </el-row>
                     <el-row>
-                        <el-col :span="5">
-                            <el-form-item label="保质期/天"> 
-                                <el-input type="text" v-model="currentGood.shelf_life"></el-input>
+                        <el-col :span="10">
+                            <el-form-item label="商品名称:"> 
+                                <el-input auto-complete="off" v-model="currentGood.goodsName" disabled></el-input>
                             </el-form-item>
                         </el-col>
-                        <el-col :span="5">
-                            <el-form-item label="售价/元"> 
-                                <el-input type="text" v-model="currentGood.goods_price"></el-input>
+                        <el-col :span="10" :offset="1">
+                            <el-form-item label="入库编号:"> 
+                                <el-input auto-complete="off" v-model="currentGood.stockExportBillId" disabled></el-input>
                             </el-form-item>
                         </el-col>
-                        <el-col :span="6">
-                            <el-form-item label="规格"> 
-                                <el-input type="text" v-model="currentGood.standards"></el-input>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="10">
+                            <el-form-item label="产品批号:">
+                                <el-input auto-complete="off" v-model="currentGood.stockGoodsBatchNumber" disabled></el-input>
                             </el-form-item>
                         </el-col>
-                        <el-col :span="5">
-                            <el-form-item label="单位"> 
-                                <el-input type="text" v-model="currentGood.unit"></el-input>
+                        <el-col :span="10" :offset="1">
+                            <el-form-item label="商品类别:"> 
+                                <el-select v-model="currentGood.goodsCategoryId" disabled>
+                                    <el-option v-for="item in categoryList" :key="item.categoryId" :label="item.categoryName" :value="item.categoryId"></el-option>
+                                </el-select>
+                            </el-form-item>   
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="10">
+                            <el-form-item label="品牌类别:"> 
+                                <el-input auto-complete="off" v-model="currentGood.goodsBrand" disabled></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="10" :offset="1">
+                            <el-form-item label="生产日期:"> 
+                                <el-input auto-complete="off" v-model="currentGood.stockGoodsProductionDate" disabled></el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="7">
+                            <el-form-item label="实时库存:"> 
+                                <el-input auto-complete="off" v-model="currentGood.stockInventory" disabled></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="7">
+                            <el-form-item label="保质期/天:"> 
+                                <el-input auto-complete="off" v-model="currentGood.stockGoodsShelfLife" disabled></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="7">
+                            <el-form-item label="售价/元:"> 
+                                <el-input auto-complete="off" v-model="currentGood.stockGoodsPrice"></el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="7">
+                            <el-form-item label="规格:"> 
+                                <el-input auto-complete="off" v-model="currentGood.goodsSpecifications" disabled></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="7">
+                            <el-form-item label="单位:"> 
+                                <!-- eslint-disable-next-line -->
+                                <template slot-scope="scope">
+                                    <el-select v-model="currentGood.stockUnitId" disabled>
+                                        <el-option v-for="item in unitList" :key="item.unitId" :label="item.unitName" :value="item.unitId" ></el-option>
+                                    </el-select>
+                                </template>
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -218,8 +297,127 @@
                     <el-button type="success" @click="confirmDialog()">确认修改</el-button>
                 </span>
             </el-dialog>
+            <!-- 补充新商品 -->
+            <el-dialog title="新货补充" :visible.sync="addNewGoodDialog" width="600px">
+                <el-form label-width="100px" >
+                    <el-row>
+                        <el-col :span="11">
+                            <el-form-item label="商品编号:">
+                                <el-input v-model="currentGood.goodsId" auto-complete="off"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="11" :offset="1">
+                            <el-form-item label="超市商品编号:">
+                                 <el-input v-model="currentGood.stockGoodsId" auto-complete="off"></el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="11">
+                            <el-form-item label="商品名称:">
+                                 <el-input v-model="currentGood.goodsName" auto-complete="off"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="11" :offset="1">
+                            <el-form-item label="品牌名称:">
+                                <el-input v-model="currentGood.goodsBrand" auto-complete="off"></el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="11">
+                            <el-form-item label="商品类别:">
+                                <template>
+                                     <el-select v-model="currentGood.goodsCategoryId">
+                                        <el-option v-for="item in categoryList" :key="item.categoryId" :label="item.categoryName" :value="item.categoryId" ></el-option>
+                                    </el-select>
+                                </template>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="11" :offset="1">
+                            <el-form-item label="单位:">
+                                <template>
+                                     <el-select v-model="currentGood.goodsUnit">
+                                        <el-option v-for="item in unitList" :key="item.unitId" :label="item.unitName" :value="item.unitId" ></el-option>
+                                    </el-select>
+                                </template>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="11">
+                            <el-form-item label="规格:">
+                                <el-input v-model="currentGood.goodsSpecifications" auto-complete="off"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="11" :offset="1">
+                            <el-form-item label="订货量:">
+                                <el-input v-model="currentGood.stockInventoryNum" auto-complete="off"></el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                </el-form>
+                <span slot="footer" class="dislog-footer">
+                    <el-button type="primaty" size="small" @click="addNewGood()">新增</el-button>
+                    <el-button type="primary" size="small" @click="addNewGoodDialog = false">取消</el-button>
+                </span>
+            </el-dialog>
+            <!-- 补充旧商品 -->
+            <el-dialog title="旧货补充" :visible.sync="addOldGoodDialog" width="500px">
+                <el-form label-width="80px" >
+                    <el-form-item label="商品编号">
+                        <el-input v-model="currentGood.goodsId" auto-complete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="商品名称">
+                        <el-input v-model="currentGood.goodsName" auto-complete="off"></el-input>
+                    </el-form-item>
+                    <el-row>
+                        <el-col :span="12">
+                            <el-form-item label="商品类别">
+                                <el-input v-model="currentGood.goodsCategoryId" auto-complete="off"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-form-item label="品牌名称">
+                                <el-input v-model="currentGood.goodsBrand" auto-complete="off"></el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="12">
+                            <el-form-item label="规格">
+                                <el-input v-model="currentGood.goodsSpecifications" auto-complete="off"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-form-item label="单位">
+                                <el-input v-model="currentGood.goodsUnit" auto-complete="off"></el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
+                        <el-col :span="12">
+                            <el-form-item label="库存量">
+                                <el-input v-model="currentGood.stockInventoryNum" auto-complete="off"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-form-item label="订货量">
+                                <el-input v-model="currentGood.stockInventoryNum" auto-complete="off"></el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-form-item label="申请时间">
+                        <el-date-picker type="date" placeholder="请选择日期" format="yyyy年MM月dd日" value-format="yyyy-MM-dd"></el-date-picker>
+                    </el-form-item>
+                </el-form>
+                <span slot="footer" class="dislog-footer">
+                    <el-button type="success" size="small" @click="addOldGood()">确认修改</el-button>
+                        <el-button type="primary" size="small" @click="addOldGoodDialog = false">取消</el-button>
+                </span>
+            </el-dialog>
         </el-card>
-        <el-pagination :current-page="queryInfo.pageIndex" :page-sizes="[3]" :page-size="3" 
+        <el-pagination :current-page="queryInfo.pageIndex" :page-sizes="[queryInfo.infoCount]" :page-size="queryInfo.infoCount" 
             @current-change="currentChange"
             layout="total, sizes, prev, pager, next, jumper" :total="queryInfo.total">
         </el-pagination>
@@ -233,6 +431,14 @@
             return{
                 //商品信息
                 goodList:[],
+                //详细商品信息
+                goodDetailList:[],
+                //单位列表
+                unitList:[],
+                //显示列表一
+                isFirst:true,
+                // 显示列表二
+                isSecond:false,
                 //指定商品需求
                 selected:{
                     selectedGoodId:'',
@@ -240,16 +446,22 @@
                     selectedGoodCategory:'',
                     selectedBrandName:''
                 },
+                //商品类别列表
+                categoryList:[],
                 //设置查看商品信息的弹窗是否可见
                 lookGoodDialog:false,
                 //设置修改商品信息的弹窗是否可见
                 editGoodDialog:false,
+                //设置旧货补充信息的弹窗是否可见
+                addNewGoodDialog:false,
+                //设置旧货补充信息的弹窗是否可见
+                addOldGoodDialog:false,
                 //当前操作的商品信息
                 currentGood:'',
                 //分页信息
                 queryInfo:{
-                    pageIndex:1,
-                    infoCount:3,
+                    pageIndex:0,
+                    infoCount:4,
                     total:0
                 },
                 //二级菜单列表
@@ -257,7 +469,15 @@
                 //当前二级菜单的id
                 secondaryMenuId:'',
                 //功能菜单
-                functionList:[]
+                functionList:[],
+                //一级功能菜单
+                functionList_one:[],
+                //二级功能菜单
+                functionList_two:[],
+                //三级功能菜单
+                functionList_three:[],
+                //绘制按钮
+                isDraw:false
             }
         },
         mounted(){
@@ -266,19 +486,14 @@
         methods:{
             //初始获取部分商品
             getPartGood() {
-                // console.log(this.queryInfo.pageIndex)
-                // console.log(this.queryInfo.infoCount)
-
                 //获取当前的二级菜单的id
                 this.secondaryMenuList = JSON.parse(window.sessionStorage.getItem('secondaryMenuList'))
                 for(var i = 0; i < this.secondaryMenuList.length; i++) {
                     if (this.secondaryMenuList[i].secondaryMenuUrl == this.$route.path) {
-                        // console.log(this.secondaryMenuList[i].secondaryMenuId)
                         this.secondaryMenuId = this.secondaryMenuList[i].secondaryMenuId
                     }
                 }
 
-                // console.log(this.secondaryMenuId)
                 let data = {
                     pageIndex: this.queryInfo.pageIndex,
                     pageSize: this.queryInfo.infoCount,
@@ -291,50 +506,217 @@
                 })
                 .then((res) => {
                     if (res.data.success) {
-                        console.log(res)
-                        this.goodList = res.data.goodsStockAList
+                        this.goodList = res.data.goodsStockNumList
                         this.queryInfo.total = res.data.recordSum
                         this.functionList = res.data.functionList
-                        // console.log(this.goodList)
+                        this.categoryList = res.data.categoryList
+                        this.drawBtn()
+                    } else {
+                        this.$message.error(res.data.errMsg)
                     }
                 })
                 .catch((err) => {
                     this.$message.error(err.message)
                 })
             },
+            //动态渲染按钮
+            drawBtn() {
+                //渲染功能按钮
+                    if(!this.isDraw) {
+                        for (let i = 0; i < this.functionList.length; i++) {
+                            if (this.functionList[i].functionWeight == 4) {
+                                this.$set(this.functionList[i],"btnType","danger")
+                                this.$set(this.functionList[i],"btnIcon","iconfont icon_add")
+                                this.functionList_three.push(this.functionList[i])
+                            } else if (this.functionList[i].functionWeight == 2) {
+                                this.$set(this.functionList[i],"btnType","success")
+                                this.$set(this.functionList[i],"btnIcon","iconfont icon_edit")
+                                this.functionList_two.push(this.functionList[i])
+                            } else if (this.functionList[i].functionWeight == 1) {
+                                this.$set(this.functionList[i],"btnType","primary")
+                                this.$set(this.functionList[i],"btnIcon","iconfont icon_look")
+                                this.functionList_two.push(this.functionList[i])
+                            } else if (this.functionList[i].functionWeight == 3) {
+                                this.$set(this.functionList[i],"btnType","primary")
+                                this.$set(this.functionList[i],"btnIcon","iconfont icon_look")
+                                this.functionList_one.push(this.functionList[i])
+                            }
+                            this.isDraw = true
+                        }
+                    }
+            },
+            //返回上一层
+            rollback() {
+                this.isSecond = false,
+                this.isFirst = true
+            },
             //查询指定需求的商品
             searchGood(){
                 this.$axios.post('/goods/searchGood',this.selected)
                 .then((res) => {
                     this.goodList = res.data.obj
-                    //console.log(res)
                 })
                 .catch((err) => {
                     this.$message.error(err)
                 })
             },
             //获取按钮功能
-            getButtonStatus(good,functionId) {
-                // console.log(rowInfo)
-                if (functionId == 1) {
+            getButtonStatus(good,functionWeight) {
+                if (functionWeight == 1) {
                     this.getGoodInfo(good)
-                } else if (functionId == 2) {
+                } else if (functionWeight == 2) {
                     this.editGoodInfo(good)
-                } else if (functionId == 3) {
-                    this.$route.push('/replenishmentapplication')
+                } else if (functionWeight == 3) {
+                    this.getAllGoodInfo(good)
+                } else if (functionWeight == 5) {
+                    this.addOldGoodInfo(good)
                 }
+            },
+            //新货补充窗口
+            addNewGoodInfo() {
+                //将当前的商品信息置空，因多处用到，防止数据错乱
+                this.currentGood = []
+                let data = {}
+                this.$axios.post('/showinventory/newgoods', this.$qs.stringify(data),{
+                    headers:{
+                        staffToken: window.sessionStorage.getItem('staffToken')
+                    }
+                })
+                .then((res) => {
+                    if (res.data.success) {
+                        this.categoryList = res.data.categoryList
+                        this.unitList = res.data.unitList
+                    } else {
+                        this.$message.error(res.data.errMsg)
+                    }
+                })
+                .catch((err) => {
+                    this.$message.error(err.message)
+                })
+                this.addNewGoodDialog = true
+            },
+            //新货旧货补充
+            addNewGood() {
+                let good = {
+                    goodsId: this.currentGood.goodsId,
+                    goodsName: this.currentGood.goodsName,
+                    goodsCategoryId:this.currentGood.goodsCategoryId,
+                    goodsBrand:this.currentGood.goodsBrand,
+                    goodsSpecifications:this.currentGood.goodsSpecifications,
+                    goodsPicture:''
+                }
+                let coupon = {
+                    couponGoodsId:this.currentGood.stockGoodsId,
+                    couponUnitId:this.currentGood.goodsUnit,
+                    couponNum:this.currentGood.stockInventoryNum,
+                    couponStaffId: window.sessionStorage.getItem("staffId")
+                }
+                let data = {
+                    staffId: window.sessionStorage.getItem('staffId'),
+                    good: JSON.stringify(good),
+                    coupon: JSON.stringify(coupon)
+                }
+                console.log(data)
+                this.$axios.post('/showinventory/newgoodscommit',this.$qs.stringify(data),{
+                    headers:{
+                        staffToken: window.sessionStorage.getItem('staffToken')
+                    }
+                })
+                .then((res) => {
+                    if (res.data.success) {
+                        console.log(res.data)
+                    } else {
+                        this.$message.error(res.data.errMsg)
+                    }
+                })
+                .catch((err) => {
+                    this.$message.error(err.message)
+                })
+                this.addNewGoodDialog = false
+            },
+            //获取指定商品的商品库存表
+            getAllGoodInfo(good) {
+                this.isFirst = false
+                this.isSecond = true
+                let data = {
+                    goodsId: good.goodsId,
+                    userId: window.sessionStorage.getItem('staffId'),
+                    stockGoodsId:1
+                }
+                this.$axios.post('/showinventory/examine', this.$qs.stringify(data),{
+                    headers:{
+                        staffToken: window.sessionStorage.getItem('staffToken')
+                    }
+                })
+                .then((res) => {
+                    if (res.data.success) {
+                        if (res.data.success) {
+                            this.goodDetailList = res.data.stockList;
+                            this.unitList = res.data.unitList;
+                            this.goodDetailList.map(item=>{
+                                var data = new Date(item.stockGoodsProductionDate);
+                                item.stockGoodsProductionDate = data.getFullYear() + "-" + (data.getMonth() + 1) + "-" + data.getDate();
+                            })
+                        } else {
+                            this.$message.error(res.data.errMsg)
+                        }
+                    } else {
+                        this.$message.error(res.data.errMsg)
+                    }
+                })
+                .catch((err) => {
+                    this.$message.error(err.message)
+                })
             },
             //获取指定商品的信息
             getGoodInfo(good) {
-                //console.log(good)
+                let data = {
+                    stockGoodsId:good.stockGoodsId
+                }
+                this.$axios.post('/showinventory/goodsdetails', this.$qs.stringify(data),{
+                    headers:{
+                        staffToken: window.sessionStorage.getItem('staffToken')
+                    }
+                })
+                .then((res) => {
+                    if (res.data.success) {
+                        this.currentGood = res.data.goodsStockA
+                        //时间转换
+                        let data = new Date(this.currentGood.stockGoodsProductionDate);
+                        this.currentGood.stockGoodsProductionDate = data.getFullYear() + "-" + (data.getMonth() + 1) + "-" + data.getDate();
+                    } else {
+                        this.$message.error(res.data.errMsg)
+                    }
+                })
+                .catch((err) => {
+                    this.$message.error(err.message)
+                })
                 this.lookGoodDialog = true
-                this.currentGood = good
             },
             //修改指定商品信息
             editGoodInfo(good) {
-                this.editGoodDialog = true,
-                this.currentGood = good
-                //console.log(this.currentGood)
+                let data = {
+                    stockGoodsId:good.stockGoodsId
+                }
+                this.$axios.post('/showinventory/goodsdetails', this.$qs.stringify(data),{
+                    headers:{
+                        staffToken: window.sessionStorage.getItem('staffToken')
+                    }
+                })
+                .then((res) => {
+                    if (res.data.success) {
+                        this.currentGood = res.data.goodsStockA
+                        //时间转换
+                        let data = new Date(this.currentGood.stockGoodsProductionDate);
+                        this.currentGood.stockGoodsProductionDate = data.getFullYear() + "-" + (data.getMonth() + 1) + "-" + data.getDate();
+                    } else {
+                        this.$message.error(res.data.errMsg)
+                    }
+                })
+                .catch((err) => {
+                    this.$message.error(err.message)
+                })
+                this.editGoodDialog = true
             },
             //关闭修改商品信息弹窗
             shutDialog(){
@@ -344,8 +726,47 @@
             //确认修改商品信息弹窗
             confirmDialog() {
                 this.editGoodDialog = false
-                console.log(this.currentGood)
-                this.$message.success('修改成功')
+                let stock = {
+                    stockGoodsId:this.currentGood.stockGoodsId,
+                    stockId:this.currentGood.stockId,
+                    goodsStockId:this.currentGood.goodsStockId,
+                    stockUnitId:this.currentGood.stockUnitId,
+                    stockGoodsBatchNumber:this.currentGood.stockGoodsBatchNumber,
+                    stockGoodsProductionDate:this.currentGood.stockGoodsProductionDate,
+                    stocGoodsShelfLife:this.currentGood.stocGoodsShelfLife,
+                    stockGoodsPrice:this.currentGood.stockGoodsPrice,
+                    stockInventory:this.currentGood.stockInventory,
+                    stockExportBillId:this.currentGood.stockExportBillId
+                }
+                let data = {
+                    stock: JSON.stringify(stock),
+                    stockGoodsPrice: this.currentGood.stockGoodsPrice
+                }
+                this.$axios.post('/showinventory/modifygoods', this.$qs.stringify(data),{
+                    headers:{
+                        staffToken: window.sessionStorage.getItem('staffToken')
+                    }
+                })
+                .then((res) => {
+                    if(res.data.success) {
+                        this.$message.success('修改成功')
+                        this.getPartGood()
+                    } else {
+                        this.$message.error(res.data.errMsg)
+                    }
+                })
+                .catch((err) => {
+                    this.$message.error(err.message)
+                })
+            },
+            //旧货补充窗口
+            addOldGoodInfo(good) {
+                this.currentGood = good
+                this.addOldGoodDialog = true
+            },
+            //提交旧货补充
+            addOldGood() {
+                this.addOldGoodDialog = false
             },
             //获取指定页面的信息
             currentChange(currentPage){
@@ -365,6 +786,11 @@
         &:last-child {
         margin-bottom: 0;
         }
+    }
+}
+.el-button-group{
+    .el-button{
+        margin: 0 3px;
     }
 }
 .el-pagination{

@@ -11,7 +11,7 @@
             <!-- 功能区域 -->
             <el-row :gutter="20">
                 <el-col :span="10">
-                    <el-input placeholder="请输入你要查询的用户" v-model="selected.selectedStaffName" clearable>
+                    <el-input placeholder="请输入你要查询的用户" v-model="searchPartName" clearable>
                         <el-button slot="append" icon="el-icon-search" @click="searchUserList()"></el-button>
                     </el-input>
                 </el-col>    
@@ -117,18 +117,24 @@
         </el-dialog>
         <!-- 分配角色的信息弹框 -->
         <el-dialog title="分配角色" :visible.sync="handRoleDialog" width="390px">
-            <!-- 分配角色的单选框 -->
-            <template>
-                <el-radio-group v-model="editRole.radio">
-                    <el-radio :label="1">总经理</el-radio>
-                    <el-radio :label="2">副经理</el-radio>
-                    <el-radio :label="3">财务</el-radio>
-                    <el-radio :label="4">库房管理员</el-radio>
-                    <el-radio :label="5">职工</el-radio>
-                    <el-radio :label="6">营业员</el-radio>
-                    <el-radio :label="7">超级管理员</el-radio>
-                </el-radio-group>
-            </template>
+            <el-form>
+                <el-form-item label="当前用户：">{{editRole.staffName}}</el-form-item>
+                <el-form-item label="担任角色：">{{editRole.staffPositionName}}</el-form-item>
+                <el-form-item label="角色选择：">
+                    <!-- 分配角色的选择框 -->
+                    <template>
+                        <el-select v-model="editRole.staffPositionId">
+                            <el-option :label="'总经理'" :value="1" :key="1"></el-option>
+                            <el-option :label="'副经理'" :value="2" :key="2"></el-option>
+                            <el-option :label="'财务'" :value="3" :key="3"></el-option>
+                            <el-option :label="'库房管理员'" :value="4" :key="4"></el-option>
+                            <el-option :label="'职工'" :value="5" :key="5"></el-option>
+                            <el-option :label="'营业员'" :value="6" :key="6"></el-option>
+                            <el-option :label="'超级管理员'" :value="7" :key="7"></el-option>
+                        </el-select>
+                    </template>
+                </el-form-item>
+            </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button type="primary" v-show="isExistsHandRole" @click="handRole()">分配角色</el-button>
                 <el-button type="primary" @click="handRoleDialog = false">取消</el-button>
@@ -228,11 +234,15 @@
                 //修改用户角色弹框
                 handRoleDialog:false,
                 //修改用户角色的信息
-                editRole:{
-                    radio: 0,
+                editRole:{    
                     staffId: '',
-                    staffStatus:0
+                    staffName:'',
+                    staffPositionId:'',
+                    staffPositionName:'',
+                    staffPositionStatus:1
                 },
+                //模糊查询姓名
+                searchPartName:''
             }
         },
         created(){
@@ -245,23 +255,18 @@
                     pageIndex: this.queryInfo.pageIndex,
                     pageSize: this.queryInfo.infoCount
                 }
-                // console.log(data)
                 this.$axios.post('/stafflist', this.$qs.stringify(data),{
                     headers:{
                         staffToken: window.sessionStorage.getItem('staffToken')
                     }
                 })
                 .then((res) => {
-                    console.log(res)
                     if (res.data.functionList != undefined) {
                         this.functionList = res.data.functionList
                     }
-                    // console.log(this.functionList)
                     this.queryInfo.total = res.data.recordSum
                     this.userList = res.data.staffAList
-                    // console.log(this.userList)
-                    // console.log(this.functionList)
-
+                    console.log(this.userList)
                     this.drawBtn()
                 })
                 .catch((err) => {
@@ -273,7 +278,7 @@
                 let data = {
                     pageIndex: this.queryInfo.pageIndex,
                     pageSize: this.queryInfo.infoCount,
-                    staffName: this.selected.selectedStaffName 
+                    staffName: this.searchPartName 
                 }
                 console.log(data)
                 this.$axios.post('/stafflistbystaffname', this.$qs.stringify(data),{
@@ -283,12 +288,13 @@
                 })
                 .then((res) => {
                     console.log(res)
-                    if (res.data.functionList != undefined) {
-                        this.functionList = res.data.functionList
+                    if (res.data.success) {
+                        this.queryInfo.total = res.data.recordSum
+                        this.userList = res.data.staffAList
+                        this.drawBtn()
+                    } else {
+                        this.$message.error(res.data.errMsg)
                     }
-                    this.queryInfo.total = res.data.recordSum
-                    this.userList = res.data.staffAList
-                    this.drawBtn()
                 })
                 .catch((err) => {
                     this.$message.error(err.message)
@@ -329,14 +335,11 @@
             addUser() {
                 this.$refs.newStaffRef.validate(valid => {
                     if (!valid) return
-
                     let data = {
                         staff : JSON.stringify(this.newStaff)
                     }
-                    //console.log(data)
                     this.$axios.post('/staff/insert',this.$qs.stringify(data))
                     .then((res) => {
-                        // console.log(res)
                         if (res.data.success) {
                             this.$message.success("添加成功")
                             this.getUserList()
@@ -358,7 +361,6 @@
             },
             //获取按钮功能
             getButtonStatus(rowInfo,functionId) {
-                // console.log(rowInfo)
                 if (functionId == 34) {
                     this.editUserDialog1(rowInfo)
                 } else if (functionId == 35) {
@@ -371,7 +373,6 @@
             },
             //编辑用户信息弹窗
             editUserDialog1(Staff) {
-                // console.log(Staff)
                 this.editUserDialog=true
                 this.editStaff.staffId = Staff.staffId
                 this.editStaff.staffName = Staff.staffName
@@ -419,7 +420,6 @@
                     }
                 })
                 .then((res) => {
-                    // console.log(res)
                     if (res.data.success) {
                         this.$message.success("修改成功")
                         this.getUserList()
@@ -444,8 +444,6 @@
                 })
 
                 if (confirmResult == 'confirm') {
-                    //console.log(staff.staffId)
-                    //console.log(window.sessionStorage.getItem('staffToken'))
                     let data = {
                         staffId: staff.staffId
                     }
@@ -455,7 +453,6 @@
                         }
                     })
                     .then((res) => {
-                        //console.log(res)
                         if (res.data.success) {
                             this.$message.success('删除成功')
                             this.getUserList()
@@ -485,7 +482,7 @@
 
                 //存储用户的相关信息,以便角色分配
                 this.editRole.staffId = staff.staffId
-                this.editRole.staffStatus = staff.staffStatus
+                this.editRole.staffName = staff.staffName
 
                 //发送请求,获取用户的角色信息
                 let data = {
@@ -497,16 +494,21 @@
                     }
                 })
                 .then((res) => {
-                    // console.log(res)
-                    // console.log(res.data.staffPositionList)
-                    // console.log(res.data.staffPositionRelation)
-                    // console.log(res.data.staffPositionList)
-                    // console.log(res.data.staffPositionRelation.staffPositionId)
                     // 判断是否存在角色
-                    if (res.data.staffPositionRelation != null) {
-                        this.editRole.radio = res.data.staffPositionRelation.staffPositionId
-                    } else {
-                        this.editRole.radio = 0
+                    if (res.data.staffPositionRelation.staffPositionId == "1") {
+                        this.editRole.staffPositionName = '总经理'
+                    } else if (res.data.staffPositionRelation.staffPositionId == "2") {
+                        this.editRole.staffPositionName = '副经理'
+                    } else if (res.data.staffPositionRelation.staffPositionId == "3") {
+                        this.editRole.staffPositionName = '财务'
+                    } else if (res.data.staffPositionRelation.staffPositionId == "4") {
+                        this.editRole.staffPositionName = '库房管理员'
+                    } else if (res.data.staffPositionRelation.staffPositionId == "5") {
+                        this.editRole.staffPositionName = '职工'
+                    } else if (res.data.staffPositionRelation.staffPositionId == "6") {
+                        this.editRole.staffPositionName = '营业员'
+                    } else if (res.data.staffPositionRelation.staffPositionId == "7") {
+                        this.editRole.staffPositionName = '超级管理员'
                     }
                 })
                 .catch((err) => {
@@ -515,24 +517,21 @@
             },
             //分配角色
             handRole() {
-                //console.log(this.editRole.radio)
                 let staffPositionRelation = {
                     staffId: this.editRole.staffId,
-                    staffPositionId: this.editRole.radio,
-                    staffPositionStatus: 1
+                    staffPositionId: this.editRole.staffPositionId,
+                    staffPositionStatus: this.editRole.staffPositionStatus
                 }
 
                 let data = {
                     staffPositionRelation: JSON.stringify(staffPositionRelation)
                 }
-                // console.log(data)
                 this.$axios.post('/stafflist/positiondistributioncommit',this.$qs.stringify(data),{
                     headers:{
                         staffToken: window.sessionStorage.getItem('staffToken')
                     }
                 })
                 .then((res) => {
-                    // console.log(res)
                     if (res.data.success) {
                          this.$message.success('角色分配成功')
                          this.getUserList()

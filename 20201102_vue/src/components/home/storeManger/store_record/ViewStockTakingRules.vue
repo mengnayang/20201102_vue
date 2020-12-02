@@ -8,10 +8,31 @@
         </el-breadcrumb>
         <!-- 卡片区域 -->
         <el-card>
-            <!-- 功能区域 -->
+            <!-- 主体框架 -->
+            <el-container>
+                <el-main>
+                    <el-row>
+                        <el-col :span="8">
+                            <el-table :data="staffList" border stripe @cell-click="getStockStaffId">
+                                <el-table-column label="职工列表" prop="staffName" align="center"></el-table-column>
+                            </el-table>
+                        </el-col>
+                        <el-col :span="8">
+                            <el-table :data="categoryListById" border>
+                                <el-table-column label="已盘点商品列表" prop="categoryName" align="center"></el-table-column>
+                            </el-table>
+                        </el-col>
+                        <el-col :span="8">
+                            <el-table :data="categoryListById" border v-show="false">
+                                <el-table-column label="未盘点商品列表" prop="categoryName" align="center"></el-table-column>
+                            </el-table>
+                        </el-col>
+                    </el-row>
+                </el-main>
+            </el-container>
             <el-row>
                 <el-col>
-                    
+                    <el-button type="success" size="small">修改</el-button>
                 </el-col>
             </el-row>
         </el-card>
@@ -23,8 +44,49 @@
         name:'ViewStockTakingRules',
         data() {
             return {
-                
+                //职工信息
+                staffList:[],
+                //职工盘点类别
+                categoryList:[],
+                //默认显示的盘点职工id
+                staffId:1,
+                categoryListById:[]
             }
+        },
+        created() {
+            this.getRules()
+        },
+        methods:{
+            getRules() {
+                let data = {}
+                this.$axios.post('/stocktaking/viewStocktakingRules', this.$qs.stringify(data),{
+                    headers:{
+                        staffToken: window.sessionStorage.getItem('staffToken')
+                    }
+                })
+                .then((res) => {
+                    if (res.data.success) {
+                        this.staffList = res.data.staffList
+                        this.categoryList = res.data.categoryList
+                    } else {
+                        this.$message.error(res.data.errMsg)
+                    }
+                })
+                .catch((err) => {
+                    this.$message.error(err.message)
+                })
+            },
+            getStockStaffId(row, column, cell, event) {
+                this.staffId = row.staffId
+                //根据职工id获取盘点物品
+                //先置空，防止数据累加
+                this.categoryListById = []
+                for (let i = 0; i < this.categoryList.length; i++) {
+                    if (this.staffId == this.categoryList[i].stocktakingStaffId) {
+                        this.categoryListById.push(this.categoryList[i])
+                    }
+                }
+            },
         }
     }
 </script>

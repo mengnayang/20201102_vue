@@ -11,12 +11,6 @@
             <!-- 功能区域 -->
             <el-row :gutter="10">
                 <el-col :span="8">
-                    <span>出库编号</span>
-                    <!-- <el-select size="small">
-                        <el-option></el-option>
-                    </el-select> -->
-                </el-col>
-                <el-col :span="8">
                     <span>订单编号</span>
                     <!-- <el-select size="small">
                         <el-option></el-option>
@@ -28,29 +22,24 @@
                         <el-option></el-option>
                     </el-select> -->
                 </el-col>
-            </el-row>
-            <el-row :gutter="10">
                 <el-col :span="8">
                     <span>状态</span>
                     <!-- <el-select size="small">
                         <el-option></el-option>
                     </el-select> -->
                 </el-col>
+            </el-row>
+            <el-row>
                 <el-col :span="4">
                     <el-button type="primary" size="small" @click="searchGood()">查询</el-button>
                 </el-col>
             </el-row>
             <!-- 表单区域 -->
             <el-table :data="retailRecordList" border stripe>
-                <el-table-column label="出库编号" prop="deliveryId" fixed width="120" align="center"></el-table-column>
-                <el-table-column label="已付款项" prop="deliveryPaid" fixed width="120" align="center"></el-table-column>
-                <el-table-column label="出库状态" prop="deliveryStatus"  width="120" align="center"></el-table-column>
-                <el-table-column label="发起职工" prop="deliveryLaunchedStaffId"  width="120" align="center"></el-table-column>
-                <el-table-column label="处理职工" prop="deliveryHandleStaffId" width="120" align="center"></el-table-column>
-                <el-table-column label="总价格" prop="deliveryTotalPrice" width="120" align="center"></el-table-column>
-                <el-table-column label="结账状态" prop="deliveryCheckOutStatus" width="80" align="center"></el-table-column>
-                <el-table-column label="退款状态" prop="deliveryRefundStatus" width="180" align="center"></el-table-column>
-                <el-table-column label="入库时间" prop="deliveryCreateDate" width="80" align="center"></el-table-column>
+                <el-table-column label="订单编号" prop="retailId" width="120" align="center"></el-table-column>
+                <el-table-column label="收款员工" prop="retailCollectionStaffId"  width="120" align="center"></el-table-column>
+                <el-table-column label="商品总价格" prop="retailTotalPrice"  width="120" align="center"></el-table-column>
+                <el-table-column label="付款时间" prop="retailTime" width="120" align="center"></el-table-column>
                 <el-table-column label="操作" fixed="right" width="120" align="center">
                     <template slot-scope="scope">
                         <el-button-group v-for="func in functionList" :key="func.functionId">

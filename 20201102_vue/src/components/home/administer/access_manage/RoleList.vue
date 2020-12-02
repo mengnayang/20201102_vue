@@ -168,13 +168,6 @@
             this.getRoleList()
         },
         methods:{
-            //展开事件日志列表
-            // clickTable(row, column, cell, event){
-            //     if(cell.cellIndex!=3 && cell.cellIndex!=10){
-            //         this.$refs.refTable.toggleRowExpansion(row);
-            //     }
-            //     this.getnoTicketReason("",row.businessType);
-            // },
             //默认展开一行
             expandSelect(row, expandedRows) {
                 var that = this
@@ -233,11 +226,9 @@
                 // 获取当前二级菜单的id
                 this.secondaryMenuList = window.sessionStorage.getItem('secondaryMenuList')
                 this.secondaryMenuList = JSON.parse(this.secondaryMenuList)
-                // console.log(this.secondaryMenuList)
 
                 for(var i = 0; i < this.secondaryMenuList.length; i++) {
                     if (this.secondaryMenuList[i].secondaryMenuUrl == this.$route.path) {
-                        // console.log(this.secondaryMenuList[i].secondaryMenuId)
                         this.secondaryMenuId = this.secondaryMenuList[i].secondaryMenuId
                     }
                 }
@@ -248,17 +239,14 @@
                     userId:window.sessionStorage.getItem('staffId'),
                     secondaryMenuId:this.secondaryMenuId
                 }
-                // console.log(data)
                 this.$axios.post('/stafflistjurisdiction',this.$qs.stringify(data),{
                     headers:{
                         staffToken: window.sessionStorage.getItem('staffToken')
                     }
                 })
                 .then((res) => {
-                    // console.log(res)
                     if (res.data.success) {
                         this.staffList = res.data.staffAList
-                        // console.log(this.staffList)
                         this.queryInfo.total = res.data.recordSum
                         if (res.data.functionList != null) {
                             this.functionList = res.data.functionList
@@ -313,7 +301,6 @@
             },
             // 编辑用户权限弹框
             editUserDialog1(Staff) {
-                // console.log(Staff)
                 this.editUserDialog=true
                 this.editStaff.staffId = Staff.staffId
                 this.editStaff.staffName = Staff.staffName
@@ -353,7 +340,6 @@
                 let data = {
                     staffA: JSON.stringify(staff)
                 } 
-                // console.log(data)
                 this.$axios.post('/stafflistjurisdiction/modifycommit', this.$qs.stringify(data), {
                     headers:{
                         staffToken: window.sessionStorage.getItem("staffToken")
@@ -384,8 +370,6 @@
                 })
 
                 if (confirmResult == 'confirm') {
-                    //console.log(staff.staffId)
-                    //console.log(window.sessionStorage.getItem('staffToken'))
                     let data = {
                         staffId: staff.staffId,
                         userId: window.sessionStorage.getItem('staffId')
@@ -396,7 +380,6 @@
                         }
                     })
                     .then((res) => {
-                        // console.log(res)
                         if (res.data.success) {
                             this.$message.success('删除成功')
                             this.getRoleList()
@@ -411,10 +394,6 @@
             },
             //删除用户权限
             async removeRoleById(staff,functionId, layer) {
-                // console.log(functionId,layer)
-                // console.log(this.roleList)
-                // console.log(this.roleList[0].secondaryMenuTreeList)
-                // console.log(this.roleList[0].secondaryMenuTreeList.length)
                 if (layer == 1) {
                     for (let i = 0; i < this.roleList.length; i++) {
                         if (this.roleList[i].primaryMenuId == functionId) {
@@ -440,8 +419,6 @@
                         }
                     }
                 }
-                // console.log(this.roleList)
-
                 const confirmResult =  await this.$confirm('此操作不可恢复，确认要删除该角色信息？','删除角色',{
                     confirmButtonText:'确认',
                     showCancelButton:true,
@@ -451,7 +428,6 @@
                     this.$message.info('已取消删除')
                 })
 
-                // console.log(confirmResult)
                 let newRoleList = []
                 if (confirmResult == 'confirm') {
                     for (let i = 0; i < this.roleList.length; i++) {
@@ -464,27 +440,22 @@
                                         jurisdictionStatus:1
                                     }
                                     newRoleList.push(list)
-                                    // console.log(newRoleList)
                                 }
                             }
                         }
                     }
                 }
-                // console.log(newRoleList)
                 let data = {
                     staffJurisdictionList:JSON.stringify(newRoleList),
                     userId:window.sessionStorage.getItem('staffId')
                 }
                 
-                // console.log(data)
-
                 this.$axios.post('/stafflistjurisdiction/jurisdictiondeletecommit',this.$qs.stringify(data),{
                     headers:{
                         staffToken: window.sessionStorage.getItem('staffToken')
                     }
                 })
                 .then((res) => {
-                    // console.log(res)
                     if (res.data.success) {
                         this.$message.success('角色功能删除成功')
                     } else {
@@ -505,7 +476,6 @@
                 let data = {
                     staffId : rowInfo.staffId
                 }
-                // console.log(data)
                 this.$axios.post('/stafflistjurisdiction/jurisdictiondistribution',this.$qs.stringify(data),{
                     headers:{
                         staffToken: window.sessionStorage.getItem('staffToken')
@@ -513,7 +483,6 @@
                 })
                 .then((res) => {
                     if (res.data.success) {
-                        // console.log(res.data.primaryMenuTreeList)
                         this.roleList = res.data.primaryMenuTreeList
                         this.changeToTree()
                     }
@@ -524,7 +493,6 @@
             },
             //分配角色
             handRole() {
-                // console.log(this.$refs.rootTree.getCheckedNodes());
                 this.selectedNode = this.$refs.rootTree.getCheckedNodes()
                 let selectedFunctionId = []
                 for (let i = 0; i < this.selectedNode.length; i++) {
@@ -532,8 +500,6 @@
                         selectedFunctionId.push(this.selectedNode[i].id)
                     } 
                 }
-                console.log(selectedFunctionId)
-                //console.log(this.editRole.radio)
                 let staffJurisdictionList = []
                 for (let i = 0; i < selectedFunctionId.length; i++) {
                     let staffJurisdiction = {
@@ -548,14 +514,12 @@
                     staffJurisdictionList: JSON.stringify(staffJurisdictionList),
                     userId:window.sessionStorage.getItem('staffId')
                 }
-                // console.log(data)
                 this.$axios.post('/stafflistjurisdiction/jurisdictiondistributioncommit',this.$qs.stringify(data),{
                     headers:{
                         staffToken: window.sessionStorage.getItem('staffToken')
                     }
                 })
                 .then((res) => {
-                    // console.log(res)
                     if (res.data.success) {
                         this.$message.success('角色权限更改成功')
                         this.getRoleList()
@@ -570,28 +534,25 @@
             },
             //把权限信息转换成树
             changeToTree() {
+                console.log(this.roleList)
                 let third_arr = []
                 let second_arr = []
                 let first_arr = []
                 this.selectedNode = []
-                // console.log(this.roleList)
                 for (let i = 0; i < this.roleList.length; i++) {
-                    // console.log(this.roleList[i].primaryMenuName)
                     second_arr = []
                     for (let j = 0; j < this.roleList[i].secondaryMenuTreeList.length; j++) {
-                        // console.log(this.roleList[i].secondaryMenuTreeList[j].secondaryMenuName)
                         third_arr = []
                         for (let k = 0; k < this.roleList[i].secondaryMenuTreeList[j].functionTreeList.length; k++) {
                             let third = {
                                 id:this.roleList[i].secondaryMenuTreeList[j].functionTreeList[k].functionId,
                                 label:this.roleList[i].secondaryMenuTreeList[j].functionTreeList[k].functionName,
                             }
-                            third_arr.push(third)
                             if (this.roleList[i].secondaryMenuTreeList[j].functionTreeList[k].isSelected == 1) {
                                 this.selectedNode.push(this.roleList[i].secondaryMenuTreeList[j].functionTreeList[k].functionId)
-                                // this.selectedNode.push(third)
+                                third_arr.push(third)
+                                console.log(third)
                             }
-                            // console.log(third)
                         }
                         let second = {
                             id:this.roleList[i].secondaryMenuTreeList[j].secondaryMenuId,
@@ -599,6 +560,7 @@
                             children: third_arr
                         }
                         second_arr.push(second)
+                        console.log(second)
                     }
                     let first = {
                             id:this.roleList[i].primaryMenuId,
@@ -606,12 +568,10 @@
                             children: second_arr
                     }
                     first_arr.push(first)
+                    console.log(first)
                 }
-                // console.log(first_arr)
                 this.roleList = first_arr
-                //显示所有选中节点
-                // console.log(this.selectedNode)
-                // this.$refs.rootTree.setCheckedNodes(this.selectedNode)
+                console.log(this.roleList)
             },
         }
     }

@@ -34,7 +34,8 @@ Pagination,
 Tooltip,
 MessageBox,
 Tree,
-Tag
+Tag,
+Transfer
 } from 'element-ui'
 Vue.use(Form)
 Vue.use(FormItem)
@@ -66,6 +67,7 @@ Vue.use(Pagination)
 Vue.use(Tooltip)
 Vue.use(Tree)
 Vue.use(Tag)
+Vue.use(Transfer)
 
 //全局挂载
 Vue.prototype.$message = Message
