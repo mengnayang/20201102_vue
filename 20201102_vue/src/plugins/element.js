@@ -35,7 +35,8 @@ Tooltip,
 MessageBox,
 Tree,
 Tag,
-Transfer
+Transfer,
+Upload
 } from 'element-ui'
 Vue.use(Form)
 Vue.use(FormItem)
@@ -68,6 +69,7 @@ Vue.use(Tooltip)
 Vue.use(Tree)
 Vue.use(Tag)
 Vue.use(Transfer)
+Vue.use(Upload)
 
 //全局挂载
 Vue.prototype.$message = Message

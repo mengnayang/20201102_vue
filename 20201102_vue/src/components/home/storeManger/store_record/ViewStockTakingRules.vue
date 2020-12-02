@@ -13,19 +13,24 @@
                 <el-main>
                     <el-row>
                         <el-col :span="8">
-                            <el-table :data="staffList" border stripe @cell-click="getStockStaffId">
+                            <el-table :data="staffList" border stripe @cell-click="getStockStaffId" height="300">
                                 <el-table-column label="职工列表" prop="staffName" align="center"></el-table-column>
                             </el-table>
                         </el-col>
-                        <el-col :span="8">
-                            <el-table :data="categoryListById" border>
+                        <!-- <el-col :span="8">
+                            <el-table :data="categoryListById" border height="300">
                                 <el-table-column label="已盘点商品列表" prop="categoryName" align="center"></el-table-column>
                             </el-table>
                         </el-col>
                         <el-col :span="8">
-                            <el-table :data="categoryListById" border v-show="false">
+                            <el-table :data="categoryListById" border v-show="false" height="300">
                                 <el-table-column label="未盘点商品列表" prop="categoryName" align="center"></el-table-column>
                             </el-table>
+                        </el-col> -->
+                        <el-col :span="16">
+                            <template>
+                                <el-transfer  :titles="['已盘点商品列表', '未盘点商品列表']" :model="categoryListFalse_1" :data="categoryList_1"></el-transfer>
+                            </template>
                         </el-col>
                     </el-row>
                 </el-main>
@@ -46,11 +51,17 @@
             return {
                 //职工信息
                 staffList:[],
-                //职工盘点类别
+                //所有职工盘点类别
                 categoryList:[],
                 //默认显示的盘点职工id
                 staffId:1,
-                categoryListById:[]
+                //某员工盘点的商品类别
+                categoryListById:[],
+                //未盘点的商品类别
+                categoryListFalse:[],
+                categoryList_1:[],
+                categoryListFalse_1:[17],
+                categoryListById_1:[]
             }
         },
         created() {
@@ -78,14 +89,42 @@
             },
             getStockStaffId(row, column, cell, event) {
                 this.staffId = row.staffId
+
                 //根据职工id获取盘点物品
                 //先置空，防止数据累加
                 this.categoryListById = []
+                this.categoryListById_1 = []
+                this.categoryListFalse_1 = []
+                this.categoryListFalse = []
+                this.categoryList_1 = []
+
+                //转换类型
+                this.categoryList.forEach((item)=>{
+                    this.categoryList_1.push({
+                        key: item.categoryId,
+                        label: item.categoryName
+                    })
+                })
+
+               
                 for (let i = 0; i < this.categoryList.length; i++) {
                     if (this.staffId == this.categoryList[i].stocktakingStaffId) {
-                        this.categoryListById.push(this.categoryList[i])
+                        this.categoryListById_1.push(this.categoryList_1[i])
+                    } 
+                }
+                //获取未盘点的商品类别
+                for(let i = 0; i < this.categoryList.length; i++) {
+                    if (this.categoryList[i].stocktakingStaffId > 0) {
+                    }else {
+                        this.categoryListFalse.push(this.categoryList_1[i])
                     }
                 }
+
+                this.categoryListFalse.forEach((item)=>{
+                    this.categoryListFalse_1.push(item.key)
+                })
+                console.log(this.categoryListById_1)
+                console.log(this.categoryListFalse_1)
             },
         }
     }
