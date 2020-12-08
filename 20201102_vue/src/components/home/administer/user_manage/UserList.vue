@@ -47,7 +47,7 @@
                     <template slot-scope="scope">
                         <el-button-group v-for="func in functionList_one" :key="func.functionId">
                             <el-tooltip effect="light" placement="top" :content="func.functionName" :enterable="false">
-                                <el-button :type="func.btnType" size="mini" :icon="func.btnIcon" @click="getButtonStatus(scope.row,func.functionId)"></el-button>
+                                <el-button :type="func.btnType" size="small" :icon="func.btnIcon" @click="getButtonStatus(scope.row,func.functionId)"></el-button>
                             </el-tooltip>
                         </el-button-group>
                         <!-- <el-tooltip effect="light" placement="top" content="编辑" :enterable="false">
@@ -194,7 +194,7 @@
                 //获取部分用户信息的先决条件
                 queryInfo:{
                     total:0,
-                    pageIndex:0,
+                    pageIndex:1,
                     infoCount:4
                 },
                 //指定查询需求
@@ -252,7 +252,7 @@
             //初始获取部分用户信息
             getUserList() {
                 let data = {
-                    pageIndex: this.queryInfo.pageIndex,
+                    pageIndex: this.queryInfo.pageIndex-1,
                     pageSize: this.queryInfo.infoCount
                 }
                 this.$axios.post('/stafflist', this.$qs.stringify(data),{
@@ -266,7 +266,6 @@
                     }
                     this.queryInfo.total = res.data.recordSum
                     this.userList = res.data.staffAList
-                    console.log(this.userList)
                     this.drawBtn()
                 })
                 .catch((err) => {
@@ -276,7 +275,7 @@
             //模糊查询
             searchUserList(){
                 let data = {
-                    pageIndex: this.queryInfo.pageIndex,
+                    pageIndex: this.queryInfo.pageIndex-1,
                     pageSize: this.queryInfo.infoCount,
                     staffName: this.searchPartName 
                 }
@@ -413,7 +412,6 @@
                 let data = {
                     staffA: JSON.stringify(staff)
                 } 
-                console.log(data)
                 this.$axios.post('/stafflist/modifycommit', this.$qs.stringify(data), {
                     headers:{
                         staffToken: window.sessionStorage.getItem("staffToken")
@@ -494,21 +492,25 @@
                     }
                 })
                 .then((res) => {
-                    // 判断是否存在角色
-                    if (res.data.staffPositionRelation.staffPositionId == "1") {
-                        this.editRole.staffPositionName = '总经理'
-                    } else if (res.data.staffPositionRelation.staffPositionId == "2") {
-                        this.editRole.staffPositionName = '副经理'
-                    } else if (res.data.staffPositionRelation.staffPositionId == "3") {
-                        this.editRole.staffPositionName = '财务'
-                    } else if (res.data.staffPositionRelation.staffPositionId == "4") {
-                        this.editRole.staffPositionName = '库房管理员'
-                    } else if (res.data.staffPositionRelation.staffPositionId == "5") {
-                        this.editRole.staffPositionName = '职工'
-                    } else if (res.data.staffPositionRelation.staffPositionId == "6") {
-                        this.editRole.staffPositionName = '营业员'
-                    } else if (res.data.staffPositionRelation.staffPositionId == "7") {
-                        this.editRole.staffPositionName = '超级管理员'
+                    if (res.data.success) {
+                        // 判断是否存在角色
+                        if (res.data.staffPositionRelation.staffPositionId == "1") {
+                            this.editRole.staffPositionName = '总经理'
+                        } else if (res.data.staffPositionRelation.staffPositionId == "2") {
+                            this.editRole.staffPositionName = '副经理'
+                        } else if (res.data.staffPositionRelation.staffPositionId == "3") {
+                            this.editRole.staffPositionName = '财务'
+                        } else if (res.data.staffPositionRelation.staffPositionId == "4") {
+                            this.editRole.staffPositionName = '库房管理员'
+                        } else if (res.data.staffPositionRelation.staffPositionId == "5") {
+                            this.editRole.staffPositionName = '职工'
+                        } else if (res.data.staffPositionRelation.staffPositionId == "6") {
+                            this.editRole.staffPositionName = '营业员'
+                        } else if (res.data.staffPositionRelation.staffPositionId == "7") {
+                            this.editRole.staffPositionName = '超级管理员'
+                        }
+                    } else {
+                        this.$message.error(res.data.errMsg )
                     }
                 })
                 .catch((err) => {

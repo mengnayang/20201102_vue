@@ -117,7 +117,7 @@
             return{
                 //请求权限列表的先决条件
                 queryInfo:{
-                    pageIndex:0,
+                    pageIndex:1,
                     total:0,
                     infoCount:4
                 },
@@ -234,7 +234,7 @@
                 }
 
                 let data = {
-                    pageIndex:this.queryInfo.pageIndex,
+                    pageIndex:this.queryInfo.pageIndex-1,
                     pageSize:this.queryInfo.infoCount,
                     userId:window.sessionStorage.getItem('staffId'),
                     secondaryMenuId:this.secondaryMenuId
@@ -484,7 +484,7 @@
                 .then((res) => {
                     if (res.data.success) {
                         this.roleList = res.data.primaryMenuTreeList
-                        this.changeToTree()
+                        this.changeToTree(res.data.primaryMenuTreeList)
                     }
                 })
                 .catch((err) => {
@@ -533,46 +533,65 @@
                 this.handRoleDialog = false
             },
             //把权限信息转换成树
-            changeToTree() {
-                console.log(this.roleList)
+            changeToTree(data1) {
+                //console.log(this.roleList)
+                let key = 0
                 let third_arr = []
                 let second_arr = []
                 let first_arr = []
+                let selecnode = []
                 this.selectedNode = []
-                for (let i = 0; i < this.roleList.length; i++) {
+                for (let i = 0; i < data1.length; i++) {
                     second_arr = []
-                    for (let j = 0; j < this.roleList[i].secondaryMenuTreeList.length; j++) {
+                    for (let j = 0; j < data1[i].secondaryMenuTreeList.length; j++) {
                         third_arr = []
-                        for (let k = 0; k < this.roleList[i].secondaryMenuTreeList[j].functionTreeList.length; k++) {
+                        for (let k = 0; k < data1[i].secondaryMenuTreeList[j].functionTreeList.length; k++) {
                             let third = {
-                                id:this.roleList[i].secondaryMenuTreeList[j].functionTreeList[k].functionId,
-                                label:this.roleList[i].secondaryMenuTreeList[j].functionTreeList[k].functionName,
+                                id:key,
+                                label:data1[i].secondaryMenuTreeList[j].functionTreeList[k].functionName,
                             }
-                            if (this.roleList[i].secondaryMenuTreeList[j].functionTreeList[k].isSelected == 1) {
-                                this.selectedNode.push(this.roleList[i].secondaryMenuTreeList[j].functionTreeList[k].functionId)
-                                third_arr.push(third)
-                                console.log(third)
+                            
+                            third_arr.push(third)
+                            if (data1[i].secondaryMenuTreeList[j].functionTreeList[k].isSelected == 1) {
+                                selecnode.push(key)
+                                //console.log(third)
                             }
+                            key = key + 1
                         }
                         let second = {
-                            id:this.roleList[i].secondaryMenuTreeList[j].secondaryMenuId,
-                            label:this.roleList[i].secondaryMenuTreeList[j].secondaryMenuName,
+                            id:key,
+                            label:data1[i].secondaryMenuTreeList[j].secondaryMenuName,
                             children: third_arr
                         }
+                        key = key + 1
                         second_arr.push(second)
-                        console.log(second)
+                        //console.log(second)
                     }
                     let first = {
-                            id:this.roleList[i].primaryMenuId,
-                            label:this.roleList[i].primaryMenuName,
+                            id:key,
+                            label:data1[i].primaryMenuName,
                             children: second_arr
                     }
+                    key = key + 1
                     first_arr.push(first)
-                    console.log(first)
+                    //console.log(first)
                 }
+                this.roleList = []
                 this.roleList = first_arr
+                this.selectedNode = []
+                this.selectedNode = selecnode
+                console.log('#################################################')
+                console.log(selecnode)
+                //console.log('---------------------------------------------------')
+                //console.log(this.selectedNode)
+                //console.log('---------------------------------------------------')
+                //console.log(first_arr)
+                //console.log(data.selectedNode)
                 console.log(this.roleList)
+                //console.log('++++++++++++++++++++++++++++++++++++++++++++++++++')
+                //console.log(this.roleList)
             },
+
         }
     }
 </script>

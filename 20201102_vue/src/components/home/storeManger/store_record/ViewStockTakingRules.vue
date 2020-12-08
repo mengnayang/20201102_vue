@@ -29,7 +29,7 @@
                         </el-col> -->
                         <el-col :span="16">
                             <template>
-                                <el-transfer  :titles="['已盘点商品列表', '未盘点商品列表']" :model="categoryListFalse_1" :data="categoryList_1"></el-transfer>
+                                <el-transfer  :titles="['已盘点商品列表', '未盘点商品列表']" :model="categoryListFalseId" :data="categoryListByIdFalse"></el-transfer>
                             </template>
                         </el-col>
                     </el-row>
@@ -59,9 +59,10 @@
                 categoryListById:[],
                 //未盘点的商品类别
                 categoryListFalse:[],
-                categoryList_1:[],
-                categoryListFalse_1:[17],
-                categoryListById_1:[]
+                //某员工盘点加未盘点的
+                categoryListByIdFalse:[],
+                //未盘点的商品类别id
+                categoryListFalseId:[]
             }
         },
         created() {
@@ -93,38 +94,48 @@
                 //根据职工id获取盘点物品
                 //先置空，防止数据累加
                 this.categoryListById = []
-                this.categoryListById_1 = []
-                this.categoryListFalse_1 = []
                 this.categoryListFalse = []
-                this.categoryList_1 = []
-
-                //转换类型
-                this.categoryList.forEach((item)=>{
-                    this.categoryList_1.push({
-                        key: item.categoryId,
-                        label: item.categoryName
-                    })
-                })
-
+                this.categoryListByIdFalse = []
+                this.categoryListFalseId = []
                
                 for (let i = 0; i < this.categoryList.length; i++) {
                     if (this.staffId == this.categoryList[i].stocktakingStaffId) {
-                        this.categoryListById_1.push(this.categoryList_1[i])
+                        this.categoryListById.push(this.categoryList[i])
                     } 
                 }
                 //获取未盘点的商品类别
                 for(let i = 0; i < this.categoryList.length; i++) {
                     if (this.categoryList[i].stocktakingStaffId > 0) {
                     }else {
-                        this.categoryListFalse.push(this.categoryList_1[i])
+                        this.categoryListFalse.push(this.categoryList[i])
                     }
                 }
 
-                this.categoryListFalse.forEach((item)=>{
-                    this.categoryListFalse_1.push(item.key)
+
+                //某员工盘点的商品+都未盘点的商品（类型转换）
+                let categoryById = this.categoryListById
+                let categoryFalse = this.categoryListFalse
+                this.categoryListById.map((item) => {
+                    this.categoryListByIdFalse.push({
+                        key: item.categoryId,
+                        label: item.categoryName
+                    })
                 })
-                console.log(this.categoryListById_1)
-                console.log(this.categoryListFalse_1)
+                console.log(this.categoryListByIdFalse)
+                this.categoryListFalse.map((item) => {
+                    this.categoryListByIdFalse.push({
+                        key: item.categoryId,
+                        label: item.categoryName
+                    })
+                })                
+                console.log(this.categoryListByIdFalse)
+                //存储未盘点商品的类别id（类型转换）
+                this.categoryListFalse.map((item)=>{
+                    this.categoryListFalseId.push(item.key)
+                })
+
+                console.log(this.categoryListByIdFalse)
+                console.log(this.categoryListFalseId)
             },
         }
     }

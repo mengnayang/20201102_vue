@@ -347,7 +347,7 @@
                     <el-row>
                         <el-col :span="11">
                             <el-form-item label="订货量:">
-                                <el-input v-model="currentGood.stockInventoryNum" auto-complete="off"></el-input>
+                                <el-input v-model="currentGood.stockOrderNum" auto-complete="off"></el-input>
                             </el-form-item>
                         </el-col>
                         <el-col :span="11" :offset="1">
@@ -481,7 +481,7 @@
                 currentGood:'',
                 //分页信息
                 queryInfo:{
-                    pageIndex:0,
+                    pageIndex:1,
                     infoCount:4,
                     total:0
                 },
@@ -517,7 +517,7 @@
                 }
 
                 let data = {
-                    pageIndex: this.queryInfo.pageIndex,
+                    pageIndex: this.queryInfo.pageIndex-1,
                     pageSize: this.queryInfo.infoCount,
                     secondaryMenuId: this.secondaryMenuId
                 }

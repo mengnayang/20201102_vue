@@ -9,7 +9,8 @@
         <!-- 卡片区域 -->
         <el-card>
             <!-- 功能区域 -->
-            <el-row>
+            <!-- 一层 -->
+            <el-row v-show="isFirst">
                 <el-col :span="6">
                     <el-row>
                         <el-col :span="7">盘点时间:</el-col>
@@ -34,11 +35,12 @@
                     </el-row>
                 </el-col>
                 <el-col :span="6" :offset="6">
-                    <el-button type="warning" size="mini" round>定时盘点</el-button>
-                    <el-button type="warning" size="mini" round @click="requestRecord()">发起盘点</el-button>
+                    <el-button-group v-for="func in functionList_three" :key="func.functionId">
+                        <el-button :type="func.btnType" size="mini" :icon="func.btnIcon" @click="getButtonStatus(null ,func.functionWeight)">{{func.functionName}}</el-button>
+                    </el-button-group>            
                 </el-col>
             </el-row>
-            <el-row>
+            <el-row v-show="isFirst">
                 <el-col :span="6">
                     <el-row>
                         <el-col :span="7">发起员工:</el-col>
@@ -72,18 +74,170 @@
                     </el-row>
                 </el-col>
                 <el-col :span="6">
-                    <el-button type="primary" round size="mini" @click="searchPartStock()">查询</el-button>
+                    <el-button type="primary" size="small" @click="searchPartStock()">查询</el-button>
+                    <el-button type="primary" size="small" @click="rollback()" :disabled="isFirst">返回上一层</el-button>
+                </el-col>
+            </el-row>
+            <!-- 二层 -->
+            <el-row v-show="isSecond">
+                <el-col :span="6">
+                    <el-row>
+                        <el-col :span="7">盘点时间:</el-col>
+                        <el-col :span="5">
+                            <el-date-picker style="width:150px" type="date" placeholder="请选择盘点时间" size="mini" v-model="selected.stocktakingCommitDate">
+                            </el-date-picker>
+                        </el-col>
+                    </el-row>
+                </el-col>
+                <el-col :span="6">
+                    <el-row>
+                        <el-col :span="2">第</el-col>
+                        <el-col :span="9">
+                            <el-select size="mini" v-model="selected.stocktakingId">
+                                <el-option :value="0" :label="'全部'"></el-option>
+                                <el-option :value="1" :labal="1"></el-option>
+                                <el-option :value="2" :labal="2"></el-option>
+                                <el-option :value="3" :labal="3"></el-option>
+                            </el-select>
+                        </el-col>
+                        <el-col :span="6">次盘点</el-col>
+                    </el-row>
+                </el-col>
+                <el-col :span="6" :offset="6">
+                    <el-button-group v-for="func in functionList_three" :key="func.functionId">
+                        <el-button :type="func.btnType" size="small" :icon="func.btnIcon" @click="getButtonStatus(scope.row,func.functionWeight)">{{func.functionName}}</el-button>
+                    </el-button-group>            
+                </el-col>
+            </el-row>
+            <el-row v-show="isSecond">
+                <el-col :span="6">
+                    <el-row>
+                        <el-col :span="7">盘点类别:</el-col>
+                        <el-col :span="15">
+                            <el-select size="mini" v-model="selected.stocktakingLaunchedStaffId">
+                                <el-option v-for="item in staffList" :value="item.staffId" :key="item.staffId" :label="item.staffName"></el-option>
+                            </el-select>
+                        </el-col>
+                    </el-row>
+                </el-col>
+                <el-col :span="6">
+                    <el-row>
+                        <el-col :span="7">盈亏:</el-col>
+                        <el-col :span="15">
+                            <el-select size="mini" v-model="selected.stocktakingSubmitStaffId">
+                                <el-option v-for="item in staffList" :value="item.staffId" :key="item.staffId" :label="item.staffName"></el-option>
+                            </el-select>
+                        </el-col>
+                    </el-row>
+                </el-col>
+                <!-- <el-col :span="6">
+                    <el-row>
+                        <el-col :span="7">商品名称:</el-col>
+                        <el-col :span="15">
+                            <el-select size="mini"  v-model="selected.stocktakingAllStatus">
+                                <el-option :value="0" :label="'全部'"></el-option>
+                                <el-option :value="1" :labal="'已盘点'"></el-option>
+                                <el-option :value="2" :labal="'未盘点'"></el-option>
+                            </el-select>
+                        </el-col>
+                    </el-row>
+                </el-col> -->
+                <el-col :span="6">
+                    <el-row>
+                        <el-col :span="7">盘点状态:</el-col>
+                        <el-col :span="15">
+                            <el-select size="mini"  v-model="selected.stocktakingAllStatus">
+                                <el-option :value="0" :label="'全部'"></el-option>
+                                <el-option :value="1" :labal="'已盘点'"></el-option>
+                                <el-option :value="2" :labal="'未盘点'"></el-option>
+                            </el-select>
+                        </el-col>
+                    </el-row>
+                </el-col>
+                <el-col :span="6">
+                    <el-button type="primary" size="small" @click="searchPartStock()">查询</el-button>
+                    <el-button type="primary" size="small" @click="rollback()" :disabled="isFirst">返回上一层</el-button>
+                </el-col>
+            </el-row>
+            <!-- 选取商品列表需求选择区 -->
+            <el-row v-show="isThird">
+                <el-col :span="2">商品类别:</el-col>
+                <el-col :span="5">
+                    <el-select size="mini" v-model="selected1.categoryId">
+                        <el-option v-for="item in categoryList" :key="item.categoryId" :value="item.categoryId" :label="item.categoryName"></el-option>
+                    </el-select>
+                </el-col>
+                <el-col :span="6">
+                    <el-button type="primary" size="small" @click="rollbackFirst()">返回</el-button>
                 </el-col>
             </el-row>
             <!-- 表单区域 -->
-            <el-table :data="stockList" border stripe>
-                <el-table-column label="#" type="index" align="center"></el-table-column>
-                <el-table-column label="盘点编号" prop="stocktakingId" align="center" width="180px"></el-table-column>
-                <el-table-column label="发起员工" width="170px" prop="stocktakingLaunchedStaffId" align="center"></el-table-column>
+            <!-- 一级 -->
+            <el-table :data="stocktakingRecordList" border stripe v-show="isFirst">
+                <el-table-column label="盘点编号" prop="stocktakingId" fixed align="center" width="180px"></el-table-column>
+                <el-table-column label="发起员工" width="170px" align="center">
+                    <template slot-scope="scope">
+                        <span v-for="item in staffList" :key="item.staffId" v-if="item.staffId == scope.row.stocktakingLaunchedStaffId">{{item.staffName}}</span>
+                    </template>
+                </el-table-column>
                 <el-table-column label="提交员工" width="170px" prop="stocktakingSubmitStaffId" align="center"></el-table-column>
                 <el-table-column label="盈亏状态" width="170px" prop="stocktakingProfitLossPrice" align="center"></el-table-column>
                 <el-table-column label="盘点状态" width="170px" prop="stocktakingAllStatus" align="center"></el-table-column>
-                <el-table-column label="操作" width="190px" align="center"></el-table-column>
+                <el-table-column label="盘点发起时间" width="170px" prop="stocktakingLaunchedDate" align="center"></el-table-column>                
+                <el-table-column label="盘点提交时间" width="170px" prop="stocktakingCommitDate" align="center"></el-table-column>
+                <el-table-column label="操作" fixed="right" width="190px" align="center">
+                    <template slot-scope="scope">
+                        <el-button-group v-for="func in functionList_one" :key="func.functionId">
+                            <el-tooltip effect="light" placement="top" :content="func.functionName" :enterable="false">
+                                <el-button :type="func.btnType" size="mini" :icon="func.btnIcon" @click="getButtonStatus(scope,func.functionWeight)"></el-button>
+                            </el-tooltip>
+                        </el-button-group>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <!-- 二级 -->
+            <el-table :data="stockingGoodsList" border stripe v-show="isSecond">
+                <el-table-column label="商品图片" prop="goodsPicture" fixed align="center" width="120px"></el-table-column>
+                <el-table-column label="盘点编号" prop="stocktakingId" fixed align="center" width="120px"></el-table-column>
+                <el-table-column label="商品编号" prop="stockGoodsId" fixed align="center" width="150px"></el-table-column>
+                <el-table-column label="商品名称" prop="goodsName" align="center" width="150px"></el-table-column>
+                <el-table-column label="商品类别" width="120px" prop="categoryName" align="center"></el-table-column>
+                <el-table-column label="品牌名称" width="120px" prop="goodsBrand" align="center"></el-table-column>
+                <el-table-column label="实时库存量" width="120px" prop="stockInventory" align="center"></el-table-column>
+                <el-table-column label="盘点数量" width="120px" prop="stocktakingNum" align="center"></el-table-column>
+                <el-table-column label="盘点状态" width="120px" prop="stocktakingStatus" align="center"></el-table-column>
+                <el-table-column label="操作" fixed="right" width="240px" align="center">
+                    <template slot-scope="scope">
+                        <el-button-group v-for="func in functionList_two" :key="func.functionId">
+                            <el-tooltip effect="light" placement="top" :content="func.functionName" :enterable="false">
+                                <el-button :type="func.btnType" size="mini" :icon="func.btnIcon" @click="getButtonStatus(scope,func.functionWeight)"></el-button>
+                            </el-tooltip>
+                        </el-button-group>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <!-- 选取商品列表 -->
+            <el-table :data="goodsStockAList" ref="multipleTable" border stripe v-show="isThird" @selection-change="handleSelectionChange">
+                <el-table-column type="selection" width="60" align="center"></el-table-column>
+                <el-table-column label="商品图片" prop="goodsPicture" fixed align="center" width="150px"></el-table-column>
+                <el-table-column label="商品编号" prop="goodsId" fixed align="center" width="150px"></el-table-column>
+                <el-table-column label="商品名称" prop="goodsName" align="center" width="150px"></el-table-column>
+                <el-table-column label="商品类别" width="120px" prop="goodsCategoryId" align="center">
+                    <template slot-scope="scope">
+                        <span v-for="item in categoryList" :key="item.categoryId" v-if="scope.row.goodsCategoryId == item.categoryId">{{item.categoryName}}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="品牌名称" width="120px" prop="goodsBrand" align="center"></el-table-column>
+                <el-table-column label="产品批号" width="120px" prop="stockGoodsBatchNumber" align="center"></el-table-column>
+                <el-table-column label="生产日期" width="120px" prop="stockGoodsProductionDate" align="center"></el-table-column>
+                <el-table-column label="实时库存量" width="120px" prop="stockInventory" align="center"></el-table-column>
+                <el-table-column label="售价" width="120px" prop="stockGoodsPrice" align="center"></el-table-column>
+                <el-table-column label="产品规格" width="120px" prop="goodsSpecifications" align="center"></el-table-column>
+                <el-table-column label="盘点员工" width="120px" prop="goodsSpecifications" align="center">
+                    <template slot-scope="scope">
+                        <span v-for="item in categoryList" :key="item.categoryId" v-if="scope.row.goodsCategoryId == item.categoryId">{{item.stocktakingStaffId}}</span>
+                    </template>
+                </el-table-column>
             </el-table>
         </el-card>
         <el-pagination
@@ -92,6 +246,234 @@
         @current-change="currentChange"
         layout="total, sizes, prev, pager, next, jumper">
         </el-pagination>
+        <el-row v-show="isStocktaking == 1">
+            <el-col :span="6" :offset="20">
+                <el-button-group v-for="func in functionList_four" :key="func.functionId">
+                    <el-button :type="func.btnType" size="small"  @click="requestRecord()">发起盘点</el-button>
+                </el-button-group>
+            </el-col>
+        </el-row>
+        <el-row v-show="isThird">
+            <el-col :span="2" :offset="19">
+                <el-button type="primary" size="small" @click="toggleSelection()">取消</el-button>    
+            </el-col>
+            <el-col :span="2">
+                <el-button type="warning" size="small" @click="requestRecord()">发起盘点</el-button>
+            </el-col>
+        </el-row>
+        <!-- 查看详细信息列表 -->
+        <el-dialog title="盘点商品信息" :visible.sync="lookDialog" width="500px">
+            <el-form>
+                <el-row>
+                    <el-col :span="12" :offset="10" class="title">盘点信息</el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="盘点编号:">{{current.stocktaking.stocktakingId}}</el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="盘点时间:">{{current.stocktaking.stocktakingTime}}</el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="8">
+                        <el-form-item label="盘点盈亏状态:">{{current.stocktaking.stocktakingProfitLossStatus}}</el-form-item>
+                    </el-col>  
+                    <el-col :span="8">
+                        <el-form-item label="盘点单价:">{{current.stocktaking.stocktakingPrice}}</el-form-item>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-form-item label="盘点数量:">{{current.stocktaking.stocktakingNum}}</el-form-item>
+                    </el-col>  
+                </el-row>
+                <el-row>
+                    <el-col :span="8">
+                        <el-form-item label="盘点状态:">{{current.stocktaking.stocktakingStatus}}</el-form-item>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-form-item label="盘点职工:">{{current.staff.staffName}}</el-form-item>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-form-item label="盘点备注:">{{current.stocktaking.stocktakingRemarks}}</el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="12" :offset="10" class="title">
+                        商品信息
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="商品编号:">{{current.goods.goodsId}}</el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="商品名称:">{{current.goods.goodsName}}</el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="8">
+                        <el-form-item label="商品类别:">{{current.category.categoryName}}</el-form-item>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-form-item label="品牌名称:">{{current.goods.goodsBrand}}</el-form-item>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-form-item label="实时库存:">{{current.stock.stockInventory}}</el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="8">
+                        <el-form-item label="保质期:">{{current.stock.stockGoodsShelfLife}}</el-form-item>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-form-item label="单位:">{{current.unit.unitName}}</el-form-item>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-form-item label="规格:">{{current.goods.goodsSpecifications}}</el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="生产日期:">{{current.stock.stockGoodsProductionDate}}</el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="商品图片:">
+                            <img :src="current.goods.goodsPicture" alt="图片">
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button type="primary" @click="lookDialog = false">取消</el-button>
+            </span>
+        </el-dialog>
+        <!-- 修改详细信息列表 -->
+        <el-dialog title="盘点商品信息" :visible.sync="editDialog" width="500px">
+            <el-form label-width="80px">
+                <el-row>
+                    <el-col :span="12" :offset="10" class="title">盘点信息</el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="盘点编号:">
+                            <el-input v-model="current.stocktaking.stocktakingId" auto-complete="off" disabled></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="盘点时间:">
+                            <el-input v-model="current.stocktaking.stocktakingTime" auto-complete="off" disabled></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="8">
+                        <el-form-item label="盈亏状态:">
+                            <el-input v-model="current.stocktaking.stocktakingProfitLossStatus" auto-complete="off" disabled></el-input>
+                        </el-form-item>
+                    </el-col>  
+                    <el-col :span="8">
+                        <el-form-item label="盘点单价:">
+                            <el-input v-model="current.stocktaking.stocktakingPrice" auto-complete="off" disabled></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-form-item label="盘点数量:">
+                            <el-input v-model="current.stocktaking.stocktakingNum" auto-complete="off"></el-input>
+                        </el-form-item>
+                    </el-col>  
+                </el-row>
+                <el-row>
+                    <el-col :span="8">
+                        <el-form-item label="盘点状态:">
+                            <el-input v-model="current.stocktaking.stocktakingStatus" auto-complete="off" disabled></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="10">
+                        <el-form-item label="盘点职工:">
+                            <el-input v-model="current.staff.staffName" auto-complete="off" disabled></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="18">
+                        <el-form-item label="盘点备注:">
+                            <el-input type="textarea" v-model="current.stocktaking.stocktakingRemarks" auto-complete="off"></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="12" :offset="10" class="title">
+                        商品信息
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="商品编号:">
+                            <el-input v-model="current.goods.goodsId" auto-complete="off" disabled></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="商品名称:">
+                            <el-input v-model="current.goods.goodsName" auto-complete="off" disabled></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="商品类别:">
+                            <el-input v-model="current.category.categoryName" auto-complete="off" disabled></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="品牌名称:">
+                            <el-input v-model="current.goods.goodsBrand" auto-complete="off" disabled></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="8">
+                        <el-form-item label="单位:">
+                            <el-input v-model="current.unit.unitName" auto-complete="off" disabled></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-form-item label="规格:">
+                            <el-input v-model="current.goods.goodsSpecifications" auto-complete="off" disabled></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-form-item label="保质期:">
+                            <el-input v-model="current.stock.stockGoodsShelfLife" disabled></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="8">
+                        <el-form-item label="实时库存:">
+                            <el-input v-model="current.stock.stockInventory" auto-complete="off" disabled></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="生产日期:">
+                            <el-input v-model="current.stock.stockGoodsProductionDate" disabled></el-input>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="商品图片:">
+                            <img :src="current.goods.goodsPicture" alt="图片">
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button-group>
+                    <el-button type="success" @click="editDialog1()">确认修改</el-button>
+                </el-button-group>
+                <el-button type="primary" @click="editDialog = false">取消</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 
@@ -105,8 +487,8 @@
                 //查询条件
                 queryInfo:{
                     total:0,
-                    pageIndex:0,
-                    infoCount:4
+                    pageIndex:1,
+                    infoCount:3
                 },
                 //二级菜单列表
                 secondaryMenuList:[],
@@ -114,10 +496,18 @@
                 secondaryMenuId:'',
                 //功能列表
                 functionList:[],
+                //一级功能按钮
+                functionList_one:[],
+                //二级功能按钮
+                functionList_two:[],
+                //总按钮(上方)
+                functionList_three:[],
+                //二级功能按钮下面
+                functionList_four:[],
+                //三级内部按钮(弹框)
+                functionList_five:[],
                 //员工列表
                 staffList:[],
-                //员工盘点记录列表
-                stocktakingRecordList:[],
                 //查询的条件
                 selected:{
                     stocktakingId:'',
@@ -125,7 +515,39 @@
                     stocktakingSubmitStaffId:'',
                     stocktakingAllStatus:'',
                     stocktakingCommitDate:''
-                }
+                },
+                //一层是否渲染
+                isFirst:true,
+                //二层是否渲染
+                isSecond:false,
+                //所有员工盘带商品总和
+                stocktakingRecordList:[],
+                // 员工盘点的商品类别信息
+                stockingGoodsList:[],
+                current:{
+                    category: "",
+                    goods: "",
+                    staff: "",
+                    stock: "",
+                    stocktaking: "",
+                    unit:""
+                },
+                //查看盘点商品信息详情弹框
+                lookDialog:false,
+                //修改盘点商品信息详情弹框
+                editDialog:false,
+                isStocktaking:0,
+                // 选取商品列表的信息栏
+                goodsStockAList:[],
+                // 选取商品列表的类别栏
+                categoryList:[],
+                selected1:{
+                    categoryId:''
+                },
+                //选取商品列表的查询需求是否渲染
+                isThird:false,
+                //选择的行数
+                multipleSelection:[]
             }
         },
         created() {
@@ -137,32 +559,36 @@
                 // 获取当前二级菜单的id
                 this.secondaryMenuList = window.sessionStorage.getItem('secondaryMenuList')
                 this.secondaryMenuList = JSON.parse(this.secondaryMenuList)
-                // console.log(this.secondaryMenuList)
 
                 for(var i = 0; i < this.secondaryMenuList.length; i++) {
                     if (this.secondaryMenuList[i].secondaryMenuUrl == this.$route.path) {
-                        // console.log(this.secondaryMenuList[i].secondaryMenuId)
                         this.secondaryMenuId = this.secondaryMenuList[i].secondaryMenuId
                     }
                 }
 
                 let data = {
-                    pageIndex: this.queryInfo.pageIndex,
+                    pageIndex: this.queryInfo.pageIndex-1,
                     pageSize: this.queryInfo.infoCount,
                     secondaryMenuId: this.secondaryMenuId
                 }   
-                // console.log(window.sessionStorage.getItem('staffToken'))
                 this.$axios.post('/stocktaking',this.$qs.stringify(data),{
                     headers:{
                         staffToken: window.sessionStorage.getItem('staffToken')
                     }
                 })
                 .then((res) => {
-                     console.log(res)
                     if (res.data.success) {
                         this.functionList = res.data.functionList
                         this.staffList = res.data.staffList
                         this.stocktakingRecordList = res.data.stocktakingRecordList
+                        this.queryInfo.total = res.data.recordSum
+                        this.drawBtn()
+                        this.stocktakingRecordList.map((item) => {
+                            let date = new Date(item.stocktakingLaunchedDate)
+                            item.stocktakingLaunchedDate = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate()
+                            date = new Date(item.stocktakingCommitDate)
+                            item.stocktakingCommitDate = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate()
+                        })
                     } else {
                         this.$message.error(res.data.errMsg)
                     }
@@ -170,6 +596,41 @@
                 .catch((err) => {
                     this.$message.error(err.message)
                 })
+            },
+            //动态渲染按钮
+            drawBtn() {
+                //渲染功能按钮
+                    if(!this.isDraw) {
+                        for (let i = 0; i < this.functionList.length; i++) {
+                            if (this.functionList[i].functionWeight == 1) {
+                                this.$set(this.functionList[i],"btnType","primary")
+                                this.$set(this.functionList[i],"btnIcon","iconfont icon_look")
+                                this.functionList_one.push(this.functionList[i])
+                            } else if (this.functionList[i].functionWeight == 2) {
+                                this.$set(this.functionList[i],"btnType","primary")
+                                this.$set(this.functionList[i],"btnIcon","iconfont icon_look")
+                                this.functionList_two.push(this.functionList[i])
+                            } else if (this.functionList[i].functionWeight == 3) {
+                                this.$set(this.functionList[i],"btnType","success")
+                                this.$set(this.functionList[i],"btnIcon","iconfont icon_edit")
+                                this.functionList_two.push(this.functionList[i])
+                            } else if (this.functionList[i].functionWeight == 4) {
+                                this.$set(this.functionList[i],"btnType","warning")
+                                this.$set(this.functionList[i],"btnIcon","iconfont icon_alert")
+                                this.functionList_two.push(this.functionList[i])
+                            } else if (this.functionList[i].functionWeight == 5) {
+                                this.$set(this.functionList[i],"btnType","success")
+                                this.functionList_five.push(this.functionList[i])
+                            } else if (this.functionList[i].functionWeight == 6) {
+                                this.$set(this.functionList[i],"btnType","warning")
+                                this.functionList_three.push(this.functionList[i])
+                            } else if (this.functionList[i].functionWeight == 7) {
+                                this.$set(this.functionList[i],"btnType","warning")
+                                this.functionList_four.push(this.functionList[i])
+                            }
+                            this.isDraw = true
+                        }
+                    }
             },
             //模糊查询部分库存信息
             searchPartStock() {
@@ -180,11 +641,176 @@
                 this.queryInfo.pageIndex(currentPage)
                 this.getStockList()
             },
+            //层级转换
+            rollback() {
+                this.isSecond = false,
+                this.isFirst = true,
+                this.isStocktaking = 0
+            },
+            //选择需求列表转换至最初
+            rollbackFirst() {
+                this.isSecond = false,
+                this.isFirst = true,
+                this.isThird = false,
+                this.pageIndex = 1,
+                this.getStockList()
+            },
+            //获取按钮功能
+            getButtonStatus(scope,functionWeight) {
+                if (functionWeight == 1) {
+                    this.lookAllDialogInfo(scope)
+                } else if (functionWeight == 2) {
+                    this.lookDialogInfo(scope.row)
+                } else if (functionWeight == 3) {
+                    this.editDialogInfo(scope.row)
+                } else if (functionWeight == 4) {
+                    this.$message.success('成功发送提醒')
+                } else if (functionWeight == 6) {
+                    this.selectGoodList()
+                }
+            },
+            //查看该用户所分配的所有商品
+            lookAllDialogInfo(scope) {
+                let good = scope.row
+                let data = {
+                    stocktakingId:good.stocktakingId,
+                    pageIndex:this.queryInfo.pageIndex-1,
+                    pageSize:this.queryInfo.infoCount
+                }
+                this.$axios.post('/stocktaking/stocktakinggoodslist', this.$qs.stringify(data), {
+                    headers:{
+                        staffToken: window.sessionStorage.getItem('staffToken')
+                    }
+                })
+                .then((res) => {
+                    if (res.data.success) {
+                        this.stockingGoodsList = res.data.stockingGoodsList
+                        this.queryInfo.total = res.data.recordSum
+                        this.isFirst = false
+                        this.isSecond = true
+                        if (this.stockingGoodsList[scope.$index] == undefined) {
+                            this.isStocktaking = 0
+                        } else {
+                            //不存在盘点类别
+                            this.isStocktaking = this.stockingGoodsList[scope.$index].stocktakingStatus
+                        }                        
+                    } else {
+                        this.$message.error(res.data.errMsg)
+                    }
+                })
+                .catch((err) => {
+                    this.$message.error(err.message)
+                })
+            },
+            //查看该用户所分配的某商品的详细信息
+            lookDialogInfo(good) {
+                let data = {
+                    stocktakingId:good.stocktakingId,
+                    stocktakingStockGoodsId:good.stockGoodsId
+                }
+                this.$axios.post('/stocktaking/stocktakinggoodsdetails', this.$qs.stringify(data), {
+                    headers:{
+                        staffToken: window.sessionStorage.getItem('staffToken')
+                    }
+                })
+                .then((res) => {
+                    if (res.data.success) {
+                        this.current.category = res.data.category
+                        this.current.goods = res.data.goods
+                        this.current.unit = res.data.unit
+                        this.current.staff = res.data.staff
+                        this.current.stock = res.data.stock
+                        this.current.stocktaking = res.data.stocktaking
+                        this.lookDialog = true
+                        let data = new Date(this.current.stock.stockGoodsProductionDate)
+                        this.current.stock.stockGoodsProductionDate = data.getFullYear() + "-" + (data.getMonth()+1) + "-" + data.getDate()
+                        
+                        data = new Date(this.current.stocktaking.stocktakingTime)
+                        this.current.stocktaking.stocktakingTime = data.getFullYear() + "-" + (data.getMonth()+1) + "-" + data.getDate()
+                    } else {
+                        this.$message.error(res.data.errMsg)
+                    }
+                })
+                .catch((err) => {
+                    this.$message.error(err.message)
+                })
+            },
+            //修改该用户所分配的某商品的详细弹框
+            editDialogInfo(good) {
+                let data = {
+                    stocktakingId:good.stocktakingId,
+                    stocktakingStockGoodsId:good.stockGoodsId
+                }
+                this.$axios.post('/stocktaking/stocktakinggoodsdetails', this.$qs.stringify(data), {
+                    headers:{
+                        staffToken: window.sessionStorage.getItem('staffToken')
+                    }
+                })
+                .then((res) => {
+                    if (res.data.success) {
+                        this.current.category = res.data.category
+                        this.current.goods = res.data.goods
+                        this.current.unit = res.data.unit
+                        this.current.staff = res.data.staff
+                        this.current.stock = res.data.stock
+                        this.current.stocktaking = res.data.stocktaking
+                        this.editDialog = true
+                        let data = new Date(this.current.stock.stockGoodsProductionDate)
+                        this.current.stock.stockGoodsProductionDate = data.getFullYear() + "-" + (data.getMonth()+1) + "-" + data.getDate()
+                        
+                        data = new Date(this.current.stocktaking.stocktakingTime)
+                        this.current.stocktaking.stocktakingTime = data.getFullYear() + "-" + (data.getMonth()+1) + "-" + data.getDate()
+                    } else {
+                        this.$message.error(res.data.errMsg)
+                    }
+                })
+                .catch((err) => {
+                    this.$message.error(err.message)
+                })
+            },
+            //修改该用户所分配的某商品的详细信息
+            editDialog1() {
+                let stocktaking = {
+                    stocktakingId:this.current.stocktaking.stocktakingId,
+                    stocktakingStockGoodsId:this.current.stocktaking.stockGoodsId,
+                    stockNum:this.current.stock.stockInventory,
+                    stocktakingNum:this.current.stocktaking.stocktakingNum,
+                    stocktakingStaffId:this.current.staff.staffId,
+                    stocktakingStatus:this.current.stocktaking.stocktakingStatus,
+                    stocktakingRemarks:this.current.stocktaking.stocktakingRemarks,
+                    stocktakingTime:"",
+                    stocktakingProfitLossStatus:this.current.stocktaking.stocktakingProfitLossStatus,
+                    stocktakingPrice:this.current.stocktaking.stocktakingPrice
+                }
+                let data = {
+                    stocktaking:JSON.stringify(stocktaking),
+                    userId:window.sessionStorage.getItem('staffId')
+                }
+                this.$axios.post('stocktaking/stocktakinggoodsremind', this.$qs.stringify(data), {
+                    headers:{
+                        staffToken: window.sessionStorage.getItem('staffToken')
+                    }
+                })
+                .then((res) => {
+                    if (res.data.success) {
+                        this.$message.success('该员工盘点类别修改成功')
+                    } else {
+                        this.$message.error(res.data.errMsg)
+                    }
+                })
+                .catch((err) => {
+                    this.$message.error(err.message)
+                })
+            },
             //发起盘点
             requestRecord() {
+                let stockGoodsIdListStr = []
+                for (let i = 0; i < this.stockingGoodsList.length; i++) {
+                    stockGoodsIdListStr.push(this.stockingGoodsList[i].stockGoodsId)
+                }
                 let data = {
-                    // staffId: 
-                    // stockGoodsIdListStr:
+                    staffId: window.sessionStorage.getItem('staffId'),
+                    stockGoodsIdListStr: JSON.stringify(stockGoodsIdListStr)
                 }
                 this.$axios.post('/stocktaking/initiateStocktaking',this.$qs.stringify(data),{
                     headers:{
@@ -201,6 +827,57 @@
                 .catch((err) => {
                     this.$message.error(err.message)
                 })
+            },
+            //选取商品列表
+            selectGoodList() {
+                let data = {
+                    pageIndex: this.queryInfo.pageIndex-1,
+                    pageSize:this.queryInfo.infoCount
+                }
+                this.$axios.post('/stocktaking/selectStocktakingGoods', this.$qs.stringify(data), {
+                    headers:{
+                        staffToken:window.sessionStorage.getItem('staffToken')
+                    }
+                })
+                .then((res) => {
+                    if (res.data.success) {
+                        this.categoryList = res.data.categoryList
+                        this.goodsStockAList = res.data.goodsStockAList
+                        this.queryInfo.total = res.data.recordSum
+                        this.isFirst = false
+                        this.isSecond = false
+                        this.isThird = true
+                        this.goodsStockAList.map((item) => {
+                            let date = new Date(item.stockGoodsProductionDate)
+                            item.stockGoodsProductionDate = date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate()
+                        })
+                    } else {
+                        this.$message.error(res.data.errMsg)
+                    }
+                })
+                .catch((err) => {
+                    this.$message.error(err.message)
+                })
+            },
+            //检测table的选项
+            handleSelectionChange(selections) {
+                this.multipleSelection = selections;
+                // console.log(selections)
+            },
+            //取消所选
+            toggleSelection(rows) {
+                if (rows) {
+                    rows.forEach(row => {
+                        this.$refs.multipleTable.toggleRowSelection(row);
+                    });
+                } else {
+                    this.$refs.multipleTable.clearSelection();
+                }
+            },
+            //获取指定页面的信息
+            currentChange(currentPage){
+                this.queryInfo.pageIndex = currentPage
+                this.selectGoodList()
             }
         }
     }
@@ -216,6 +893,14 @@
             margin-bottom: 0;
         }
     }
+}
+.el-button{
+    margin: 0 5px;
+}
+.title{
+    font-size: 20px;
+    font-weight: 700;
+    color: #000000;
 }
 .el-pagination{
     width: 50%;

@@ -231,7 +231,8 @@
                 this.$axios.post('/orders/ordersInfo',this.selected)
                 .then((res) => {
                     this.orderList = res.data.obj
-                    //console.log(this.orderList)
+                    this.functionList = res.data.functionList,
+                    this.queryInfo.total = res.data.recordSum
                 })
                 .catch((err) => {
                     this.$message.error(err)
