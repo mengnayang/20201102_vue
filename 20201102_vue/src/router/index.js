@@ -8,7 +8,6 @@ import Welcome from '../components/home/Welcome'
 import UserList from '../components/home/administer/user_manage/UserList'
 import RoleList from '../components/home/administer/access_manage/RoleList'
 import SearchStore from '../components/home/storeManger/store_info/SearchStore'
-import ReplenishmentApplication from '../components/home/storeManger/store_info/ReplenishmentApplication'
 import OrderInformation from '../components/home/storeManger/store_info/OrderInformation'
 import PurchaseList from '../components/home/storeManger/out_in_info/PurchaseList'
 import WholeSaleDeliveryList from '../components/home/storeManger/out_in_info/WholeSaleDeliveryList'
@@ -18,6 +17,9 @@ import ViewStockTakingRules from '../components/home/storeManger/store_record/Vi
 import OrderInfo from '../components/home/manage/store_manage/OrderInfo'
 import BookEnter from '../components/home/manage/store_manage/BookEnter'
 import NoticeInfo from '../components/home/manage/issue_notice/NoticeInfo'
+import NomalStaffCheckStore from '../components/home/normalStaff/check_store/CheckStore.vue'
+import NomalStafffCheckInbound  from'../components/home/normalStaff/check_inbound/CheckInbound.vue'
+
 
 Vue.use(Router)
 
@@ -38,7 +40,6 @@ const router = new Router({
         {path:'/stafflist', component:UserList},
         {path:'/stafflistjurisdiction', component: RoleList},
         {path:'/showinventory', component:SearchStore},
-        {path:'/replenishmentapplication', component:ReplenishmentApplication},
         {path:'/orderInformation', component:OrderInformation},
         {path:'/purchaselist', component:PurchaseList},
         {path:'/wholesaledeliverylist', component:WholeSaleDeliveryList},
@@ -47,7 +48,9 @@ const router = new Router({
         {path:'/stocktaking/viewStocktakingRules', component:ViewStockTakingRules},
         {path:'/storeManage/orderInfo',component:OrderInfo},
         {path:'/storeManage/bookEnter',component:BookEnter},
-        {path:'/issueNotice/noticeInfo',component:NoticeInfo}
+        {path:'/issueNotice/noticeInfo',component:NoticeInfo},
+        {path:'/stocktaking/viewStocktakingGoodsList',component:NomalStaffCheckStore},
+        {path:'/exportinspect',component:NomalStafffCheckInbound},
       ]
     },
     {path:'/forgetPwd', component: ForgerPwd}

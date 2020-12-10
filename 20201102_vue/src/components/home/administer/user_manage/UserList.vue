@@ -12,7 +12,7 @@
             <el-row :gutter="20">
                 <el-col :span="10">
                     <el-input placeholder="请输入你要查询的用户" v-model="searchPartName" clearable>
-                        <el-button slot="append" icon="el-icon-search" @click="searchUserList()"></el-button>
+                        <el-button slot="append" icon="el-icon-search" @click="searchUserList(0)"></el-button>
                     </el-input>
                 </el-col>    
                 <el-col :span="4">
@@ -20,7 +20,7 @@
                 </el-col> 
             </el-row>
             <!-- 表单区域 -->
-            <el-table :data="userList" border stripe>
+            <el-table :data="isPartData ? userList_limit : userList" border stripe>
                 <el-table-column label="#" type="index" align="center"></el-table-column>
                 <el-table-column label="姓名" prop="staffName" align="center" width="180px"></el-table-column>
                 <el-table-column label="电话" width="170px" prop="staffPhone" align="center"></el-table-column>
@@ -47,18 +47,9 @@
                     <template slot-scope="scope">
                         <el-button-group v-for="func in functionList_one" :key="func.functionId">
                             <el-tooltip effect="light" placement="top" :content="func.functionName" :enterable="false">
-                                <el-button :type="func.btnType" size="small" :icon="func.btnIcon" @click="getButtonStatus(scope.row,func.functionId)"></el-button>
+                                <el-button :type="func.btnType" size="small" :icon="func.btnIcon" @click="getButtonStatus(scope.row,func.functionWeight)"></el-button>
                             </el-tooltip>
                         </el-button-group>
-                        <!-- <el-tooltip effect="light" placement="top" content="编辑" :enterable="false">
-                            <el-button type="success" size="mini" icon="el-icon-edit" @click="editUserDialog1(scope.row)"></el-button>
-                        </el-tooltip>
-                        <el-tooltip effect="light" placement="top" content="删除" :enterable="false">
-                            <el-button type="danger" size="mini" icon="el-icon-delete" @click="removeUserById(scope.row)"></el-button>
-                        </el-tooltip>
-                        <el-tooltip effect="light" placement="top" content="分配角色" :enterable="false">
-                            <el-button type="warning" size="mini" icon="el-icon-setting" @click="handRoleDialog1(scope.row)"></el-button>
-                        </el-tooltip> -->
                     </template>
                 </el-table-column>
             </el-table>
@@ -242,7 +233,15 @@
                     staffPositionStatus:1
                 },
                 //模糊查询姓名
-                searchPartName:''
+                searchPartName:'',
+                //二级菜单列表
+                secondaryMenuList:[],
+                // 二级菜单id
+                secondaryMenuId:'',
+                // 是否模糊查询
+                isPartData:false,
+                // 存储模糊查询的数组
+                userList_limit:[]
             }
         },
         created(){
@@ -251,9 +250,20 @@
         methods:{
             //初始获取部分用户信息
             getUserList() {
+                // 获取当前二级菜单的id
+                this.secondaryMenuList = window.sessionStorage.getItem('secondaryMenuList')
+                this.secondaryMenuList = JSON.parse(this.secondaryMenuList)
+
+                for(var i = 0; i < this.secondaryMenuList.length; i++) {
+                    if (this.secondaryMenuList[i].secondaryMenuUrl == this.$route.path) {
+                        this.secondaryMenuId = this.secondaryMenuList[i].secondaryMenuId
+                    }
+                }
+                
                 let data = {
                     pageIndex: this.queryInfo.pageIndex-1,
-                    pageSize: this.queryInfo.infoCount
+                    pageSize: this.queryInfo.infoCount,
+                    staffId :window.sessionStorage.getItem('staffId')
                 }
                 this.$axios.post('/stafflist', this.$qs.stringify(data),{
                     headers:{
@@ -267,30 +277,36 @@
                     this.queryInfo.total = res.data.recordSum
                     this.userList = res.data.staffAList
                     this.drawBtn()
+                    console.log(this.userList)
                 })
                 .catch((err) => {
                     this.$message.error(err.message)
                 })
             },
             //模糊查询
-            searchUserList(){
+            searchUserList(flag){
+                this.isPartData = true
+                if (flag == 0) {
+                    this.queryInfo.pageIndex = 1
+                } 
                 let data = {
                     pageIndex: this.queryInfo.pageIndex-1,
                     pageSize: this.queryInfo.infoCount,
-                    staffName: this.searchPartName 
+                    staffName: this.searchPartName
                 }
-                console.log(data)
                 this.$axios.post('/stafflistbystaffname', this.$qs.stringify(data),{
                     headers:{
                         staffToken: window.sessionStorage.getItem('staffToken')
                     }
                 })
                 .then((res) => {
-                    console.log(res)
                     if (res.data.success) {
+                        console.log(res)
                         this.queryInfo.total = res.data.recordSum
-                        this.userList = res.data.staffAList
+                        this.userList_limit = res.data.staffAList
                         this.drawBtn()
+                        console.log(this.userList)
+                        console.log(this.queryInfo.total)
                     } else {
                         this.$message.error(res.data.errMsg)
                     }
@@ -299,24 +315,33 @@
                     this.$message.error(err.message)
                 })
             },
+            //获取指定页面的信息
+            currentChange(currentPage){
+                this.queryInfo.pageIndex = currentPage
+                if (this.isPartData) {
+                    this.searchUserList(1)
+                } else {
+                    this.getUserList()
+                }
+            },
             //动态渲染按钮
             drawBtn() {
                 //渲染功能按钮
                     if(!this.isDraw) {
                         for (let i = 0; i < this.functionList.length; i++) {
-                            if (this.functionList[i].functionId == 34) {
+                            if (this.functionList[i].functionWeight == 1) {
                                 this.$set(this.functionList[i],"btnType","success")
                                 this.$set(this.functionList[i],"btnIcon","el-icon-edit")
                                 this.functionList_one.push(this.functionList[i])
-                            } else if (this.functionList[i].functionId == 35) {
+                            } else if (this.functionList[i].functionWeight == 2) {
                                 this.$set(this.functionList[i],"btnType","danger")
                                 this.$set(this.functionList[i],"btnIcon","el-icon-delete")
                                 this.functionList_one.push(this.functionList[i])
-                            } else if (this.functionList[i].functionId == 36) {
+                            } else if (this.functionList[i].functionWeight == 3) {
                                 this.$set(this.functionList[i],"btnType","warning")
                                 this.$set(this.functionList[i],"btnIcon","el-icon-setting")
                                 this.functionList_one.push(this.functionList[i])
-                            } else if (this.functionList[i].functionId == 37) {
+                            } else if (this.functionList[i].functionWeight == 4) {
                                 this.$set(this.functionList[i],"btnType","primary")
                                 this.functionList_two.push(this.functionList[i])
                                 this.isExistsHandRole = true
@@ -324,11 +349,6 @@
                             this.isDraw = true
                         }
                     }
-            },
-            //获取指定页面的信息
-            currentChange(currentPage){
-                this.queryInfo.pageIndex = currentPage
-                this.getUserList()
             },
             //添加用户
             addUser() {
@@ -359,14 +379,14 @@
                 this.addUserDialog = false
             },
             //获取按钮功能
-            getButtonStatus(rowInfo,functionId) {
-                if (functionId == 34) {
+            getButtonStatus(rowInfo,functionWeight) {
+                if (functionWeight == 1) {
                     this.editUserDialog1(rowInfo)
-                } else if (functionId == 35) {
+                } else if (functionWeight == 2) {
                     this.removeUserById(rowInfo)
-                } else if (functionId == 36) {
+                } else if (functionWeight == 3) {
                     this.handRoleDialog1(rowInfo)
-                } else if (functionId == 37) {
+                } else if (functionWeight == 4) {
                     this.handRole()
                 }
             },
@@ -494,27 +514,30 @@
                 .then((res) => {
                     if (res.data.success) {
                         // 判断是否存在角色
-                        if (res.data.staffPositionRelation.staffPositionId == "1") {
-                            this.editRole.staffPositionName = '总经理'
-                        } else if (res.data.staffPositionRelation.staffPositionId == "2") {
-                            this.editRole.staffPositionName = '副经理'
-                        } else if (res.data.staffPositionRelation.staffPositionId == "3") {
-                            this.editRole.staffPositionName = '财务'
-                        } else if (res.data.staffPositionRelation.staffPositionId == "4") {
-                            this.editRole.staffPositionName = '库房管理员'
-                        } else if (res.data.staffPositionRelation.staffPositionId == "5") {
-                            this.editRole.staffPositionName = '职工'
-                        } else if (res.data.staffPositionRelation.staffPositionId == "6") {
-                            this.editRole.staffPositionName = '营业员'
-                        } else if (res.data.staffPositionRelation.staffPositionId == "7") {
-                            this.editRole.staffPositionName = '超级管理员'
+                        if (res.data.staffPositionRelation == null) {
+                        } else {
+                            if (res.data.staffPositionRelation.staffPositionId == "1") {
+                                this.editRole.staffPositionName = '总经理'
+                            } else if (res.data.staffPositionRelation.staffPositionId == "2") {
+                                this.editRole.staffPositionName = '副经理'
+                            } else if (res.data.staffPositionRelation.staffPositionId == "3") {
+                                this.editRole.staffPositionName = '财务'
+                            } else if (res.data.staffPositionRelation.staffPositionId == "4") {
+                                this.editRole.staffPositionName = '库房管理员'
+                            } else if (res.data.staffPositionRelation.staffPositionId == "5") {
+                                this.editRole.staffPositionName = '职工'
+                            } else if (res.data.staffPositionRelation.staffPositionId == "6") {
+                                this.editRole.staffPositionName = '营业员'
+                            } else if (res.data.staffPositionRelation.staffPositionId == "7") {
+                                this.editRole.staffPositionName = '超级管理员'
+                            }
                         }
                     } else {
-                        this.$message.error(res.data.errMsg )
+                        this.$message.error(res.data.errMsg)
                     }
                 })
                 .catch((err) => {
-                    this.$message.error(err.errMsg)
+                    this.$message.error(err.message)
                 })
             },
             //分配角色

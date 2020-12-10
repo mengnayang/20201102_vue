@@ -13,7 +13,7 @@
                 <el-main>
                     <el-row>
                         <el-col :span="8">
-                            <el-table :data="staffList" border stripe @cell-click="getStockStaffId" height="300">
+                            <el-table :data="staffList" border stripe @cell-click="getStockStaffId" height="290">
                                 <el-table-column label="职工列表" prop="staffName" align="center"></el-table-column>
                             </el-table>
                         </el-col>
@@ -29,18 +29,21 @@
                         </el-col> -->
                         <el-col :span="16">
                             <template>
-                                <el-transfer  :titles="['已盘点商品列表', '未盘点商品列表']" :model="categoryListFalseId" :data="categoryListByIdFalse"></el-transfer>
+                                <el-transfer :titles="['已盘点商品列表', '未盘点商品列表']" v-model="temperory.categoryListFalse_1" :data="temperory.categoryListByIdFalse_1" @change="isChange"></el-transfer>
                             </template>
                         </el-col>
                     </el-row>
                 </el-main>
             </el-container>
             <el-row>
-                <el-col>
-                    <el-button type="success" size="small">修改</el-button>
+                <el-col :span="2" :offset="18">
+                    <el-button type="primary" size="small" @click="back()">复原</el-button>
+                </el-col>
+                <el-col :span="2">
+                    <el-button type="success" size="small" @click="editStocktaking()">修改</el-button>
                 </el-col>
             </el-row>
-        </el-card>
+        </el-card> 
     </div>
 </template>
 
@@ -53,16 +56,29 @@
                 staffList:[],
                 //所有职工盘点类别
                 categoryList:[],
-                //默认显示的盘点职工id
+                //点击显示的盘点职工id
                 staffId:1,
                 //某员工盘点的商品类别
                 categoryListById:[],
                 //未盘点的商品类别
                 categoryListFalse:[],
-                //某员工盘点加未盘点的
+                categoryListFalse_1:[],
+                //员工盘点+所有人未盘点
                 categoryListByIdFalse:[],
-                //未盘点的商品类别id
-                categoryListFalseId:[]
+                categoryListByIdFalse_1:[],
+                //当前点击的员工
+                currentStaffId:'',
+                // 暂存
+                temperory:{
+                    //未盘点的商品类别
+                    categoryListFalse:[],
+                    categoryListFalse_1:[],
+                    //员工盘点+所有人未盘点
+                    categoryListByIdFalse:[],
+                    categoryListByIdFalse_1:[],
+                },
+                //暂存变化的员工
+                temperory_staff:[]
             }
         },
         created() {
@@ -90,53 +106,122 @@
             },
             getStockStaffId(row, column, cell, event) {
                 this.staffId = row.staffId
-
+                this.currentStaffId = row.staffId
                 //根据职工id获取盘点物品
                 //先置空，防止数据累加
                 this.categoryListById = []
                 this.categoryListFalse = []
+                this.categoryListFalse_1 = []
                 this.categoryListByIdFalse = []
-                this.categoryListFalseId = []
+                this.categoryListByIdFalse_1 = []
                
                 for (let i = 0; i < this.categoryList.length; i++) {
                     if (this.staffId == this.categoryList[i].stocktakingStaffId) {
                         this.categoryListById.push(this.categoryList[i])
+                        this.categoryListByIdFalse.push(this.categoryList[i])
                     } 
                 }
+
                 //获取未盘点的商品类别
                 for(let i = 0; i < this.categoryList.length; i++) {
                     if (this.categoryList[i].stocktakingStaffId > 0) {
                     }else {
                         this.categoryListFalse.push(this.categoryList[i])
+                        this.categoryListByIdFalse.push(this.categoryList[i])
                     }
                 }
 
+                for (let i = 0; i < this.categoryListByIdFalse.length; i++) {
+                    let data = {
+                        key: this.categoryListByIdFalse[i].categoryId,
+                        label: this.categoryListByIdFalse[i].categoryName
+                    }
+                    this.categoryListByIdFalse_1.push(data)
+                }
 
-                //某员工盘点的商品+都未盘点的商品（类型转换）
-                let categoryById = this.categoryListById
-                let categoryFalse = this.categoryListFalse
-                this.categoryListById.map((item) => {
-                    this.categoryListByIdFalse.push({
-                        key: item.categoryId,
-                        label: item.categoryName
-                    })
-                })
-                console.log(this.categoryListByIdFalse)
-                this.categoryListFalse.map((item) => {
-                    this.categoryListByIdFalse.push({
-                        key: item.categoryId,
-                        label: item.categoryName
-                    })
-                })                
-                console.log(this.categoryListByIdFalse)
-                //存储未盘点商品的类别id（类型转换）
-                this.categoryListFalse.map((item)=>{
-                    this.categoryListFalseId.push(item.key)
-                })
+                for (let i = 0; i < this.categoryListFalse.length; i++) {
+                    this.categoryListFalse_1.push(this.categoryListFalse[i].categoryId)
+                }
 
-                console.log(this.categoryListByIdFalse)
-                console.log(this.categoryListFalseId)
+                //暂存四个数组
+                this.temperory.categoryListFalse = this.categoryListFalse
+                this.temperory.categoryListFalse_1 = this.categoryListFalse_1
+                this.temperory.categoryListByIdFalse = this.categoryListByIdFalse
+                this.temperory.categoryListByIdFalse_1 = this.categoryListByIdFalse_1
+
             },
+            // 清空属性
+            back() {
+                this.$router.go(0)
+            },
+            //修改盘点类别
+            editStocktaking() {
+                console.log(this.categoryListFalse_1)
+                console.log(this.categoryListByIdFalse_1)
+                console.log(this.currentStaffId)
+                if (this.categoryListFalse_1.length > 0) {
+                    this.$message.error('盘点类别未完全分配')
+                } else {
+                    let categoryList = []
+                    let data = {
+                        categoryList:JSON.stringify(categoryList)
+                    }
+                    console.log(data)
+                }
+                
+                // this.$axios.post('/stocktaking/modifyStocktakingRules',this.$qs.stringify(data),{
+                //     headers:{
+                //         staffToken: window.sessionStorage.getItem('staffToken')
+                //     }
+                // })
+                // .then((res) => {
+                //     if (res.data.success) {
+                //         console.log(res.data)
+                //     } else {
+                //         this.$message.error(res.data.errMsg)
+                //     }
+                // })
+                // .catch((err) => {
+                //     this.$message.error(err.message)
+                // })
+            },
+            isChange() {
+                // console.log(this.temperory.categoryListByIdFalse_1)
+                // console.log(this.temperory.categoryListFalse_1)
+                // console.log(this.currentStaffId)
+                let temperory_1 = {
+                    //未盘点的商品类别
+                    categoryListFalse:[],
+                    categoryListFalse_1:[],
+                    //员工盘点+所有人未盘点
+                    categoryListByIdFalse:[],
+                    categoryListByIdFalse_1:[],
+                }
+                for (let i = 0; i < this.temperory_staff.length; i++) {
+                    if (this.temperory_staff[i].staffId == this.currentStaffId) {
+                    } else {
+                        // this.temperory_staff.push({
+                        //     staffId:this.temperory_staff[i].staffId,
+                        //     categoryListByIdFalse_1:this.temperory_staff[i].categoryListByIdFalse_1,
+                        //     categoryListFalse_1:this.temperory_staff[i].categoryListFalse_1
+                        // })
+                        let data = {
+                            staffId:this.temperory_staff[i].staffId,
+                            categoryListByIdFalse_1:this.temperory_staff[i].categoryListByIdFalse_1,
+                            categoryListFalse_1:this.temperory_staff[i].categoryListFalse_1
+                        }
+                        // this.temperory_staff.push(data)
+                        console.log(data)
+                    } 
+                }
+
+                this.temperory_staff.push({
+                    staffId:this.currentStaffId,
+                    categoryListByIdFalse_1:this.temperory.categoryListByIdFalse_1,
+                    categoryListFalse_1:this.temperory.categoryListFalse_1
+                })
+                console.log(this.temperory_staff)
+            }
         }
     }
 </script>
@@ -150,6 +235,11 @@
         &:last-child{
             margin-bottom: 0;
         }
+    }
+}
+.el-transfer-panel{
+    .el-transfer-panel__body{
+        height:256px
     }
 }
 .el-pagination{

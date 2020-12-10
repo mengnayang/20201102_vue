@@ -65,9 +65,9 @@
             </el-table>
             <!-- 二级 -->
             <el-table :data="deliveryGoodsList" border stripe v-show="isSecond">
-                <el-table-column label="商品图片" prop="goodsPicture" fixed width="120" align="center"></el-table-column>
-                <el-table-column label="商品编号" prop="deliveryStockGoodsId" fixed width="100" align="center"></el-table-column>
-                <el-table-column label="商品名称" prop="goodsName" width="100" align="center"></el-table-column>
+                <el-table-column label="商品图片" prop="goodsPicture" fixed width="100" align="center"></el-table-column>
+                <el-table-column label="商品编号" prop="deliveryStockGoodsId" fixed width="160" align="center"></el-table-column>
+                <el-table-column label="商品名称" prop="goodsName" fixed width="150" align="center"></el-table-column>
                 <el-table-column label="商品类别" prop="goodsCategoryIName" width="100" align="center"></el-table-column>
                 <el-table-column label="品牌名称" prop="goodsBrand" width="100" align="center"></el-table-column>
                 <el-table-column label="出库数量" prop="deliveryNum" width="80" align="center"></el-table-column>
@@ -93,7 +93,115 @@
         <!-- 查看商品详细信息弹框 -->
         <el-dialog title="批发出库单信息" :visible.sync="lookDialog" width="500px">
             <el-form>
-                
+                <el-row>
+                    <el-col :span="11" :offset="9" class="title">
+                        出库信息
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="出库编号：">{{currentInfo.delivery.deliveryId}}</el-form-item> 
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="产品批号：">{{currentInfo.delivery.deliveryId}}</el-form-item> 
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="8">
+                        <el-form-item label="批发单价：">{{currentInfo.delivery.deliveryPrice}}</el-form-item> 
+                    </el-col>
+                    <el-col :span="8">
+                        <el-form-item label="出库数量：">{{currentInfo.delivery.deliveryNum}}</el-form-item> 
+                    </el-col>
+                    <el-col :span="8">
+                        <el-form-item label="已付款项：">{{currentInfo.deliveryRecord.deliveryPaid}}</el-form-item> 
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="8">
+                        <el-form-item label="出库状态：">{{currentInfo.deliveryRecord.deliveryStatus}}</el-form-item> 
+                    </el-col>
+                    <el-col :span="8">
+                        <el-form-item label="发起职工：">{{currentInfo.deliveryRecord.deliveryLaunchedStaffId}}</el-form-item> 
+                    </el-col>
+                    <el-col :span="8">
+                        <el-form-item label="处理职工：">{{currentInfo.deliveryRecord.deliveryHandleStaffId}}</el-form-item> 
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="8">
+                        <el-form-item label="总价格：">{{currentInfo.deliveryRecord.deliveryTotalPrice}}</el-form-item> 
+                    </el-col>
+                    <el-col :span="8">
+                        <el-form-item label="结账状态：">{{currentInfo.deliveryRecord.deliveryCheckOutStatus}}</el-form-item> 
+                    </el-col>
+                    <el-col :span="8">
+                        <el-form-item label="退款状态：">{{currentInfo.deliveryRecord.deliveryRefundStatus}}</el-form-item> 
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="创建时间：">{{currentInfo.deliveryRecord.deliveryCreateDate}}</el-form-item> 
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="11" :offset="11" class="title">
+                        商品信息
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="商品编号:">
+                            {{currentInfo.goods.goodsId}}
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="商品名称:">
+                            {{currentInfo.goods.goodsName}}
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="8">
+                        <el-form-item label="商品类别：">
+                            {{currentInfo.category.categoryName}}
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-form-item label="品牌名称：">
+                            {{currentInfo.goods.goodsBrand}}
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-form-item label="商品规格：">
+                            {{currentInfo.goods.goodsSpecifications}}
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="8">
+                        <el-form-item label="商品单位：">
+                            <span>{{currentInfo.unit.unitName}}</span>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-form-item label="生产日期：">
+                            {{currentInfoy.stock.stockGoodsProductionDate}}
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-form-item label="保质期：">
+                            {{currentInfo.stock.stocGoodsShelfLife}}
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="12">
+                        <el-form-item label="商品图片：">
+                            <img :src="currentInfo.goods.goodsPicture" alt="图片">
+                        </el-form-item>
+                    </el-col>
+                </el-row>
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button type="primary" @click="lookDialog = false">取消</el-button>
@@ -134,7 +242,18 @@
                 //一层列表是否显示
                 isFirst:true,
                 //二层列表是否显示
-                isSecond:false
+                isSecond:false,
+                //当前的出库编号
+                deliveryId:'',
+                currentInfo:{
+                    delivery:'',
+                    category:'',
+                    deliveryRecord:'',
+                    goods:'',
+                    staff:'',
+                    stock:'',
+                    unit:''
+                }
             }
         },
         created() {
@@ -155,7 +274,8 @@
                 let data = {
                     pageIndex: this.queryInfo.pageIndex-1,
                     pageSize: this.queryInfo.infoCount,
-                    secondaryMenuId: this.secondaryMenuId
+                    secondaryMenuId: this.secondaryMenuId,
+                    staffId:window.sessionStorage.getItem('staffId')
                 }
                 this.$axios.post('/wholesaledeliverylist',this.$qs.stringify(data),{
                     headers:{
@@ -222,29 +342,6 @@
                     this.lookDialogInfo(rowInfo)
                 } 
             },
-            //查看所有商品
-            lookAllInfo(rowInfo) {
-                let data = {
-                    deliveryId:rowInfo.deliveryId
-                }
-                this.$axios.post('/wholesaledeliverylist/warehousingdetails', this.$qs.stringify(data),{
-                    headers:{
-                        staffToken:window.sessionStorage.getItem('staffToken')
-                    }
-                })
-                .then((res) => {
-                    if (res.data.success) {
-                        this.isFirst = false
-                        this.isSecond = true
-                        this.deliveryGoodsList = res.data.deliveryGoodsList
-                    } else {
-                        this.$message.error(res.data.errMsg)
-                    }
-                })
-                .catch((err) =>  {
-                    this.$message.error(err.message)
-                })
-            },
             //确认入库
             confirmIntoStore(rowInfo) {
                 let data = {
@@ -267,10 +364,34 @@
                     this.$message.error(err.message)
                 })
             },
+            //查看所有商品
+            lookAllInfo(rowInfo) {
+                this.deliveryId = rowInfo.deliveryId
+                let data = {
+                    deliveryId:this.deliveryId
+                }
+                this.$axios.post('/wholesaledeliverylist/warehousingdetails', this.$qs.stringify(data),{
+                    headers:{
+                        staffToken:window.sessionStorage.getItem('staffToken')
+                    }
+                })
+                .then((res) => {
+                    if (res.data.success) {
+                        this.isFirst = false
+                        this.isSecond = true
+                        this.deliveryGoodsList = res.data.deliveryGoodsList
+                    } else {
+                        this.$message.error(res.data.errMsg)
+                    }
+                })
+                .catch((err) =>  {
+                    this.$message.error(err.message)
+                })
+            },
             //查看商品详情
             lookDialogInfo(rowInfo) {
                 let data = {
-                    deliveryId: rowInfo.deliveryId,
+                    deliveryId: this.deliveryId,
                     deliveryStockGoodsId:rowInfo.deliveryStockGoodsId
                 }
                 this.$axios.post('/wholesaledeliverylist/warehousinggoodsdetails', this.$qs.stringify(data), {
@@ -282,6 +403,14 @@
                     if (res.data.success) {
                         if (res.data.success) {
                             console.log(res.data)
+                            this.currentInfo.delivery = res.data.delivery,
+                            this.currentInfo.category = res.data.category,
+                            this.currentInfo.deliveryRecord = res.data.deliveryRecord,
+                            this.currentInfo.goods = res.data.goods,
+                            this.currentInfo.staff = res.data.staff,
+                            this.currentInfo.stock = res.data.stock,
+                            this.currentInfo.unit = res.data.unit,
+                            this.lookDialog = true
                         }
                     } else {
                         this.$message.error(res.data.errMsg)
@@ -305,6 +434,11 @@
             margin-bottom: 0;
         }
     }
+}
+.title{
+    font-size: 20px;
+    font-weight: 700;
+    color: #000000;
 }
 .el-button{
     margin: 0 5px;

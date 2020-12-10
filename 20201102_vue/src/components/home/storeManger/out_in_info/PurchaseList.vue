@@ -434,7 +434,8 @@
                 let data = {
                     pageIndex: this.queryInfo.pageIndex-1,
                     pageSize: this.queryInfo.infoCount,
-                    secondaryMenuId: this.secondaryMenuId
+                    secondaryMenuId: this.secondaryMenuId,
+                    staffId:window.sessionStorage.getItem('staffId')
                 }
                 this.$axios.post('/purchaselist',this.$qs.stringify(data),{
                     headers:{
@@ -483,7 +484,7 @@
                             this.$set(this.functionList[i],"btnType","danger")
                             this.$set(this.functionList[i],"btnIcon","iconfont icon_reject")
                         }
-                        this.isDraw = true
+                        
                     }
                 }
             },

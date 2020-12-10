@@ -519,7 +519,8 @@
                 let data = {
                     pageIndex: this.queryInfo.pageIndex-1,
                     pageSize: this.queryInfo.infoCount,
-                    secondaryMenuId: this.secondaryMenuId
+                    secondaryMenuId: this.secondaryMenuId,
+                    staffId:window.sessionStorage.getItem('staffId')
                 }
                 this.$axios.post('/showinventory', this.$qs.stringify(data),{
                     headers:{

@@ -24,11 +24,11 @@
                             </el-form-item>
                             <el-form-item label="验证码" required prop="checkCode">
                                 <el-input type="text" v-model="info.checkCode" auto-complete="off"></el-input>  
-                                <div @click="changeCode()">
-                                    <!-- 引入验证码组件 -->
-                                    <identify :identifyCode="identifyCode"></identify>
-                                </div>
                             </el-form-item>
+                            <div @click="changeCode()" class="code">
+                                <!-- 引入验证码组件 -->
+                                <identify :identifyCode="identifyCode"></identify>
+                            </div>
                         </el-form>
                     </div>
                 </div>
@@ -43,7 +43,10 @@
                     </el-form>
                 </div>
             </div>
-            <el-button :disabled="isDisabled" @click="next()">{{textInfo}}</el-button>
+            <el-button-group>
+                <el-button v-show="activeIndex > 0" @click="prev()">上一步</el-button>
+                <el-button :disabled="isDisabled" @click="next()">{{textInfo}}</el-button>
+            </el-button-group>
         </div>
     </div>
 </template>
@@ -77,15 +80,11 @@ import identify from '../components/Identify'
                 }
             }
             var checkCode = (rule, value, callback) => {
-                if (this.info.staffPhone == '') {
-                    callback(new Error('输入手机号将自动获取验证码'))
+                if(value == '') {
+                    callback(new Error('验证码不能为空'))
                 } else {
-                    if(value == '') {
-                        callback(new Error('验证码不能为空'))
-                    } else {
-                        if (value != this.returnCode) {
-                            callback(new Error('验证码错误'))
-                        }
+                    if (value != this.identifyCode) {
+                        callback(new Error('验证码错误'))
                     }
                 }
             }
@@ -170,7 +169,6 @@ import identify from '../components/Identify'
             },
             //操作的下一步跳转
             next() {
-                console.log(this.activeIndex)
                 var flag = true
                 if (this.activeIndex == 0) {
                     this.activeIndex++;
@@ -180,20 +178,38 @@ import identify from '../components/Identify'
                     })
                     if (flag) {
                         this.activeIndex++;
-                    }   
+                    }  
+                    this.textInfo = '修改'
                 } else if (this.activeIndex == 2) {
                     this.$refs.PasswordRef.validate(valid => {
                         flag = valid
                     })
                     if (flag) {
                         this.activeIndex++;
-                    }   
-                    this.textInfo = '已完成'
-                } else if (this.activeIndex == 3) {
-                    this.$message.success('密码修改成功，3s后请重新登陆')
-                    setTimeout(() => {
-                        this.$router.go(-1)
-                    },3000)
+                    }     
+                    let data = {
+
+                    }
+                    this.$axios.post('/staff/changePassword', this.$qs.stringify(data))
+                    .then((res) => {
+                        if (res.data.success) {
+                            this.$message.success('密码修改成功，3s后请重新登陆')
+                            setTimeout(() => {
+                                this.$router.go(-1)
+                            },3000)  
+                        } else {
+                            this.$message.error(res.data.errMsg)
+                        }
+                    })
+                    .catch((err) => {
+                        this.$message.error(err.message)
+                    })  
+                } 
+            },
+            prev() {
+                this.activeIndex = this.activeIndex - 1
+                if (this.activeIndex == 1) {
+                    this.textInfo = '下一步'
                 }
             },
             //同意，下一步
@@ -226,7 +242,7 @@ import identify from '../components/Identify'
     padding: 30px;
 }
 .forget_content{
-    width: 85%;
+    width: 88%;
     height: 55%;
     position: absolute;
     border: 1px solid green;
@@ -239,11 +255,10 @@ import identify from '../components/Identify'
     }
 }
 .forget_pwd_form{
-    width: 80%;
+    width: 73%;
     position: absolute;
-    top: 35%;
-    left: 60%;
-    transform: translate(-60%,-30%);
+    height: 70%;
+    transform: translate(-14%,-17%);
     .el-form{
         .el-form-item{
             margin: 0;
@@ -270,7 +285,17 @@ import identify from '../components/Identify'
         }
     }
 }
-.el-button{
-    transform: translate(200%,650%);
+.el-button-group{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    transform: translateY(650%);
+    .el-button{
+        margin: 0 10px;
+    }
+}
+.code{
+    transform: translate(15%,-20%);
 }
 </style>

@@ -83,7 +83,6 @@ export default{
 
                 this.$axios.post('/staff/login',this.$qs.stringify(data))
                 .then((res) => {
-                    // console.log(res)
                     if(res.data.success) {
                         this.$message.success('登陆成功')
                         window.sessionStorage.setItem('staffToken',res.data.staffToken)

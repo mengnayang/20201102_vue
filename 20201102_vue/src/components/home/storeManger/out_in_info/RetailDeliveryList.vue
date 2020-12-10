@@ -148,7 +148,8 @@
                 let data = {
                     pageIndex: this.queryInfo.pageIndex,
                     pageSize: this.queryInfo.infoCount,
-                    secondaryMenuId: this.secondaryMenuId
+                    secondaryMenuId: this.secondaryMenuId,
+                    staffId:window.sessionStorage.getItem('staffId')
                 }
                 this.$axios.post('/retaildeliverylist',this.$qs.stringify(data),{
                     headers:{

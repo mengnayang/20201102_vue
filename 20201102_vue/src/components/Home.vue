@@ -70,7 +70,6 @@
         created() {
             //获取用户的token、姓名和状态
             var staffToken = window.sessionStorage.getItem('staffToken')
-            //console.log(staffToken)
             var staffId = window.sessionStorage.getItem('staffId')
             var staffStatus = window.sessionStorage.getItem('staffStatus')
             var staffName = window.sessionStorage.getItem('staffName')
@@ -91,9 +90,6 @@
             // 二级菜单
             // console.log(this.secondaryMenuList)
 
-            //console.log(this.primaryMenuList)
-            //console.log(this.secondaryMenuList)
-            //console.log(staffName)
             if (staffStatus == 1000) {
                 this.isPower = true
             } else if (staffStatus == 1001) {
@@ -109,27 +105,6 @@
                 staffId: staffId,
                 staffStatus: staffPosition
             }
-            
-            //角色判断
-            // if (staffPosition == 1) {
-            //     this.$axios.post('/staff/menu', staffInfo)
-            //     .then((res) => {
-            //         this.primaryMenuList = res.data.primaryMenuList
-            //         //console.log(this.menuList)
-            //     })
-            //     .catch((err) => {
-            //         this.$message.success(err)
-            //     })
-            // } else if (staffPosition == 100) {
-            //     this.$axios.post('/administer/menu', staffInfo)
-            //     .then((res) => {
-            //         //this.menuList = res.data.obj
-            //         //console.log(this.menuList)
-            //     })
-            //     .catch((err) => {
-            //         this.$message.success(err)
-            //     })
-            // }
         },
         methods:{
             //菜单折叠
@@ -138,8 +113,6 @@
             },
             //退出
             logout() {
-                // let staffToken = window.sessionStorage.getItem('staffToken')
-                // console.log(staffToken)
                 let data = ''
                 this.$axios.post('/logout', this.$qs.stringify(data), {
                     headers:{

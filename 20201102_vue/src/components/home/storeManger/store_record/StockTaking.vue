@@ -34,7 +34,7 @@
                         <el-col :span="6">次盘点</el-col>
                     </el-row>
                 </el-col>
-                <el-col :span="6" :offset="6">
+                <el-col :span="7" :offset="4">
                     <el-button-group v-for="func in functionList_three" :key="func.functionId">
                         <el-button :type="func.btnType" size="mini" :icon="func.btnIcon" @click="getButtonStatus(null ,func.functionWeight)">{{func.functionName}}</el-button>
                     </el-button-group>            
@@ -79,36 +79,6 @@
                 </el-col>
             </el-row>
             <!-- 二层 -->
-            <el-row v-show="isSecond">
-                <el-col :span="6">
-                    <el-row>
-                        <el-col :span="7">盘点时间:</el-col>
-                        <el-col :span="5">
-                            <el-date-picker style="width:150px" type="date" placeholder="请选择盘点时间" size="mini" v-model="selected.stocktakingCommitDate">
-                            </el-date-picker>
-                        </el-col>
-                    </el-row>
-                </el-col>
-                <el-col :span="6">
-                    <el-row>
-                        <el-col :span="2">第</el-col>
-                        <el-col :span="9">
-                            <el-select size="mini" v-model="selected.stocktakingId">
-                                <el-option :value="0" :label="'全部'"></el-option>
-                                <el-option :value="1" :labal="1"></el-option>
-                                <el-option :value="2" :labal="2"></el-option>
-                                <el-option :value="3" :labal="3"></el-option>
-                            </el-select>
-                        </el-col>
-                        <el-col :span="6">次盘点</el-col>
-                    </el-row>
-                </el-col>
-                <el-col :span="6" :offset="6">
-                    <el-button-group v-for="func in functionList_three" :key="func.functionId">
-                        <el-button :type="func.btnType" size="small" :icon="func.btnIcon" @click="getButtonStatus(scope.row,func.functionWeight)">{{func.functionName}}</el-button>
-                    </el-button-group>            
-                </el-col>
-            </el-row>
             <el-row v-show="isSecond">
                 <el-col :span="6">
                     <el-row>
@@ -185,7 +155,7 @@
                 <el-table-column label="盘点状态" width="170px" prop="stocktakingAllStatus" align="center"></el-table-column>
                 <el-table-column label="盘点发起时间" width="170px" prop="stocktakingLaunchedDate" align="center"></el-table-column>                
                 <el-table-column label="盘点提交时间" width="170px" prop="stocktakingCommitDate" align="center"></el-table-column>
-                <el-table-column label="操作" fixed="right" width="190px" align="center">
+                <el-table-column label="操作" fixed="right" width="130px" align="center">
                     <template slot-scope="scope">
                         <el-button-group v-for="func in functionList_one" :key="func.functionId">
                             <el-tooltip effect="light" placement="top" :content="func.functionName" :enterable="false">
@@ -246,13 +216,23 @@
         @current-change="currentChange"
         layout="total, sizes, prev, pager, next, jumper">
         </el-pagination>
+        <!-- 一层 -->
+        <!-- <el-row v-show="isFirst">
+            <el-col :span="6" :offset="18">
+                <el-button-group v-for="func in functionList_six" :key="func.functionId">
+                    <el-button :type="func.btnType" size="small" @click="immediateStocktaking()">立即盘点</el-button>
+                </el-button-group>
+            </el-col>
+        </el-row> -->
+        <!-- 二层 -->
         <el-row v-show="isStocktaking == 1">
             <el-col :span="6" :offset="20">
                 <el-button-group v-for="func in functionList_four" :key="func.functionId">
-                    <el-button :type="func.btnType" size="small"  @click="requestRecord()">发起盘点</el-button>
+                    <el-button :type="func.btnType" size="small" @click="submitAllStocktaking()">提交总盘点</el-button>
                 </el-button-group>
             </el-col>
         </el-row>
+        <!-- 选取层 -->
         <el-row v-show="isThird">
             <el-col :span="2" :offset="19">
                 <el-button type="primary" size="small" @click="toggleSelection()">取消</el-button>    
@@ -498,6 +478,8 @@
                 functionList:[],
                 //一级功能按钮
                 functionList_one:[],
+                //一级功能按钮(下面)
+                functionList_six:[],
                 //二级功能按钮
                 functionList_two:[],
                 //总按钮(上方)
@@ -569,7 +551,8 @@
                 let data = {
                     pageIndex: this.queryInfo.pageIndex-1,
                     pageSize: this.queryInfo.infoCount,
-                    secondaryMenuId: this.secondaryMenuId
+                    secondaryMenuId: this.secondaryMenuId,
+                    staffId:window.sessionStorage.getItem('staffId')
                 }   
                 this.$axios.post('/stocktaking',this.$qs.stringify(data),{
                     headers:{
@@ -620,6 +603,7 @@
                                 this.functionList_two.push(this.functionList[i])
                             } else if (this.functionList[i].functionWeight == 5) {
                                 this.$set(this.functionList[i],"btnType","success")
+                                this.$set(this.functionList[i],"btnIcon","iconfont icon_alert")
                                 this.functionList_five.push(this.functionList[i])
                             } else if (this.functionList[i].functionWeight == 6) {
                                 this.$set(this.functionList[i],"btnType","warning")
@@ -627,6 +611,9 @@
                             } else if (this.functionList[i].functionWeight == 7) {
                                 this.$set(this.functionList[i],"btnType","warning")
                                 this.functionList_four.push(this.functionList[i])
+                            } else if (this.functionList[i].functionWeight == 8) {
+                                this.$set(this.functionList[i],"btnType","warning")
+                                this.functionList_three.push(this.functionList[i])
                             }
                             this.isDraw = true
                         }
@@ -667,6 +654,8 @@
                     this.$message.success('成功发送提醒')
                 } else if (functionWeight == 6) {
                     this.selectGoodList()
+                } else if (functionWeight == 8) {
+                    this.immediateStocktaking()
                 }
             },
             //查看该用户所分配的所有商品
@@ -772,7 +761,7 @@
             editDialog1() {
                 let stocktaking = {
                     stocktakingId:this.current.stocktaking.stocktakingId,
-                    stocktakingStockGoodsId:this.current.stocktaking.stockGoodsId,
+                    stocktakingStockGoodsId:this.current.stocktaking.stocktakingStockGoodsId,
                     stockNum:this.current.stock.stockInventory,
                     stocktakingNum:this.current.stocktaking.stocktakingNum,
                     stocktakingStaffId:this.current.staff.staffId,
@@ -786,7 +775,7 @@
                     stocktaking:JSON.stringify(stocktaking),
                     userId:window.sessionStorage.getItem('staffId')
                 }
-                this.$axios.post('stocktaking/stocktakinggoodsremind', this.$qs.stringify(data), {
+                this.$axios.post('/stocktaking/stocktakinggoodsremind', this.$qs.stringify(data), {
                     headers:{
                         staffToken: window.sessionStorage.getItem('staffToken')
                     }
@@ -794,6 +783,7 @@
                 .then((res) => {
                     if (res.data.success) {
                         this.$message.success('该员工盘点类别修改成功')
+                        this.editDialog = false
                     } else {
                         this.$message.error(res.data.errMsg)
                     }
@@ -802,16 +792,39 @@
                     this.$message.error(err.message)
                 })
             },
-            //发起盘点
+            //立即盘点
+            immediateStocktaking() {
+                let data = {
+                    staffId: window.sessionStorage.getItem('staffId')
+                }
+                this.$axios.post('/stocktaking/stocktakingImmediate',this.$qs.stringify(data),{
+                    headers:{
+                        staffToken: window.sessionStorage.getItem('staffToken')
+                    }
+                })
+                .then((res) => {
+                    if (res.data.success) {
+                        console.log(res.data)
+                        this.$message.success('盘点发起成功')
+                    } else {
+                        this.$message.error(errMsg)
+                    }
+                })
+                .catch((err) => {
+                    this.$message.error(err.message)
+                })
+            },
+            //提交总盘点
             requestRecord() {
                 let stockGoodsIdListStr = []
-                for (let i = 0; i < this.stockingGoodsList.length; i++) {
-                    stockGoodsIdListStr.push(this.stockingGoodsList[i].stockGoodsId)
+                for (let i = 0; i < this.multipleSelection.length; i++) {
+                    stockGoodsIdListStr.push(this.multipleSelection[i].stockGoodsId)
                 }
                 let data = {
                     staffId: window.sessionStorage.getItem('staffId'),
                     stockGoodsIdListStr: JSON.stringify(stockGoodsIdListStr)
                 }
+                console.log(data)
                 this.$axios.post('/stocktaking/initiateStocktaking',this.$qs.stringify(data),{
                     headers:{
                         staffToken: window.sessionStorage.getItem('staffToken')
@@ -820,6 +833,7 @@
                 .then((res) => {
                     if (res.data.success) {
                         console.log(res)
+                        this.$message.success('成功发起盘点')
                     } else {
                         this.$message.error(res.data.errMsg)
                     }
@@ -873,6 +887,27 @@
                 } else {
                     this.$refs.multipleTable.clearSelection();
                 }
+            },
+            // 发起盘点
+            submitAllStocktaking() { 
+                let data = {
+                    stocktakingId:this.stockingGoodsList[0].stocktakingId
+                }
+                this.$axios.post('/stocktaking/submitStocktaking', this.$qs.stringify(data),{
+                    headers:{
+                        staffToken:window.sessionStorage.getItem('staffToken')
+                    }
+                })
+                .then((res) => {
+                    if (res.data.success) {
+                        this.$message.success('成功提交总盘点')
+                    } else {
+                        this.$message.error(res.data.errMsg)
+                    }
+                })
+                .catch((err) => {
+                    this.$message.error(err.message)
+                })
             },
             //获取指定页面的信息
             currentChange(currentPage){

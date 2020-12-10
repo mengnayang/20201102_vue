@@ -8,12 +8,6 @@
         </el-breadcrumb>
         <!-- 卡片区域 -->
         <el-card>
-            <!-- 添加角色区域
-            <el-row>
-                <el-col>
-                    <el-button type="primary">添加角色</el-button>
-                </el-col>
-            </el-row> -->
             <!-- 角色列表区域 -->
             <el-table :data="staffList" ref="refTable"  border stripe @expand-change="expandSelect">
                 <!-- 展开列 -->
@@ -49,18 +43,9 @@
                     <template slot-scope="scope">
                         <el-button-group v-for="func in functionList_one" :key="func.functionId">
                             <el-tooltip effect="light" placement="top" :content="func.functionName" :enterable="false">
-                                <el-button :type="func.btnType" size="mini" :icon="func.btnIcon" @click="getButtonStatus(scope.row,func.functionId)"></el-button>
+                                <el-button :type="func.btnType" size="mini" :icon="func.btnIcon" @click="getButtonStatus(scope.row,func.functionWeight)"></el-button>
                             </el-tooltip>
                         </el-button-group>
-                        <!-- <el-tooltip effect="light" placement="top" content="编辑" :enterable="false">
-                            <el-button type="success" size="mini" icon="el-icon-edit"></el-button>
-                        </el-tooltip>
-                        <el-tooltip effect="light" placement="top" content="删除" :enterable="false">
-                            <el-button type="danger" size="mini" icon="el-icon-delete"></el-button>
-                        </el-tooltip>
-                        <el-tooltip effect="light" placement="top" content="分配权限" :enterable="false">
-                            <el-button type="warning" size="mini" icon="el-icon-setting"></el-button>
-                        </el-tooltip> -->
                     </template>
                 </el-table-column>
             </el-table>
@@ -130,8 +115,6 @@
                 functionList:[],
                 //一级功能菜单
                 functionList_one:[],
-                //二级功能菜单
-                functionList_two:[],
                 //是否已经渲染功能按钮
                 isDraw:false,
                 //是否存在角色分配
@@ -178,7 +161,6 @@
                         staffId:row.staffId,
                         userId:window.sessionStorage.getItem('staffId')
                     }
-                    // console.log(data)
                     this.$axios.post('/stafflistjurisdiction/jurisdictiondelete',this.$qs.stringify(data),{
                         headers:{
                             staffToken:window.sessionStorage.getItem('staffToken'),
@@ -200,7 +182,7 @@
                         staffId:row.staffId,
                         userId:window.sessionStorage.getItem('staffId')
                     }
-                    this.$axios.post('/stafflistjurisdiction/jurisdictiondelete',this.$qs.stringify(data),{
+                    this.$axios.post('/stafflistjurisdiction/jurisdictiondistribution',this.$qs.stringify(data),{
                         headers:{
                             staffToken:window.sessionStorage.getItem('staffToken'),
                         }
@@ -236,7 +218,7 @@
                 let data = {
                     pageIndex:this.queryInfo.pageIndex-1,
                     pageSize:this.queryInfo.infoCount,
-                    userId:window.sessionStorage.getItem('staffId'),
+                    staffId:window.sessionStorage.getItem('staffId'),
                     secondaryMenuId:this.secondaryMenuId
                 }
                 this.$axios.post('/stafflistjurisdiction',this.$qs.stringify(data),{
@@ -255,23 +237,19 @@
                         //渲染功能按钮
                         if(!this.isDraw) {
                             for (let i = 0; i < this.functionList.length; i++) {
-                                if (this.functionList[i].functionId == 34) {
+                                if (this.functionList[i].functionWeight == 1) {
                                     this.$set(this.functionList[i],"btnType","success")
                                     this.$set(this.functionList[i],"btnIcon","el-icon-edit")
                                     this.functionList_one.push(this.functionList[i])
-                                } else if (this.functionList[i].functionId == 35) {
+                                } else if (this.functionList[i].functionWeight == 2) {
                                     this.$set(this.functionList[i],"btnType","danger")
                                     this.$set(this.functionList[i],"btnIcon","el-icon-delete")
                                     this.functionList_one.push(this.functionList[i])
-                                } else if (this.functionList[i].functionId == 36) {
+                                } else if (this.functionList[i].functionWeight == 3) {
                                     this.$set(this.functionList[i],"btnType","warning")
                                     this.$set(this.functionList[i],"btnIcon","el-icon-setting")
                                     this.functionList_one.push(this.functionList[i])
-                                } else if (this.functionList[i].functionId == 37) {
-                                    this.$set(this.functionList[i],"btnType","primary")
-                                    this.functionList_two.push(this.functionList[i])
-                                    this.isExistsHandRole = true
-                                }
+                                } 
                                 this.isDraw = true
                             }
                         }
@@ -287,15 +265,14 @@
                 this.getRoleList()
             },
             //获取按钮功能
-            getButtonStatus(rowInfo,functionId) {
-                // console.log(rowInfo)
-                if (functionId == 34) {
+            getButtonStatus(rowInfo,functionWeight) {
+                if (functionWeight == 1) {
                     this.editUserDialog1(rowInfo)
-                } else if (functionId == 35) {
+                } else if (functionWeight == 2) {
                     this.removeUserById(rowInfo)
-                } else if (functionId == 36) {
+                } else if (functionWeight == 3) {
                     this.handRoleDialog1(rowInfo)
-                } else if (functionId == 37) {
+                } else if (functionWeight == 4) {
                     this.handRole()
                 }
             },
@@ -393,7 +370,10 @@
                 }
             },
             //删除用户权限
-            async removeRoleById(staff,functionId, layer) {
+            removeRoleById(staff,functionId, layer) {
+                // console.log(staff)
+                // console.log(functionId)
+                // console.log(layer)
                 if (layer == 1) {
                     for (let i = 0; i < this.roleList.length; i++) {
                         if (this.roleList[i].primaryMenuId == functionId) {
@@ -419,32 +399,23 @@
                         }
                     }
                 }
-                const confirmResult =  await this.$confirm('此操作不可恢复，确认要删除该角色信息？','删除角色',{
-                    confirmButtonText:'确认',
-                    showCancelButton:true,
-                    type: 'warning'
-                })
-                .catch(err => {
-                    this.$message.info('已取消删除')
-                })
 
                 let newRoleList = []
-                if (confirmResult == 'confirm') {
-                    for (let i = 0; i < this.roleList.length; i++) {
-                        for (let j = 0; j < this.roleList[i].secondaryMenuTreeList.length; j++) {
-                            for (let k = 0; k < this.roleList[i].secondaryMenuTreeList[j].functionTreeList.length; k++) {
-                                if (this.roleList[i].secondaryMenuTreeList[j].functionTreeList[k].functionId) {
-                                    let list = {
-                                        staffId:staff.staffId,
-                                        functionId:this.roleList[i].secondaryMenuTreeList[j].functionTreeList[k].functionId,
-                                        jurisdictionStatus:1
-                                    }
-                                    newRoleList.push(list)
+                for (let i = 0; i < this.roleList.length; i++) {
+                    for (let j = 0; j < this.roleList[i].secondaryMenuTreeList.length; j++) {
+                        for (let k = 0; k < this.roleList[i].secondaryMenuTreeList[j].functionTreeList.length; k++) {
+                            if (this.roleList[i].secondaryMenuTreeList[j].functionTreeList[k].functionId) {
+                                let list = {
+                                    staffId:staff.staffId,
+                                    functionId:this.roleList[i].secondaryMenuTreeList[j].functionTreeList[k].functionId,
+                                    jurisdictionStatus:1
                                 }
+                                newRoleList.push(list)
                             }
                         }
                     }
                 }
+                console.log(newRoleList)
                 let data = {
                     staffJurisdictionList:JSON.stringify(newRoleList),
                     userId:window.sessionStorage.getItem('staffId')
@@ -534,7 +505,6 @@
             },
             //把权限信息转换成树
             changeToTree(data1) {
-                //console.log(this.roleList)
                 let key = 0
                 let third_arr = []
                 let second_arr = []
@@ -554,7 +524,6 @@
                             third_arr.push(third)
                             if (data1[i].secondaryMenuTreeList[j].functionTreeList[k].isSelected == 1) {
                                 selecnode.push(key)
-                                //console.log(third)
                             }
                             key = key + 1
                         }
@@ -565,7 +534,6 @@
                         }
                         key = key + 1
                         second_arr.push(second)
-                        //console.log(second)
                     }
                     let first = {
                             id:key,
@@ -574,22 +542,11 @@
                     }
                     key = key + 1
                     first_arr.push(first)
-                    //console.log(first)
                 }
                 this.roleList = []
                 this.roleList = first_arr
                 this.selectedNode = []
                 this.selectedNode = selecnode
-                console.log('#################################################')
-                console.log(selecnode)
-                //console.log('---------------------------------------------------')
-                //console.log(this.selectedNode)
-                //console.log('---------------------------------------------------')
-                //console.log(first_arr)
-                //console.log(data.selectedNode)
-                console.log(this.roleList)
-                //console.log('++++++++++++++++++++++++++++++++++++++++++++++++++')
-                //console.log(this.roleList)
             },
 
         }
