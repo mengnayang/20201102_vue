@@ -186,9 +186,12 @@
                 // })
             },
             isChange() {
-                // console.log(this.temperory.categoryListByIdFalse_1)
-                // console.log(this.temperory.categoryListFalse_1)
-                // console.log(this.currentStaffId)
+                let temperory_staff_1 = []
+                for (let i = 0; i < this.temperory_staff.length-1; i++) {
+                    if (this.temperory_staff[i].staffId != this.temperory_staff[j].staffId) {
+                        
+                    }
+                }
                 let temperory_1 = {
                     //未盘点的商品类别
                     categoryListFalse:[],
@@ -197,30 +200,12 @@
                     categoryListByIdFalse:[],
                     categoryListByIdFalse_1:[],
                 }
-                for (let i = 0; i < this.temperory_staff.length; i++) {
-                    if (this.temperory_staff[i].staffId == this.currentStaffId) {
-                    } else {
-                        // this.temperory_staff.push({
-                        //     staffId:this.temperory_staff[i].staffId,
-                        //     categoryListByIdFalse_1:this.temperory_staff[i].categoryListByIdFalse_1,
-                        //     categoryListFalse_1:this.temperory_staff[i].categoryListFalse_1
-                        // })
-                        let data = {
-                            staffId:this.temperory_staff[i].staffId,
-                            categoryListByIdFalse_1:this.temperory_staff[i].categoryListByIdFalse_1,
-                            categoryListFalse_1:this.temperory_staff[i].categoryListFalse_1
-                        }
-                        // this.temperory_staff.push(data)
-                        console.log(data)
-                    } 
-                }
-
                 this.temperory_staff.push({
                     staffId:this.currentStaffId,
-                    categoryListByIdFalse_1:this.temperory.categoryListByIdFalse_1,
-                    categoryListFalse_1:this.temperory.categoryListFalse_1
+                    categoryListFalse_1:this.temperory.categoryListFalse_1        
                 })
                 console.log(this.temperory_staff)
+                
             }
         }
     }
