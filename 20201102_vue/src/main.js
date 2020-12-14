@@ -13,6 +13,9 @@ axios.defaults.baseURL='http://localhost:8080';
 Vue.prototype.$axios = axios
 //引入mockjs
 import '../mock/mock.js'
+//引入echarts
+import echarts from 'echarts'
+Vue.prototype.$echarts = echarts
 
 import qs from 'qs'
 Vue.prototype.$qs = qs

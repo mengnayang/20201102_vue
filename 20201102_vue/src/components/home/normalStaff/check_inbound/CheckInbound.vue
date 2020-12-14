@@ -8,39 +8,34 @@
         </el-breadcrumb>
         <!-- 卡片区域 -->
         <el-card>
+            <!-- <el-form></el-form> -->
             <!-- 功能区域 -->
             <el-row :gutter="10">
-                <el-col :span="8">
-                    <span>入库编号</span>
-                    <el-select v-model="selected.selectedGoodId" filterable placeholder="请选择" size="small">
-                        <el-option v-for="item in exportBillList" :label="item.exportBillId" :key="item.exportBillId" :value="item.exportBillId"></el-option>
-                    </el-select>
+                <el-col :span="8" >
+                    <span>入库单编号</span>
+                    <el-input class="input" type="text" v-model="selected.exportBillId" placeholder="请输入"  size="small" clearable ></el-input>
+                    
                 </el-col>
                 <el-col :span="8">
-                    <span>订货单编号</span>
-                    <el-select v-model="selected.selectedGoodName" filterable placeholder="请选择" size="small">
-                        <el-option v-for="item in exportBillList" :label="item.exportBillCouponId" :key="item.exportBillId" :value="item.exportBillCouponId"></el-option>
-                    </el-select>
+                    <span>订单编号</span>
+                    <el-input class="input" type="text" v-model="selected.exportBillCouponId" placeholder="请输入"  size="small" clearable ></el-input>
                 </el-col>
                 <el-col :span="8">
                     <span>商品批号</span>
-                    <el-select v-model="selected.selectedGoodCategory" filterable placeholder="请选择" size="small">
-                        <el-option v-for="item in exportBillList" :label="item.exportBillGoodsBatchNumber" :key="item.exportBillId" :value="item.exportBillGoodsBatchNumber"></el-option>
-                    </el-select>
+                    <el-input class="input" type="text" v-model="selected.exportBillGoodsBatchNumber" placeholder="请输入"  size="small" clearable ></el-input>
                 </el-col>
             </el-row>
             <el-row :gutter="10">
                 <el-col :span="8">
                     <span>供货商编号</span>
-                    <el-select v-model="selected.selectedBrandName" filterable placeholder="请选择" size="small">
+                    <el-select v-model="selected.exportBillSupplierId" filterable placeholder="请选择" size="small" clearable>
                         <el-option v-for="item in exportBillList" :label="item.exportBillSupplierId" :key="item.exportBillId" :value="item.exportBillSupplierId"></el-option>
                     </el-select>
                 </el-col>
                 <el-col :span="8">
-                    <span>审核状态</span>
-                    <el-select v-model="selected.selectedCheckStatus" filterable placeholder="请选择" size="small">
-                        <!-- 暂时这样写 -->
-                        <el-option v-for="item in ['未审核','已审核']"  :key="item" :value="item"></el-option>
+                    <span>入库状态</span>
+                    <el-select v-model="checkStatus" filterable placeholder="请选择" size="small" clearable>
+                        <el-option v-for="item in ['待库管完善','库管已完善','已检查通过','检查未通过']"  :key="item" :value="item"></el-option>
                     </el-select>
                 </el-col>
                 <el-col :span="4">
@@ -59,7 +54,7 @@
                 <el-table-column label="保质期/天" prop="exportBillShelfLife" width="90" align="center"></el-table-column>
                 <!-- <el-table-column label="规格" prop="unit" width="180" align="center"></el-table-column> -->
                 <el-table-column label="供货价格" prop="exportBillPrice" width="80" align="center"></el-table-column>
-                <el-table-column label="入库时间" prop="exportBillTime" width="80" align="center"></el-table-column>
+                <el-table-column label="入库时间" prop="exportBillTime" width="120" align="center"></el-table-column>
                 <el-table-column label="已付款项" prop="exportBillPaid"  width="80" align="center" ></el-table-column>
                 <el-table-column label="入库状态" prop="exportBillStatus"  :formatter="BillStateFormat" width="100" align="center" ></el-table-column>
                 <!-- 审核状态的变化暂未实现、 -->
@@ -225,10 +220,21 @@
                 //单选开关判断是否审核通过
                 checkValue:true,
                 //指定查询需求
-                
                 selected:{
-
+                    exportBillId:null,
+                    exportBillCouponId:null,
+                    exportBillSupplierId:null,
+                    exportBillGoodsBatchNumber:null,
+                    exportBillProductionDate:null,
+                    exportBillShelfLife:null,
+                    exportBillPrice:null,
+                    exportBillStatus:null,
+                    exportBillPaid:null,
+                    exportBillTime:null,
                 },
+                //状态
+                checkStatus:null,
+
                 //设置查看入库单信息的弹窗是否可见
                 checkInboundBillDialog:false,
                 //当前操作的入库单信息
@@ -262,6 +268,7 @@
                 }
                 let staffToken = window.sessionStorage.getItem('staffToken')
                 let data = {
+                    staffId:window.sessionStorage.staffId,
                     pageIndex: this.queryInfo.pageIndex - 1,
                     pageSize: this.queryInfo.infoCount,
                     secondaryMenuId: this.secondaryMenuId,
@@ -276,8 +283,6 @@
                     if (res.data.functionList != undefined) {
                         this.functionList = res.data.functionList
                     }
-                    // this.queryInfo.total = res.data.recordSum
-                    // this.dataList=res.data
                     //渲染功能按钮
                     if(!this.isDraw) {
                         for (let i = 0; i < this.functionList.length; i++) {
@@ -296,6 +301,15 @@
                     }
                     this.queryInfo.total = res.data.recordSum
                     this.exportBillList=res.data.exportBillList
+                    this.exportBillList.map((item) => {
+                            let data = new Date(item.exportBillProductionDate)
+                            item.exportBillProductionDate = data.getFullYear() + "-" + (data.getMonth()+1) + "-" + data.getDate()
+                    })
+                    this.exportBillList.map((item) => {
+                            let data = new Date(item.exportBillTime)
+                            item.exportBillTime = data.getFullYear() + "-" + (data.getMonth()+1) + "-" + data.getDate()
+                    })
+
                 })
                 .catch((err) => {
                     this.$message.error(err.message)
@@ -378,17 +392,63 @@
                 })
                 
             },
-            // //查询指定需求的商品
-            // searchGood(){
-            //     this.$axios.post('/export/checkExport',this.selected)
-            //     .then((res) => {
-            //         this.exportBillList = res.data.obj
-            //         //console.log(res)
-            //     })
-            //     .catch((err) => {
-            //         this.$message.error(err)
-            //     })
-            // },
+            //查询指定需求的商品
+            searchGood(){
+                let data={
+                    staffId:window.sessionStorage.staffId,
+                    pageIndex: this.queryInfo.pageIndex - 1,
+                    pageSize: this.queryInfo.infoCount,
+                    secondaryMenuId: this.secondaryMenuId,
+                    exportBill: this.selected
+                }
+                // 入库状态
+                if (this.checkStatus=='待库管完善'){
+                    data.exportBill.exportBillStatus=0
+                }else if(this.checkStatus=='库管已完善'){
+                    data.exportBill.exportBillStatus=1
+                }else if(this.checkStatus=='已检查通过'){
+                    data.exportBill.exportBillStatus=2
+                }else if(this.checkStatus=='检查未通过'){
+                    data.exportBill.exportBillStatus=-2
+                }
+                data.exportBill=JSON.stringify(data.exportBill)
+                console.log(data.exportBill)
+
+                this.$axios.post('/exportinspectByConditions', this.$qs.stringify(data),{
+                    headers:{
+                        staffToken:window.sessionStorage.getItem('staffToken')
+                    }
+                })
+                .then((res) => {
+                    // console.log(res.data)
+                    if (res.data.functionList != undefined) {
+                        this.functionList = res.data.functionList
+                    }
+                    // this.queryInfo.total = res.data.recordSum
+                    // this.dataList=res.data
+                    //渲染功能按钮
+                    if(!this.isDraw) {
+                        for (let i = 0; i < this.functionList.length; i++) {
+                            if (this.functionList[i].functionId == 32) {
+                                this.$set(this.functionList[i],"btnType","success")
+                                this.$set(this.functionList[i],"btnIcon","el-icon-edit")
+                                this.functionList_one.push(this.functionList[i])
+                            } else if (this.functionList[i].functionId == 33) {
+                                this.$set(this.functionList[i],"btnType","success")
+                                this.$set(this.functionList[i],"btnIcon","el-icon-edit")
+                                this.functionList_two.push(this.functionList[i])
+                                this.isExistsHandRole = true
+                            }
+                            this.isDraw = true
+                        }
+                    }
+                    this.queryInfo.total = res.data.recordSum
+                    this.exportBillList=res.data.exportBillList
+                })
+                .catch((err) => {
+                    this.$message.error(err.message)
+                })
+            },
             //根据指定页码获取相应的库存信息
             currentChange(currentPage) {
                 this.queryInfo.pageIndex = currentPage
@@ -445,5 +505,8 @@
 .el-pagination{
     margin-top: 10px;
     padding-left: 120px;
+}
+.input{
+    width: 203px;
 }
 </style>

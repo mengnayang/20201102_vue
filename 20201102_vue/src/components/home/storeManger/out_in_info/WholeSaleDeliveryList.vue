@@ -45,12 +45,28 @@
             <!-- 一级 -->
             <el-table :data="deliveryRecordList" border stripe v-show="isFirst">
                 <el-table-column label="出库编号" prop="deliveryId" fixed width="120" align="center"></el-table-column>
-                <el-table-column label="出库状态" prop="deliveryStatus"  width="100" align="center"></el-table-column>
+                <el-table-column label="出库状态"  width="180" align="center">
+                    <template slot-scope="scope">
+                        <span v-if="scope.row.deliveryStatus == 0">营业员初次发起</span>
+                        <span v-else-if="scope.row.deliveryStatus == 1">库房管理员确认出库</span>
+                        <span v-else>库房管理员驳回出库单</span>
+                    </template>
+                </el-table-column>
                 <el-table-column label="入库时间" prop="deliveryCreateDate" width="120" align="center"></el-table-column>
                 <el-table-column label="总价格" prop="deliveryTotalPrice" width="120" align="center"></el-table-column>
                 <el-table-column label="已付款项" prop="deliveryPaid" width="120" align="center"></el-table-column>
-                <el-table-column label="结账状态" prop="deliveryCheckOutStatus" width="100" align="center"></el-table-column>
-                <el-table-column label="退款状态" prop="deliveryRefundStatus" width="100" align="center"></el-table-column>
+                <el-table-column label="结账状态" width="100" align="center">
+                    <template slot-scope="scope">
+                        <span v-if="scope.row.deliveryCheckOutStatus == 0">未付款</span>
+                        <span v-else>已付款</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="退款状态" width="100" align="center">
+                    <template slot-scope="scope">
+                        <span v-if="scope.row.deliveryRefundStatus == 0">未发生退款</span>
+                        <span v-else>已发生退款</span>
+                    </template>
+                </el-table-column>
                 <el-table-column label="发起职工" prop="deliveryLaunchedStaffId"  width="100" align="center"></el-table-column>
                 <el-table-column label="处理职工" prop="deliveryHandleStaffId" width="100" align="center"></el-table-column>
                 <el-table-column label="操作" fixed="right" width="140" align="center">
@@ -68,7 +84,7 @@
                 <el-table-column label="商品图片" prop="goodsPicture" fixed width="100" align="center"></el-table-column>
                 <el-table-column label="商品编号" prop="deliveryStockGoodsId" fixed width="160" align="center"></el-table-column>
                 <el-table-column label="商品名称" prop="goodsName" fixed width="150" align="center"></el-table-column>
-                <el-table-column label="商品类别" prop="goodsCategoryIName" width="100" align="center"></el-table-column>
+                <el-table-column label="商品类别" prop="categoryName" width="100" align="center"></el-table-column>
                 <el-table-column label="品牌名称" prop="goodsBrand" width="100" align="center"></el-table-column>
                 <el-table-column label="出库数量" prop="deliveryNum" width="80" align="center"></el-table-column>
                 <el-table-column label="批发单价" prop="deliveryPrice" width="80" align="center"></el-table-column>
@@ -91,7 +107,7 @@
         layout="total, sizes, prev, pager, next, jumper">
         </el-pagination>
         <!-- 查看商品详细信息弹框 -->
-        <el-dialog title="批发出库单信息" :visible.sync="lookDialog" width="500px">
+        <el-dialog title="批发出库单信息" :visible.sync="lookDialog" width="600px">
             <el-form>
                 <el-row>
                     <el-col :span="11" :offset="9" class="title">
@@ -119,13 +135,19 @@
                 </el-row>
                 <el-row>
                     <el-col :span="8">
-                        <el-form-item label="出库状态：">{{currentInfo.deliveryRecord.deliveryStatus}}</el-form-item> 
+                        <el-form-item label="出库状态：">
+                            <template>
+                                <span v-if="currentInfo.deliveryRecord.deliveryStatus == 0">营业员初次发起</span>
+                                <span v-else-if="currentInfo.deliveryRecord.deliveryStatus == 1">库房管理员确认出库</span>
+                                <span v-else>库房管理员驳回出库单</span>
+                            </template>
+                        </el-form-item> 
                     </el-col>
                     <el-col :span="8">
-                        <el-form-item label="发起职工：">{{currentInfo.deliveryRecord.deliveryLaunchedStaffId}}</el-form-item> 
+                        <el-form-item label="发起职工：">{{staffMap[currentInfo.deliveryRecord.deliveryLaunchedStaffId]}}</el-form-item> 
                     </el-col>
                     <el-col :span="8">
-                        <el-form-item label="处理职工：">{{currentInfo.deliveryRecord.deliveryHandleStaffId}}</el-form-item> 
+                        <el-form-item label="处理职工：">{{staffMap[currentInfo.deliveryRecord.deliveryHandleStaffId]}}</el-form-item> 
                     </el-col>
                 </el-row>
                 <el-row>
@@ -133,10 +155,20 @@
                         <el-form-item label="总价格：">{{currentInfo.deliveryRecord.deliveryTotalPrice}}</el-form-item> 
                     </el-col>
                     <el-col :span="8">
-                        <el-form-item label="结账状态：">{{currentInfo.deliveryRecord.deliveryCheckOutStatus}}</el-form-item> 
+                        <el-form-item label="结账状态：">
+                            <template slot-scope="scope">
+                                <span v-if="currentInfo.deliveryRecord.deliveryCheckOutStatus == 0">未付款</span>
+                                <span v-else>已付款</span>
+                            </template>
+                        </el-form-item> 
                     </el-col>
                     <el-col :span="8">
-                        <el-form-item label="退款状态：">{{currentInfo.deliveryRecord.deliveryRefundStatus}}</el-form-item> 
+                        <el-form-item label="退款状态：">
+                            <template>
+                                <span v-if="currentInfo.deliveryRecord.deliveryRefundStatus == 0">未发生退款</span>
+                                <span v-else>已发生退款</span>
+                            </template>    
+                        </el-form-item> 
                     </el-col>
                 </el-row>
                 <el-row>
@@ -186,12 +218,12 @@
                     </el-col>
                     <el-col :span="8">
                         <el-form-item label="生产日期：">
-                            {{currentInfoy.stock.stockGoodsProductionDate}}
+                            {{currentInfo.stock.stockGoodsProductionDate}}
                         </el-form-item>
                     </el-col>
                     <el-col :span="8">
                         <el-form-item label="保质期：">
-                            {{currentInfo.stock.stocGoodsShelfLife}}
+                            {{currentInfo.stock.stockGoodsShelfLife}}
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -221,6 +253,8 @@
                     pageIndex:1,
                     infoCount:4
                 },
+                //员工列表
+                staffMap:[],
                 //二级菜单
                 secondaryMenuList:[],
                 //二级菜单id
@@ -287,6 +321,7 @@
                         this.functionList = res.data.functionList
                         this.deliveryRecordList = res.data.deliveryRecordList
                         this.queryInfo.infoCount = res.data.recordSum
+                        this.staffMap = res.data.staffMap
                         this.drawBtn()
 
                         this.deliveryRecordList.map((item) => {
@@ -402,7 +437,6 @@
                 .then((res) => {
                     if (res.data.success) {
                         if (res.data.success) {
-                            console.log(res.data)
                             this.currentInfo.delivery = res.data.delivery,
                             this.currentInfo.category = res.data.category,
                             this.currentInfo.deliveryRecord = res.data.deliveryRecord,
@@ -411,6 +445,12 @@
                             this.currentInfo.stock = res.data.stock,
                             this.currentInfo.unit = res.data.unit,
                             this.lookDialog = true
+
+                            
+                            let data = new Date(this.currentInfo.stock.stockGoodsProductionDate)
+                            this.currentInfo.stock.stockGoodsProductionDate = data.getFullYear() + "-" + (data.getMonth()+1) + "-" + data.getDate()
+                            data = new Date(this.currentInfo.deliveryRecord.deliveryCreateDate)
+                            this.currentInfo.deliveryRecord.deliveryCreateDate = data.getFullYear() + "-" + (data.getMonth()+1) + "-" + data.getDate()
                         }
                     } else {
                         this.$message.error(res.data.errMsg)

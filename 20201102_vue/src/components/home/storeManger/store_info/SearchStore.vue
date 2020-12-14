@@ -191,7 +191,7 @@
                     </el-row>
                 </el-form>
                 <span slot="footer" class="dislog-footer">
-                    <el-button type="primary" @click="shutDialog()">取消</el-button>
+                    <el-button type="primary" size="small" @click="shutDialog()">取消</el-button>
                 </span>
             </el-dialog>
             <!-- 修改商品信息弹框 -->
@@ -293,8 +293,8 @@
                     </el-row>
                 </el-form>
                 <span slot="footer" class="dislog-footer">
-                    <el-button type="primary" @click="shutDialog()">取消</el-button>
-                    <el-button type="success" @click="confirmDialog()">确认修改</el-button>
+                    <el-button type="primary" size="small" @click="shutDialog()">取消</el-button>
+                    <el-button type="success" size="small" @click="confirmDialog()">修改</el-button>
                 </span>
             </el-dialog>
             <!-- 补充新商品 -->
@@ -352,17 +352,7 @@
                         </el-col>
                         <el-col :span="11" :offset="1">
                             <el-form-item label="上传图片">
-                                <input type="file" name="img">
-                                <!-- <el-upload 
-                                    action=""
-                                    :http-request="handleFile"
-                                    :multiple="false"
-                                    :limit="1"
-                                    :on-exceed="handleExceed"
-                                    :file-list="fileList">
-                                    <el-button size="small" type="primary"></el-button>
-                                    <div slot="tip" class="el-upload__tip" style="color:red">上传图片只能是 jpg、png 格式!</div>
-                                </el-upload> -->
+                                <input type="file" accept="image/*" multiple @change="handImage">
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -433,7 +423,7 @@
                     </el-row>
                 </el-form>
                 <span slot="footer" class="dislog-footer">
-                    <el-button type="success" size="small" @click="addOldGood()">确认修改</el-button>
+                    <el-button type="success" size="small" @click="addOldGood()">补充</el-button>
                         <el-button type="primary" size="small" @click="addOldGoodDialog = false">取消</el-button>
                 </span>
             </el-dialog>
@@ -499,7 +489,7 @@
                 functionList_three:[],
                 //绘制按钮
                 isDraw:false,
-                fileList:[]
+                dataURL:''
             }
         },
         mounted(){
@@ -622,15 +612,38 @@
                 })
                 this.addNewGoodDialog = true
             },
-            //新货旧货补充
+            handImage(e) {
+                let self = this;
+                let reader = new FileReader();
+                reader.readAsDataURL(e.target.files[0]);
+                reader.onload = function (e) {
+                    self.headImg = e.target.result; 
+                    self.currentGood.goodsPicture = self.headImg
+                }   
+            },
+            dataURItoBlob(dataURI) {
+                var byteString = atob(dataURI.split(',')[1]);
+                var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+                var ab = new ArrayBuffer(byteString.length);
+                var ia = new Uint8Array(ab);
+                for (var i = 0; i < byteString.length; i++) {
+                    ia[i] = byteString.charCodeAt(i);
+                }
+                return new Blob([ab], {type: mimeString});
+            },
+            //新货补充
             addNewGood() {
+                var fd = new FormData();
+                var blob = this.dataURItoBlob(this.currentGood.goodsPicture);
+                console.log(blob)
+                
                 let goods = {
                     goodsId: this.currentGood.goodsId,
                     goodsName: this.currentGood.goodsName,
                     goodsCategoryId:this.currentGood.goodsCategoryId,
                     goodsBrand:this.currentGood.goodsBrand,
                     goodsSpecifications:this.currentGood.goodsSpecifications,
-                    goodsPicture:""
+                    goodsPicture:blob
                 }
                 let coupon = {
                     couponGoodsId:this.currentGood.goodsId,
@@ -643,12 +656,17 @@
                     goods: JSON.stringify(goods),
                     coupon: JSON.stringify(coupon)
                 }
-                console.log(data)
-                this.$axios.post('/showinventory/newgoodscommit',this.$qs.stringify(data),{
-                    headers:{
+                let config = {
+                    headers: {
                         staffToken: window.sessionStorage.getItem('staffToken')
-                    }
-                })
+                    },
+                }
+                
+                fd.append('goods',JSON.stringify(goods))
+                fd.append('coupon',JSON.stringify(coupon))
+                fd.append('staffId',window.sessionStorage.getItem('staffId'))
+                console.log(fd.get('goods'))
+                this.$axios.post('/showinventory/newgoodscommit',fd,config)
                 .then((res) => {
                     if (res.data.success) {
                         this.$message.success('添加成功')
@@ -662,9 +680,6 @@
                 })
                 this.addNewGoodDialog = false
             },
-            // handleExceed() {
-            //     this.$message.warning(`最多上传${files.length}个文件`)
-            // },
             //获取指定商品的商品库存表
             getAllGoodInfo(good) {
                 this.isFirst = false
@@ -737,6 +752,7 @@
                 .then((res) => {
                     if (res.data.success) {
                         this.currentGood = res.data.goodsStockA
+                        console.log(this.currentGood)
                         //时间转换
                         let data = new Date(this.currentGood.stockGoodsProductionDate);
                         this.currentGood.stockGoodsProductionDate = data.getFullYear() + "-" + (data.getMonth() + 1) + "-" + data.getDate();
@@ -760,11 +776,11 @@
                 let stock = {
                     stockGoodsId:this.currentGood.stockGoodsId,
                     stockId:this.currentGood.stockId,
-                    goodsStockId:this.currentGood.goodsStockId,
+                    goodsStockId:this.currentGood.goodsId,
                     stockUnitId:this.currentGood.stockUnitId,
                     stockGoodsBatchNumber:this.currentGood.stockGoodsBatchNumber,
                     stockGoodsProductionDate:this.currentGood.stockGoodsProductionDate,
-                    stocGoodsShelfLife:this.currentGood.stocGoodsShelfLife,
+                    stocGoodsShelfLife:this.currentGood.stockGoodsShelfLife,
                     stockGoodsPrice:this.currentGood.stockGoodsPrice,
                     stockInventory:this.currentGood.stockInventory,
                     stockExportBillId:this.currentGood.stockExportBillId
@@ -826,7 +842,6 @@
                     staffId: window.sessionStorage.getItem('staffId'),
                     coupon: JSON.stringify(coupon)
                 }
-                console.log(data)
                 this.$axios.post('/replenishmentapplication/replenishmentcommit', this.$qs.stringify(data), {
                     headers:{
                         staffToken: window.sessionStorage.getItem('staffToken')
@@ -835,6 +850,7 @@
                 .then((res) => {
                     if (res.data.success) {
                         this.$message.success('补充申请提交成功')
+                        this.getPartGood()
                     } else {
                         this.$message.error(res.data.errMsg)
                     }

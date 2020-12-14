@@ -11,16 +11,14 @@
             <!-- 功能区域 -->
             <el-row :gutter="10">
                 <el-col :span="8">
-                    <span>货品编号</span>
-                    <el-select v-model="selected.selectedGoodId" filterable placeholder="请选择" size="small">
-                        <el-option v-for="item in dataList.stockingGoodsList" :label="item.stockGoodsId" :key="item.stockGoodsId" :value="item.stockGoodsId"></el-option>
-                    </el-select>
+                    <span>商品编号</span>
+                    <el-input class="input" type="text" v-model="selected.stockGoodsId" placeholder="请输入"  size="small" clearable ></el-input>
+                    
                 </el-col>
                 <el-col :span="8">
-                    <span>货品名称</span>
-                    <el-select v-model="selected.selectedGoodName" filterable placeholder="请选择" size="small">
-                        <el-option v-for="item in dataList.stockingGoodsList" :label="item.goodsName" :key="item.stockGoodsId" :value="item.goodsName"></el-option>
-                    </el-select>
+                    <span>商品名称</span>
+                    <el-input class="input" type="text" v-model="selected.goodsName" placeholder="请输入"  size="small" clearable ></el-input>
+                    
                 </el-col>
                 <!-- 列出货品类别 -->
                 <!-- <el-col :span="8">
@@ -30,9 +28,9 @@
                     </el-select>
                 </el-col> -->
                 <el-col :span="8">
-                    <span>品牌类别</span>
-                    <el-select v-model="selected.selectedBrandName" filterable placeholder="请选择" size="small">
-                        <el-option v-for="item in dataList.stockingGoodsList" :label="item.goodsBrand" :key="item.stockGoodsId" :value="item.goodsBrand"></el-option>
+                    <span>类别编号</span>
+                    <el-select v-model="selected.goodsCategoryId"  placeholder="请选择" size="small" clearable>
+                        <el-option v-for="item in dataList.stockingGoodsList" :label="item.goodsCategoryId" :key="item.goodsCategoryId" :value="item.goodsCategoryId"></el-option>
                     </el-select>
                 </el-col>
             </el-row>
@@ -46,9 +44,9 @@
                 <!-- 盘点状态 -->
                 <el-col :span="8">
                     <span>盘点状态</span>
-                    <el-select v-model="selected.selectedCheckStatus" filterable placeholder="请选择" size="small">
+                    <el-select v-model="status" filterable placeholder="请选择" size="small" clearable>
                         <!-- 暂时这样写 -->
-                        <el-option v-for="item in dataList.stockingGoodsList"  :key="item.stocktakingStatus" :value="getStocktakingStatus(item.stocktakingStatus)"></el-option>
+                        <el-option v-for="item in ['待盘点','已盘点','已提交更新','取消盘点']"  :key="item" :value="item"></el-option>
                     </el-select>
                 </el-col>
                 <el-col :span="4">
@@ -136,7 +134,7 @@
                         <el-col :span="8">
                             <!-- 渲染不上 -->
                             <el-form-item label="生产日期"> 
-                                <el-input type="date" v-model="currentStoreList.stock.stockGoodsProductionDate" disabled></el-input>
+                                <el-input type="text" v-model="currentStoreList.stock.stockGoodsProductionDate" disabled></el-input>
                                 
                                 <!-- <el-date-picker v-model="currentStoreList.stock.stockGoodsProductionDate" type="date" placeholder="选择日期" format="yyyy年MM月dd日" value-format="yyyy-MM-dd" disabled></el-date-picker> -->
                             </el-form-item>
@@ -220,12 +218,19 @@
                 isDraw:false,
                 //指定商品需求
                 selected:{
-                    selectedGoodId:'',
-                    selectedGoodName:'',
-                    selectedGoodCategory:'',
-                    selectedBrandName:'',
-                    selectedCheckStatus:''
+                    goodsName:null,
+                    goodsCategoryId:null,
+                    categoryName:null,
+                    goodsBrand:null,
+                    goodsSpecifications:null,
+                    stockGoodsId:null,
+                    stockGoodsBatchNumber :null,
+                    stockInventory:null,
+                    stocktakingId:null,
+                    stocktakingStatus:null,
                 },
+                //查询列表的盘点状态
+                status:null,
                 //设置查看商品信息的弹窗是否可见
                 checkStoreDialog:false,
                 //当前操作的库存信息
@@ -295,12 +300,12 @@
                         this.secondaryMenuId = this.secondaryMenuList[i].secondaryMenuId
                     }
                 }
-                // let staffToken = window.sessionStorage.getItem('staffToken')
                 let data = {
                     pageIndex: this.queryInfo.pageIndex-1,
                     pageSize: this.queryInfo.infoCount,
                     secondaryMenuId: this.secondaryMenuId,
-                    userId: window.sessionStorage.staffId
+                    userId: window.sessionStorage.staffId,
+                    staffId:window.sessionStorage.staffId,
                 }
                 
                 this.$axios.post('/stocktaking/viewStocktakingGoodsList', this.$qs.stringify(data),{
@@ -315,15 +320,6 @@
                     }
                     this.queryInfo.total = res.data.recordSum
                     this.dataList=res.data
-                    // for(i=0;i<res.data.stockingGoodsList.length;i++){
-                    //     // console.log(i)
-                    //     // console.log(res.data.stockingGoodsList[i].stockInventory)
-                    //     this.dataList.stockingGoodsList[i].stockInventory=res.data.stockingGoodsList[i].stockInventory
-                    //     // console.log(this.dataList.stockingGoodsList[i].stockInventory)
-                    // }      
-                    // console.log(this.dataList.stockingGoodsList[0].stockInventory)
-                    // console.log('------------')
-                    // console.log(this.dataList.stockingGoodsList)
                     //渲染功能按钮
                     if(!this.isDraw) {
                         for (var i = 0; i < this.functionList.length; i++) {
@@ -340,6 +336,7 @@
                             this.isDraw = true
                         }
                     }
+                   
                 })
                 .catch((err) => {
                     this.$message.error(err.message)
@@ -347,21 +344,59 @@
             },
             //查询指定需求的商品
             searchGood(){
-                this.$axios.post('/stocktaking/viewStocktakingGoodsList',this.selected)
+                let data={
+                    userId:window.sessionStorage.staffId,
+                    staffId:window.sessionStorage.staffId,
+                    pageIndex: this.queryInfo.pageIndex - 1,
+                    pageSize: this.queryInfo.infoCount,
+                    secondaryMenuId: this.secondaryMenuId,
+                    stockingGoods: this.selected
+                }
+                // 入库状态
+                if (this.status=='待盘点'){
+                    data.stockingGoods.stocktakingStatus=0
+                }else if(this.status=='已盘点'){
+                    data.stockingGoods.stocktakingStatus=1
+                }else if(this.status=='已提交更新'){
+                    data.stockingGoods.stocktakingStatus=2
+                }else if(this.status=='取消盘点'){
+                    data.stockingGoods.stocktakingStatus=-1
+                }
+                data.stockingGoods=JSON.stringify(data.stockingGoods)
+                 this.$axios.post('/stocktaking/viewStocktakingGoodsListByConditions', this.$qs.stringify(data),{
+                    headers:{
+                        staffToken: window.sessionStorage.getItem('staffToken')
+                    }
+                })
                 .then((res) => {
-                    this.storeList = res.data.obj
-                    //console.log(res)
+                    console.log(res)
+                    if (res.data.functionList != undefined) {
+                        this.functionList = res.data.functionList
+                    }
+                    this.queryInfo.total = res.data.recordSum
+                    this.dataList=res.data
+                    //渲染功能按钮
+                    if(!this.isDraw) {
+                        for (var i = 0; i < this.functionList.length; i++) {
+                            if (this.functionList[i].functionId == 30) {
+                                this.$set(this.functionList[i],"btnType","success")
+                                this.$set(this.functionList[i],"btnIcon","el-icon-edit")
+                                this.functionList_one.push(this.functionList[i])
+                            } else if (this.functionList[i].functionId == 31) {
+                                this.$set(this.functionList[i],"btnType","success")
+                                this.$set(this.functionList[i],"btnIcon","el-icon-edit")
+                                this.functionList_two.push(this.functionList[i])
+                                this.isExistsHandRole = true
+                            }
+                            this.isDraw = true
+                        }
+                    }
+                   
                 })
                 .catch((err) => {
-                    this.$message.error(err)
+                    this.$message.error(err.message)
                 })
             },
-            // //获取指定商品的信息
-            // checkStatus(good) {
-            //     //console.log(good)
-            //     this.lookGoodDialog = true
-            //     this.currentGood = good
-            // },
             //获取按钮功能
             getButtonStatus(rowInfo,functionId) {
                 // console.log(rowInfo)
@@ -387,38 +422,24 @@
                     }
                 })
                 .then((res)=>{
-                    //  console.log('Store====res=====')
-                    //  console.log(res.data)
-                    // if (res.data.success) {
-                        // this.currentStoreList=[res.data.Stocktaking,res.data.StocktakingRecord,res.data.Stock,res.data.Goods,res.data.Category,res.data.Unit,res.data.success,res.data.message]
                     this.currentStoreList=res.data
-                    // console.log("midddddd")
-                    // console.log(this.currentStoreList)
-                    // console.log('currentStoreList')
-                    // console.log(this.currentStoreList.stock.stockGoodsShelfLife)
-                    // }   
                 })
             },
             //提交盘点结果
             submitStore(){
                 //设置盘点状态为已盘点
                 this.currentStoreList.stocktaking.stocktakingStatus=1
-                // console.log(this.currentStoreList)
                 //未实时响应
-
-                // this.currentStoreList.stocktaking.stocktakingNum=999
                 let data={
                     stocktaking:JSON.stringify(this.currentStoreList.stocktaking),
                     staffId: window.sessionStorage.staffId
                 }
-                // console.log("end")
                 this.$axios.post('/stocktaking/submitStocktakingGood',this.$qs.stringify(data),{
                     headers:{
                         staffToken: window.sessionStorage.getItem('staffToken')
                     }
                 })
                 .then((res)=>{
-                    // console.log(res.data)
                     if (res.data.success) {
                         this.checkStoreDialog=false
                         this.$message.success('盘点成功')
@@ -443,18 +464,8 @@
                 this.queryInfo.pageIndex = currentPage
                 this.getStoreList()
             },
-            // //判断盘点数量
-            // checkNum(row, column) {
-            //     // console.log("数量！！！！！"+row.check_goods_num)
-            //     if (row.check_status) {
-            //     return row.check_goods_store
-            //     } else  {
-            //     return 0
-            //     } 
-            // },
             //根据传来的盘点状态值显示
             stateFormat(row, column) {
-                // console.log("状态！！！！！"+row.check_status)
                 if (row.stocktakingStatus==1) {
                 return '已盘点'
                 } else if(row.stocktakingStatus==0){
@@ -492,21 +503,6 @@
                 }
 
             }
-            // //显示盘点盈亏昨天
-            // check_goods_status(row,column){
-            //      if (row.check_goods_store>row.goods_store) {
-            //     return '盘盈'
-            //     } else if (row.check_goods_store>row.goods_store) {
-            //     return '正常'
-            //     } else{
-            //         return'盘亏'
-            //     }
-            // },
-            //格式化输出时间
-            // dataFormat(time){
-            //     return `${time.getFullYear()}-${time.getMonth() + 1 >= 10 ? (time.getMonth() + 1) : '0' + (time.getMonth() + 1)}-${time.getDate() >= 10 ? time.getDate() : '0' + time.getDate()}
-            //          ${time.getHours() >= 10 ? time.getHours() : '0' + time.getHours()} : ${time.getMinutes()>=10?time.getMinutes():'0'+time.getMinutes()} : ${time.getSeconds() >= 10 ? time.getSeconds() : '0' + time.getSeconds()}`;
-            //  }
         }
     }
 </script>
@@ -525,5 +521,8 @@
 .el-pagination{
     margin-top: 10px;
     padding-left: 120px;
+}
+.input{
+    width: 203px;
 }
 </style>

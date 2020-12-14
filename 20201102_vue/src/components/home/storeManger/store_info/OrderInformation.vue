@@ -47,7 +47,13 @@
                 <el-table-column label="供货单位" prop="couponUnitId" width="100" align="center"></el-table-column>
                 <el-table-column label="订货数量" prop="couponNum" width="120" align="center"></el-table-column>
                 <el-table-column label="订货时间" prop="couponTime" width="120" align="center"></el-table-column>
-                <el-table-column label="订货状态" prop="couponStatus" width="100" align="center"></el-table-column>
+                <el-table-column label="订货状态" width="100" align="center">
+                    <template slot-scope="scope">
+                        <span v-if="scope.row.couponStatus == 0">订货中</span>
+                        <span v-else-if="scope.row.couponStatus == 1">订货成功</span>
+                        <span v-else>订货失败</span>
+                    </template>
+                </el-table-column>
                 <el-table-column label="操作职工" prop="couponStaffId" width="120" align="center"></el-table-column>
                 <el-table-column label="操作" fixed="right" width="120" align="center">
                     <template slot-scope="scope">

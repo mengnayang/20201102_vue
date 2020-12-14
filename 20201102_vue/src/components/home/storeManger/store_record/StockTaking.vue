@@ -66,9 +66,9 @@
                         <el-col :span="7">盘点状态:</el-col>
                         <el-col :span="15">
                             <el-select size="mini"  v-model="selected.stocktakingAllStatus">
-                                <el-option :value="0" :label="'全部'"></el-option>
-                                <el-option :value="1" :labal="'已盘点'"></el-option>
-                                <el-option :value="2" :labal="'未盘点'"></el-option>
+                                <el-option :value="0" label="全部"></el-option>
+                                <el-option :value="1" labal="已盘点"></el-option>
+                                <el-option :value="2" labal="未盘点"></el-option>
                             </el-select>
                         </el-col>
                     </el-row>
@@ -151,11 +151,24 @@
                     </template>
                 </el-table-column>
                 <el-table-column label="提交员工" width="170px" prop="stocktakingSubmitStaffId" align="center"></el-table-column>
-                <el-table-column label="盈亏状态" width="170px" prop="stocktakingProfitLossPrice" align="center"></el-table-column>
-                <el-table-column label="盘点状态" width="170px" prop="stocktakingAllStatus" align="center"></el-table-column>
+                <el-table-column label="盈亏状态" width="170px" align="center">
+                    <template slot-scope="scope">
+                        <span v-if="scope.row.stocktakingProfitLossPrice == 0">盘盈</span>
+                        <span v-else-if="scope.row.stocktakingProfitLossPrice == 1">盘亏</span>
+                        <span v-else>盘点无盈亏</span>
+                    </template>
+                </el-table-column>
+                <el-table-column label="盘点状态" width="220px" align="center">
+                    <template slot-scope="scope">
+                        <span v-if="scope.row.stocktakingAllStatus == 0">初始状态待盘点</span>
+                        <span v-else-if="scope.row.stocktakingAllStatus == 1">已盘点待提交</span>
+                        <span v-else-if="scope.row.stocktakingAllStatus == 2">已仓库管理员已提交更新库存</span>
+                        <span v-else>已取消盘点</span>
+                    </template>
+                </el-table-column>
                 <el-table-column label="盘点发起时间" width="170px" prop="stocktakingLaunchedDate" align="center"></el-table-column>                
                 <el-table-column label="盘点提交时间" width="170px" prop="stocktakingCommitDate" align="center"></el-table-column>
-                <el-table-column label="操作" fixed="right" width="130px" align="center">
+                <el-table-column label="操作" fixed="right" width="180px" align="center">
                     <template slot-scope="scope">
                         <el-button-group v-for="func in functionList_one" :key="func.functionId">
                             <el-tooltip effect="light" placement="top" :content="func.functionName" :enterable="false">
@@ -169,13 +182,20 @@
             <el-table :data="stockingGoodsList" border stripe v-show="isSecond">
                 <el-table-column label="商品图片" prop="goodsPicture" fixed align="center" width="120px"></el-table-column>
                 <el-table-column label="盘点编号" prop="stocktakingId" fixed align="center" width="120px"></el-table-column>
-                <el-table-column label="商品编号" prop="stockGoodsId" fixed align="center" width="150px"></el-table-column>
+                <el-table-column label="商品编号" prop="stockGoodsId" align="center" width="150px"></el-table-column>
                 <el-table-column label="商品名称" prop="goodsName" align="center" width="150px"></el-table-column>
                 <el-table-column label="商品类别" width="120px" prop="categoryName" align="center"></el-table-column>
                 <el-table-column label="品牌名称" width="120px" prop="goodsBrand" align="center"></el-table-column>
                 <el-table-column label="实时库存量" width="120px" prop="stockInventory" align="center"></el-table-column>
                 <el-table-column label="盘点数量" width="120px" prop="stocktakingNum" align="center"></el-table-column>
-                <el-table-column label="盘点状态" width="120px" prop="stocktakingStatus" align="center"></el-table-column>
+                <el-table-column label="盘点状态" width="220px" align="center">
+                    <template slot-scope="scope">
+                        <span v-if="scope.row.stocktakingStatus == 0">初始状态待盘点</span>
+                        <span v-else-if="scope.row.stocktakingStatus == 1">已盘点待提交</span>
+                        <span v-else-if="scope.row.stocktakingStatus == 2">已仓库管理员已提交更新库存</span>
+                        <span v-else>已取消盘点</span>
+                    </template>
+                </el-table-column>
                 <el-table-column label="操作" fixed="right" width="240px" align="center">
                     <template slot-scope="scope">
                         <el-button-group v-for="func in functionList_two" :key="func.functionId">
@@ -210,10 +230,25 @@
                 </el-table-column>
             </el-table>
         </el-card>
-        <el-pagination
+        <!-- 一层 -->
+        <el-pagination v-show="isFirst"
         :current-page="queryInfo.pageIndex" :page-sizes="[queryInfo.infoCount]" 
         :page-size="queryInfo.infoCount" :total="queryInfo.total"
-        @current-change="currentChange"
+        @current-change="currentChange1"
+        layout="total, sizes, prev, pager, next, jumper">
+        </el-pagination>
+        <!-- 二层 -->
+        <el-pagination v-show="isSecond"
+        :current-page="queryInfo.pageIndex" :page-sizes="[queryInfo.infoCount]" 
+        :page-size="queryInfo.infoCount" :total="queryInfo.total"
+        @current-change="currentChange2"
+        layout="total, sizes, prev, pager, next, jumper">
+        </el-pagination>
+        <!-- 三层 -->
+        <el-pagination v-show="isThird"
+        :current-page="queryInfo.pageIndex" :page-sizes="[queryInfo.infoCount]" 
+        :page-size="queryInfo.infoCount" :total="queryInfo.total"
+        @current-change="currentChange3"
         layout="total, sizes, prev, pager, next, jumper">
         </el-pagination>
         <!-- 一层 -->
@@ -268,7 +303,14 @@
                 </el-row>
                 <el-row>
                     <el-col :span="8">
-                        <el-form-item label="盘点状态:">{{current.stocktaking.stocktakingStatus}}</el-form-item>
+                        <el-form-item label="盘点状态:">
+                            <template>
+                                <span v-if="current.stocktaking.stocktakingStatus == 0">初始状态待盘点</span>
+                                <span v-else-if="current.stocktaking.stocktakingStatuss == 1">已盘点待提交</span>
+                                <span v-else-if="current.stocktaking.stocktakingStatus == 2">已仓库管理员已提交更新库存</span>
+                                <span v-else>已取消盘点</span>
+                            </template>
+                        </el-form-item>
                     </el-col>
                     <el-col :span="8">
                         <el-form-item label="盘点职工:">{{current.staff.staffName}}</el-form-item>
@@ -324,7 +366,7 @@
                 </el-row>
             </el-form>
             <span slot="footer" class="dialog-footer">
-                <el-button type="primary" @click="lookDialog = false">取消</el-button>
+                <el-button type="primary" size="small" @click="lookDialog = false">取消</el-button>
             </span>
         </el-dialog>
         <!-- 修改详细信息列表 -->
@@ -449,9 +491,9 @@
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button-group>
-                    <el-button type="success" @click="editDialog1()">确认修改</el-button>
+                    <el-button type="success" size="small" @click="editDialog1()">确认修改</el-button>
                 </el-button-group>
-                <el-button type="primary" @click="editDialog = false">取消</el-button>
+                <el-button type="primary" size="small" @click="editDialog = false">取消</el-button>
             </span>
         </el-dialog>
     </div>
@@ -486,8 +528,6 @@
                 functionList_three:[],
                 //二级功能按钮下面
                 functionList_four:[],
-                //三级内部按钮(弹框)
-                functionList_five:[],
                 //员工列表
                 staffList:[],
                 //查询的条件
@@ -529,7 +569,9 @@
                 //选取商品列表的查询需求是否渲染
                 isThird:false,
                 //选择的行数
-                multipleSelection:[]
+                multipleSelection:[],
+                // 当前盘点总记录的信息
+                scope_local:''
             }
         },
         created() {
@@ -602,9 +644,9 @@
                                 this.$set(this.functionList[i],"btnIcon","iconfont icon_alert")
                                 this.functionList_two.push(this.functionList[i])
                             } else if (this.functionList[i].functionWeight == 5) {
-                                this.$set(this.functionList[i],"btnType","success")
-                                this.$set(this.functionList[i],"btnIcon","iconfont icon_alert")
-                                this.functionList_five.push(this.functionList[i])
+                                this.$set(this.functionList[i],"btnType","warning")
+                                this.$set(this.functionList[i],"btnIcon","iconfont icon_confirm")
+                                this.functionList_one.push(this.functionList[i])
                             } else if (this.functionList[i].functionWeight == 6) {
                                 this.$set(this.functionList[i],"btnType","warning")
                                 this.functionList_three.push(this.functionList[i])
@@ -624,9 +666,17 @@
                 console.log(this.selected)
             },
             //根据指定页码获取相应的库存信息
-            currentChange(currentPage) {
-                this.queryInfo.pageIndex(currentPage)
+            currentChange1(currentPage) {
+                this.queryInfo.pageIndex = currentPage
                 this.getStockList()
+            },
+            currentChange2(currentPage) {
+                this.queryInfo.pageIndex = currentPage
+                this.lookAllDialogInfo(this.scope_local)
+            },
+            currentChange3(currentPage) {
+                this.queryInfo.pageIndex = currentPage
+                this.selectGoodList()
             },
             //层级转换
             rollback() {
@@ -650,6 +700,8 @@
                     this.lookDialogInfo(scope.row)
                 } else if (functionWeight == 3) {
                     this.editDialogInfo(scope.row)
+                } else if (functionWeight == 5) {
+                    this.submitAllStocktaking(scope.row)
                 } else if (functionWeight == 4) {
                     this.$message.success('成功发送提醒')
                 } else if (functionWeight == 6) {
@@ -660,6 +712,9 @@
             },
             //查看该用户所分配的所有商品
             lookAllDialogInfo(scope) {
+                //放到本地，以便后面调用
+                this.scope_local = scope
+
                 let good = scope.row
                 let data = {
                     stocktakingId:good.stocktakingId,
@@ -807,34 +862,6 @@
                         console.log(res.data)
                         this.$message.success('盘点发起成功')
                     } else {
-                        this.$message.error(errMsg)
-                    }
-                })
-                .catch((err) => {
-                    this.$message.error(err.message)
-                })
-            },
-            //提交总盘点
-            requestRecord() {
-                let stockGoodsIdListStr = []
-                for (let i = 0; i < this.multipleSelection.length; i++) {
-                    stockGoodsIdListStr.push(this.multipleSelection[i].stockGoodsId)
-                }
-                let data = {
-                    staffId: window.sessionStorage.getItem('staffId'),
-                    stockGoodsIdListStr: JSON.stringify(stockGoodsIdListStr)
-                }
-                console.log(data)
-                this.$axios.post('/stocktaking/initiateStocktaking',this.$qs.stringify(data),{
-                    headers:{
-                        staffToken: window.sessionStorage.getItem('staffToken')
-                    }
-                })
-                .then((res) => {
-                    if (res.data.success) {
-                        console.log(res)
-                        this.$message.success('成功发起盘点')
-                    } else {
                         this.$message.error(res.data.errMsg)
                     }
                 })
@@ -888,10 +915,36 @@
                     this.$refs.multipleTable.clearSelection();
                 }
             },
-            // 发起盘点
-            submitAllStocktaking() { 
+            //发起盘点
+            requestRecord() {
+                let stockGoodsIdListStr = []
+                for (let i = 0; i < this.multipleSelection.length; i++) {
+                    stockGoodsIdListStr.push(this.multipleSelection[i].stockGoodsId)
+                }
                 let data = {
-                    stocktakingId:this.stockingGoodsList[0].stocktakingId
+                    staffId: window.sessionStorage.getItem('staffId'),
+                    stockGoodsIdListStr: JSON.stringify(stockGoodsIdListStr)
+                }
+                this.$axios.post('/stocktaking/initiateStocktaking',this.$qs.stringify(data),{
+                    headers:{
+                        staffToken: window.sessionStorage.getItem('staffToken')
+                    }
+                })
+                .then((res) => {
+                    if (res.data.success) {
+                        this.$message.success('成功发起盘点')
+                    } else {
+                        this.$message.error(res.data.errMsg)
+                    }
+                })
+                .catch((err) => {
+                    this.$message.error(err.message)
+                })
+            },
+            // 提交总盘点
+            submitAllStocktaking(rowInfo) { 
+                let data = {
+                    stocktakingId:rowInfo.stocktakingId
                 }
                 this.$axios.post('/stocktaking/submitStocktaking', this.$qs.stringify(data),{
                     headers:{
@@ -901,6 +954,7 @@
                 .then((res) => {
                     if (res.data.success) {
                         this.$message.success('成功提交总盘点')
+                        this.getStockList()
                     } else {
                         this.$message.error(res.data.errMsg)
                     }
@@ -909,11 +963,6 @@
                     this.$message.error(err.message)
                 })
             },
-            //获取指定页面的信息
-            currentChange(currentPage){
-                this.queryInfo.pageIndex = currentPage
-                this.selectGoodList()
-            }
         }
     }
 </script>

@@ -37,7 +37,11 @@ Tree,
 Tag,
 Transfer,
 Upload,
-Switch
+Switch,
+Collapse,
+CollapseItem,
+Checkbox,
+CheckboxGroup
 } from 'element-ui'
 Vue.use(Form)
 Vue.use(FormItem)
@@ -72,6 +76,10 @@ Vue.use(Tag)
 Vue.use(Transfer)
 Vue.use(Upload)
 Vue.use(Switch)
+Vue.use(Collapse)
+Vue.use(CollapseItem)
+Vue.use(Checkbox)
+Vue.use(CheckboxGroup)
 
 //全局挂载
 Vue.prototype.$message = Message

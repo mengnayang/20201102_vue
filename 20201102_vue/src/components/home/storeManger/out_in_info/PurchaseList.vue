@@ -42,19 +42,28 @@
             </el-row>
             <!-- 表单区域 -->
             <el-table :data="exportBillList" border stripe>
-                <el-table-column label="入库编号" prop="exportBillId" fixed width="160" align="center"></el-table-column>
-                <el-table-column label="订单编号" prop="exportBillCouponId" fixed width="100" align="center"></el-table-column>
+                <el-table-column label="入库编号" prop="exportBillId" fixed width="250" align="center"></el-table-column>
+                <el-table-column label="订单编号" prop="exportBillCouponId" width="100" align="center"></el-table-column>
                 <el-table-column label="供货商编号" prop="exportBillSupplierId"  width="100" align="center"></el-table-column>
                 <el-table-column label="产品批号" prop="exportBillGoodsBatchNumber"  width="100" align="center"></el-table-column>
                 <el-table-column label="生产日期" prop="exportBillProductionDate" width="100" align="center"></el-table-column>
                 <el-table-column label="保质期" prop="exportBillShelfLife" width="80" align="center"></el-table-column>
-                <el-table-column label="供货价格" prop="exportBillPrice" width="80" align="center"></el-table-column>
-                <el-table-column label="订单状态" prop="exportBillStatus" width="100" align="center"></el-table-column>
+                <el-table-column label="供货价格" prop="exportBillPrice" width="120" align="center"></el-table-column>
+                <el-table-column label="入库状态" width="180" align="center">
+                    <template slot-scope="scope">
+                        <span v-if="scope.row.exportBillStatus == 0">刚生成入库单</span>
+                        <span v-else-if="scope.row.exportBillStatus == 1">库房管理员已完善信息</span>
+                        <span v-else-if="scope.row.exportBillStatus == 2">职工已检查通过</span>
+                        <span v-else-if="scope.row.exportBillStatus == -2">职工已检查未通过</span>
+                        <span v-else-if="scope.row.exportBillStatus == 3">库房管理员已入库</span>
+                        <span v-else>库房管理员审核不通过</span>
+                    </template>
+                </el-table-column>
                 <el-table-column label="已付款项" prop="exportBillPaid" width="80" align="center"></el-table-column>
                 <el-table-column label="入库日期" prop="exportBillTime" width="100" align="center"></el-table-column>
                 <el-table-column label="确认职工" prop="exportConfirmStaffId" width="80" align="center"></el-table-column>
                 <el-table-column label="提交职工" prop="exportSubmitStaffId" width="80" align="center"></el-table-column>
-                <el-table-column label="备注" prop="exportBillRemark" width="80" align="center"></el-table-column>
+                <el-table-column label="备注" prop="exportBillRemark" width="150" align="center"></el-table-column>
                 <el-table-column label="操作" fixed="right" width="260" align="center">
                     <template slot-scope="scope">
                         <el-button-group v-for="func in functionList" :key="func.functionId">
@@ -89,11 +98,20 @@
                     </el-col>
                 </el-row>
                 <el-row>
-                    <el-col :span="8">
+                    <el-col :span="5">
                         <el-form-item label="供货编号：">{{exportBill.exportBillSupplierId}}</el-form-item> 
                     </el-col>
-                    <el-col :span="8">
-                        <el-form-item label="入库状态：">{{exportBill.exportBillStatus}}</el-form-item> 
+                    <el-col :span="11">
+                        <el-form-item label="入库状态：">
+                            <template>
+                                <span v-if="exportBill.exportBillStatus == 0">刚生成入库单</span>
+                                <span v-else-if="exportBill.exportBillStatus == 1">库房管理员已完善信息</span>
+                                <span v-else-if="exportBill.exportBillStatus == 2">职工已检查通过</span>
+                                <span v-else-if="exportBill.exportBillStatus == -2">职工已检查未通过</span>
+                                <span v-else-if="exportBill.exportBillStatus == 3">库房管理员已入库</span>
+                                <span v-else>库房管理员审核不通过</span>
+                            </template>
+                        </el-form-item> 
                     </el-col>
                     <el-col :span="8">
                         <el-form-item label="已付款项：">{{exportBill.exportBillPaid}}</el-form-item> 
@@ -140,7 +158,11 @@
                     </el-col>
                     <el-col :span="8">
                         <el-form-item label="订单状态:">
-                            {{coupon.couponStatus}}
+                            <template>
+                                <span v-if="coupon.couponStatus == 0">订货中</span>
+                                <span v-else-if="coupon.couponStatus == 1">订货成功</span>
+                                <span v-else>订货失败</span>
+                            </template>
                         </el-form-item>
                     </el-col>
                     <el-col :span="8">
@@ -214,7 +236,7 @@
                 </el-row>
             </el-form>
             <span slot="footer" class="dialog-footer">
-                <el-button type="primary" @click="lookDialog = false">取消</el-button>
+                <el-button type="primary" size="small" @click="lookDialog = false">取消</el-button>
             </span>
         </el-dialog>
         <!-- 修改采购入库单的信息弹框 -->
@@ -245,7 +267,14 @@
                     </el-col>
                     <el-col :span="8">
                         <el-form-item label="入库状态：">
-                            <el-input v-model="exportBill.exportBillStatus" size="small"></el-input>    
+                            <el-select v-model="exportBill.exportBillStatus">
+                                <el-option :value="0" label="刚生成入库单">刚生成入库单</el-option>
+                                <el-option :value="1" label="库房管理员已完善信息">库房管理员已完善信息</el-option>
+                                <el-option :value="2" label="职工已检查通过">职工已检查通过</el-option>
+                                <el-option :value="-2" label="职工已检查未通过">职工已检查未通过</el-option>
+                                <el-option :value="3" label="库房管理员已入库">库房管理员已入库</el-option>
+                                <el-option :value="-1" label="库房管理员审核不通过">库房管理员审核不通过</el-option>
+                            </el-select>
                         </el-form-item> 
                     </el-col>
                     <el-col :span="8">
@@ -377,8 +406,8 @@
                 </el-row>
             </el-form>
             <span slot="footer" class="dialog-footer">
-                <el-button type="success" @click="editDialog1()">确认修改</el-button>
-                <el-button type="primary" @click="editDialog = false">取消</el-button>
+                <el-button type="success" size="small" @click="editDialog1()">修改</el-button>
+                <el-button type="primary" size="small" @click="editDialog = false">取消</el-button>
             </span>
         </el-dialog>
     </div>
@@ -431,6 +460,7 @@
                         this.secondaryMenuId = this.secondaryMenuList[i].secondaryMenuId
                     }
                 }
+                this.isDraw = false
                 let data = {
                     pageIndex: this.queryInfo.pageIndex-1,
                     pageSize: this.queryInfo.infoCount,
@@ -446,7 +476,7 @@
                     if (res.data.success) {
                         this.functionList = res.data.functionList
                         this.exportBillList = res.data.exportBillList
-                        this.queryInfo.infoCount = res.data.recordSum
+                        this.queryInfo.total = res.data.recordSum
                         this.exportBillList.map((item) => {
                             let date = new Date(item.exportBillProductionDate)
                             item.exportBillProductionDate = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate()
@@ -464,7 +494,7 @@
             },
             //根据指定页码获取相应的库存信息
             currentChange(currentPage) {
-                this.queryInfo.pageIndex(currentPage)
+                this.queryInfo.pageIndex = currentPage
                 this.getPurchaseList()
             },
             drawBtn() {
@@ -484,7 +514,7 @@
                             this.$set(this.functionList[i],"btnType","danger")
                             this.$set(this.functionList[i],"btnIcon","iconfont icon_reject")
                         }
-                        
+                        this.isDraw = true
                     }
                 }
             },
@@ -555,6 +585,10 @@
                         this.goods = res.data.goods
                         this.unit = res.data.unit
 
+                        if (this.exportBill.exportBillStatus == -1) {
+                            this.exportBill.exportBillStatus = '库房管理员审核不通过'
+                        }
+
                         // let date = new Date(this.coupon.couponTime)
                         // this.coupon.couponTime = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate()
                         // date = new Date(this.exportBill.exportBillProductionDate)
@@ -583,6 +617,7 @@
                 .then((res) => {
                     if (res.data.success) {
                         this.$message.success('信息修改成功')
+                        this.getPurchaseList()
                     } else {
                         this.$message.error(res.data.errMsg)
                     }
@@ -595,7 +630,7 @@
             //确认入库
             async confirmIntoStore(exportBill) {
                 const confirmResult = await this.$confirm('确认相关入库信息已正确填写？','确认入库',{
-                    confirmButtonText:'确认入库',
+                    confirmButtonText:'入库',
                     showCancelButton:true,
                     type: 'success'
                 })
@@ -628,7 +663,7 @@
             //拒收
             async rejectIntoStore(exportBill) {
                 const confirmResult = await this.$confirm('此操作不可恢复，是否拒绝这条入库信息？','拒收',{
-                    confirmButtonText:'确认拒收',
+                    confirmButtonText:'拒收',
                     showCancelButton:true,
                     type: 'warning'
                 })
