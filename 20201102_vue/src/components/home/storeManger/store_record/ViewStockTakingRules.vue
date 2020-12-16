@@ -19,7 +19,7 @@
                             </el-table>
                         </el-col>
                         <el-col :span="16" :offset="1">
-                            <el-table :data="staffCategoryList" border max-height="300">
+                            <el-table :data="staffCategoryList" border max-height="300px">
                                 <el-table-column type="expand" width="50" align="center">
                                     <template slot-scope="scope">
                                         <el-tag v-for="item in scope.row.category" :key="item.categoryId" closable @close="removeCategoryById(scope.row.staffId,item.categoryId,item.categoryName)">{{item.categoryName}}</el-tag>
@@ -29,6 +29,7 @@
                                 <el-table-column property="staffName" label="职工姓名" width="150" align="center"></el-table-column>
                                 <el-table-column label="已分配的盘点类别" width="390">
                                     <template slot-scope="scope">
+                                        <!-- eslint-disable-next-line -->
                                         <span v-for="(item,index) in scope.row.category" :key="item.staffId" v-if="index <= 5">
                                             {{item.categoryName + " "}}
                                         </span>
@@ -168,6 +169,8 @@
                 this.currentStaff.category = rowInfo.category
                 this.giveAwayDialog = true
                 this.temperory =[]
+                this.temperory_top = []
+                this.temperory_down = []
 
                 for (let i = 0; i < rowInfo.category.length; i++) {
                     this.temperory_top.push({
@@ -216,6 +219,9 @@
                     }
                 }
 
+                // 删除的down
+                let index = []
+                
                 // 增加商品类别
                 for (let i = 0; i < this.temperory_down.length; i++) {
                     if (this.temperory_down[i].isSelected == 1) {
@@ -225,15 +231,25 @@
                                     categoryId: this.temperory_down[i].categoryId,
                                     categoryName: this.temperory_down[i].categoryName
                                 })
+                                break;
                             }
                         }
                         for (let k = 0; k < this.categoryFalse.length; k++) {
                             if (this.categoryFalse[k].categoryId == this.temperory_down[i].categoryId) {
                                 this.$delete(this.categoryFalse, k)
+                                index.push(i)
                             }
                         }
                     }
-                }            
+                }    
+                
+                for (let i = 0; i < this.temperory_down.length; i++) {
+                    for (let j = 0; j < index.length; j++) {
+                        if (index[j] == i) {
+                            this.$delete(this.temperory_down, i)
+                        }
+                    }
+                }
                 this.giveAwayDialog = false
             },
             // 提交盘点设置

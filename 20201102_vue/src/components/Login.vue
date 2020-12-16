@@ -76,7 +76,6 @@ export default{
         login() {
             this.$refs.LoginRef.validate(valid => {
                 if (!valid) return
-
                 let data = {
                     staffA: JSON.stringify(this.LoginForm)
                 }

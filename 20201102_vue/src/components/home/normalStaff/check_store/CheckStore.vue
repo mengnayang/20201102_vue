@@ -134,7 +134,7 @@
                         <el-col :span="8">
                             <!-- 渲染不上 -->
                             <el-form-item label="生产日期"> 
-                                <el-input type="text" v-model="currentStoreList.stock.stockGoodsProductionDate" disabled></el-input>
+                                <el-input type="text" v-model="currentStoreList.stock.stockGoodsProductionDate" disabled ></el-input>
                                 
                                 <!-- <el-date-picker v-model="currentStoreList.stock.stockGoodsProductionDate" type="date" placeholder="选择日期" format="yyyy年MM月dd日" value-format="yyyy-MM-dd" disabled></el-date-picker> -->
                             </el-form-item>
@@ -166,7 +166,7 @@
                     <el-row>
                         <el-col :span="8">
                             <el-form-item label="盘点数量"> 
-                                <el-input type="text"  v-model="currentStoreList.stocktaking.stocktakingNum"></el-input>
+                                <el-input type="text"  v-model.number="currentStoreList.stocktaking.stocktakingNum" @blur="onNumChange(currentStoreList.stocktaking.stocktakingNum)"></el-input>
                             </el-form-item>
                         </el-col>
                         <el-col :span="15">
@@ -178,13 +178,9 @@
                 </el-form>
                 <span slot="footer" class="dislog-footer">
                     <!-- <template slot-scope="scope"> -->
-                        <el-tooltip effect="light" placement="top" content="取消">
-                        <el-button type="primary" icon="el-icon-delete" @click="checkStoreDialog=false"></el-button>
-                        </el-tooltip>
+                        <el-button type="primary" icon="el-icon-delete" @click="checkStoreDialog=false" >取 消</el-button>
                         <el-button-group v-for="func in functionList_two" :key="func.functionId">
-                            <el-tooltip effect="light" placement="top" :content="func.functionName" :enterable="false">
-                                <el-button :type="func.btnType"  :icon="func.btnIcon" @click="submitStore()"></el-button>
-                            </el-tooltip>
+                                <el-button :type="func.btnType"  :icon="func.btnIcon" @click="submitStore()">提 交</el-button>
                         </el-button-group>
                     <!-- </template> -->
                     <!-- <el-button type="button" @click="shutDialog()">取消</el-button>
@@ -220,13 +216,7 @@
                 selected:{
                     goodsName:null,
                     goodsCategoryId:null,
-                    categoryName:null,
-                    goodsBrand:null,
-                    goodsSpecifications:null,
                     stockGoodsId:null,
-                    stockGoodsBatchNumber :null,
-                    stockInventory:null,
-                    stocktakingId:null,
                     stocktakingStatus:null,
                 },
                 //查询列表的盘点状态
@@ -314,7 +304,6 @@
                     }
                 })
                 .then((res) => {
-                    console.log(res)
                     if (res.data.functionList != undefined) {
                         this.functionList = res.data.functionList
                     }
@@ -342,6 +331,30 @@
                     this.$message.error(err.message)
                 })
             },
+            //判断是否是数字
+            isValueNumber(val){
+                let value = val.replace('/(^\s*)|(\s*$)','')  //去除字符串前后空格
+                let num = Number(value)  //将字符串转换为数字
+                if(isNaN(num)){  //判断是否是非数字
+                    return false
+                }else if(value === ''|| value === null){  //空字符串和null都会被当做数字
+                    return false
+                }else{
+                    return true
+                }
+            },
+            //判断盘点数量合法性
+            onNumChange(info){
+                console.log(info)
+                if(info==''||info==null){
+                    this.$message.error("注意盘点数量为空")
+                    return
+                }
+                if(isNaN(info)){
+                    this.$message.error("请输入数字")
+                    this.currentStoreList.stocktaking.stocktakingNum=this.currentStoreList.stocktaking.stockInventory
+                }
+            },
             //查询指定需求的商品
             searchGood(){
                 let data={
@@ -361,6 +374,24 @@
                     data.stockingGoods.stocktakingStatus=2
                 }else if(this.status=='取消盘点'){
                     data.stockingGoods.stocktakingStatus=-1
+                }else{
+                    data.stockingGoods.stocktakingStatus=null
+                }
+                //判断是否为空字符串
+                if(data.stockingGoods.stockGoodsId==''){
+                    data.stockingGoods.stockGoodsId=null
+                }
+                if(data.stockingGoods.goodsName==''||data.stockingGoods.goodsName==null){
+                    data.stockingGoods.goodsName=null
+                    this.$message.info('请填写商品名称')
+                    return
+
+                }
+                if(data.stockingGoods.categoryName==''){
+                    data.stockingGoods.categoryName=null
+                }
+                if(data.stockingGoods.goodsCategoryId==''){
+                    data.stockingGoods.goodsCategoryId=null
                 }
                 data.stockingGoods=JSON.stringify(data.stockingGoods)
                  this.$axios.post('/stocktaking/viewStocktakingGoodsListByConditions', this.$qs.stringify(data),{
@@ -369,8 +400,8 @@
                     }
                 })
                 .then((res) => {
-                    console.log(res)
-                    if (res.data.functionList != undefined) {
+                    console.log(res.data)
+                   if (res.data.functionList != undefined) {
                         this.functionList = res.data.functionList
                     }
                     this.queryInfo.total = res.data.recordSum
@@ -423,17 +454,31 @@
                 })
                 .then((res)=>{
                     this.currentStoreList=res.data
+                    console.log(res.data)
+                    let data = new Date(this.currentStoreList.stock.stockGoodsProductionDate)
+                    this.currentStoreList.stock.stockGoodsProductionDate = data.getFullYear() + "-" + (data.getMonth()+1) + "-" + data.getDate()
+                    
                 })
             },
             //提交盘点结果
             submitStore(){
                 //设置盘点状态为已盘点
+                console.log(this.currentStoreList)
                 this.currentStoreList.stocktaking.stocktakingStatus=1
                 //未实时响应
+                if(this.currentStoreList.stock.stockInventory>this.currentStoreList.stocktaking.stocktakingNum){
+                    this.currentStoreList.stocktaking.stocktakingProfitLossStatus=-1
+                }else if(this.currentStoreList.stock.stockInventory==this.currentStoreList.stocktaking.stocktakingNum){
+                    this.currentStoreList.stocktaking.stocktakingProfitLossStatus=0
+                }else{
+                    this.currentStoreList.stocktaking.stocktakingProfitLossStatus=1
+                }
+                this.currentStoreList.stocktaking.stocktakingProfitLossStatus
                 let data={
                     stocktaking:JSON.stringify(this.currentStoreList.stocktaking),
                     staffId: window.sessionStorage.staffId
                 }
+                console.log(data.stocktaking)
                 this.$axios.post('/stocktaking/submitStocktakingGood',this.$qs.stringify(data),{
                     headers:{
                         staffToken: window.sessionStorage.getItem('staffToken')
@@ -447,7 +492,6 @@
                         this.checkStoreDialog=false
                         this.$message.error('提交失败')
                     }   
-                    
                 })
                 .catch((err) => {
                     this.checkStoreDialog=false

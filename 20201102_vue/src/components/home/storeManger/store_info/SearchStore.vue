@@ -9,44 +9,45 @@
         <!-- 卡片区域 -->
         <el-card>
             <!-- 功能区域 -->
-            <el-row :gutter="10">
-                <!-- <el-col :span="8">
-                    <span>商品编号</span>
-                    <el-select v-model="selected.selectedGoodId" filterable placeholder="请选择" size="small">
-                        <el-option v-for="item in goodList" :label="item.goods_id" :key="item.goods_id" :value="item.goods_id"></el-option>
-                    </el-select>
-                </el-col> -->
-                <!-- <el-col :span="8">
-                    <span>商品名称</span>
-                    <el-select v-model="selected.selectedGoodName" filterable placeholder="请选择" size="small">
-                        <el-option v-for="item in goodList" :label="item.goods_name" :key="item.goods_id" :value="item.goods_name"></el-option>
-                    </el-select>
-                </el-col> -->
-                <el-col :span="8">
-                    <span>商品类别</span>
-                    <el-select v-model="selected.goodsCategory" placeholder="请选择" size="small">
-                        <el-option v-for="item in categoryList" :label="item.categoryName" :key="item.categoryid" :value="item.categoryid"></el-option>
+            <el-row v-show="isFirst">
+                <el-col :span="2">
+                    <span>商品编号:</span>
+                </el-col>
+                <el-col :span="5">
+                    <el-input v-model="selected.selectedGoodsId" size="mini"></el-input>
+                </el-col>
+                <el-col :span="2" :offset="1">
+                    <span>商品名称:</span>
+                </el-col>
+                <el-col :span="5">
+                    <el-input v-model="selected.selectedGoodsName" size="mini"></el-input>
+                </el-col>
+                <el-col :span="7" :offset="1">
+                    <span>商品类别:</span>
+                    <el-select v-model="selected.selectedCategoryId" placeholder="请选择" size="mini">
+                        <el-option :key="1000" label="全部" :value="1000"></el-option>
+                        <el-option v-for="item in categoryList" :label="item.categoryName" :key="item.categoryId" :value="item.categoryId"></el-option>
                     </el-select>
                 </el-col>
-                <el-col :span="8">
-                    <span>品牌类别</span>
-                    <el-select v-model="selected.goodsBrand" placeholder="请选择" size="small">
-                        <el-option v-for="item in goodList" :label="item.goodsBrand" :key="item.goodsId" :value="item.goodId"></el-option>
-                    </el-select>
+            </el-row>
+            <el-row v-show="isFirst">
+                <el-col :span="2">
+                    <span>品牌类别:</span>
                 </el-col>
-                <el-col :span="8">
-                    <el-button type="primary" size="small" @click="searchGood()">查询</el-button>
-                    <template>
-                        <el-button-group v-for="func in functionList_three" :key="func.functionId">
-                            <el-button :type="func.btnType" size="small"  @click="addNewGoodInfo()">{{func.functionName}}</el-button>
-                        </el-button-group>
-                    </template>
-                    <el-button type="primary" size="small" @click="rollback()" :disabled="isFirst">返回上一层</el-button>
+                <el-col :span="5">
+                    <el-input v-model="selected.selectedGoodsBrand" size="mini"></el-input>
                 </el-col>
+                <el-col :span="12" :offset="1">
+                    <el-button type="primary" size="mini" @click="searchGood()">查询</el-button>
+                    <el-button v-for="func in functionList_three" :key="func.functionId" :type="func.btnType" size="mini"  @click="addNewGoodInfo()">{{func.functionName}}</el-button>
+                </el-col>
+            </el-row>
+            <el-row v-show="isSecond">
+                <el-button type="primary" size="mini" @click="rollback()" :disabled="isFirst">返回上一层</el-button>
             </el-row>
             <!-- 列表区域 -->
             <!-- 一级 -->
-            <el-table :data="goodList" border v-show="isFirst">
+            <el-table :data="isLazzy ? goodsStockNumList : goodList" border v-show="isFirst">
                 <el-table-column label="商品图片" fixed width="100" align="center">
                     <template slot-scope="scope">
                         <img :src="scope.row.goodsPicture" width="30px" height="20px" alt="图片">
@@ -55,8 +56,10 @@
                 <el-table-column label="商品编号" prop="goodsId" fixed width="140" align="center"></el-table-column>
                 <el-table-column label="商品名称" prop="goodsName" fixed width="180" align="center"></el-table-column>
                 <el-table-column label="商品类别" prop="goodsCategory" width="120" align="center">
-                    <template slot-scope="scpoe">
-                        <span v-for="item in categoryList" :key="item.categoryId" v-if="scpoe.row.goodsCategoryId == item.categoryId">{{item.categoryName}}</span>
+                    <template slot-scope="scope">
+                        <span v-for="item in categoryList" :key="item.categoryId">
+                            <span v-if="scope.row.goodsCategoryId == item.categoryId">{{item.categoryName}}</span>
+                        </span>
                     </template>
                 </el-table-column>
                 <el-table-column label="品牌类别" prop="goodsBrand" width="120" align="center"></el-table-column>
@@ -76,10 +79,12 @@
             <el-table :data="goodDetailList" border v-show="isSecond">
                 <el-table-column label="超市商品编号" prop="stockGoodsId" fixed width="150" align="center"></el-table-column>
                 <el-table-column label="仓库编号" prop="stockId" fixed width="80" align="center"></el-table-column>
-                <el-table-column label="产品编号" prop="goodsStockId" width="140" align="center"> </el-table-column>
+                <el-table-column label="产品编号" prop="stockGoodsId" width="150" align="center"> </el-table-column>
                 <el-table-column label="销售单位" prop="stockUnitId" width="90" align="center">
                     <template slot-scope="scope">
-                        <span v-for="item in unitList" :key="item.unitId" v-if="item.unitId == scope.row.stockUnitId">{{item.unitName}}</span>
+                        <span v-for="item in unitList" :key="item.unitId">
+                            <span v-if="item.unitId == scope.row.stockUnitId">{{item.unitName}}</span>
+                        </span>
                     </template>
                 </el-table-column>
                 <el-table-column label="产品批号" prop="stockGoodsBatchNumber" width="100" align="center"></el-table-column>
@@ -98,12 +103,11 @@
                 </el-table-column>
             </el-table>
             <!-- 查看商品信息弹框 -->
-            <el-dialog title="商品信息详情" :visible.sync="lookGoodDialog" width="700px">
+            <el-dialog title="商品信息详情" :visible.sync="lookGoodDialog" width="800px">
                 <el-form label-width="100px">
                     <el-row>
                         <el-col :span="12">
                             <el-form-item label="商品图片"> 
-                                <!-- eslint-disable-next-line -->
                                 <template slot-scope="scope">
                                     <img :src="currentGood.goodsPicture" alt="图片">
                                 </template>
@@ -111,80 +115,77 @@
                         </el-col>
                     </el-row>
                     <el-row>
-                        <el-col :span="8">
+                        <el-col :span="7">
                             <el-form-item label="商品编号:"> 
                                 <span>{{currentGood.goodsId}}</span>
                             </el-form-item>
                         </el-col>
-                        <el-col :span="9">
+                        <el-col :span="8" :offset="1">
                             <el-form-item label="超市商品编号:">
                                 <span>{{currentGood.stockGoodsId}}</span>
                             </el-form-item>
                         </el-col>
+                        <el-col :span="7" :offset="1">
+                            <el-form-item label="商品名称:"> 
+                                <span>{{currentGood.goodsName}}</span>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                    <el-row>
                         <el-col :span="7">
                             <el-form-item label="产品批号:">
                                 <span>{{currentGood.stockGoodsBatchNumber}}</span>
                             </el-form-item>
                         </el-col>
-                    </el-row>
-                    <el-row>
-                        <el-col :span="8">
-                            <el-form-item label="商品名称:"> 
-                                <span>{{currentGood.goodsName}}</span>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="9">
-                            <el-form-item label="入库编号:"> 
-                                <span>{{currentGood.stockExportBillId}}</span>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="7">
+                        <el-col :span="8" :offset="1">
                             <el-form-item label="商品类别:"> 
-                                <!-- eslint-disable-next-line -->
-                                <template slot-scope="scope">
-                                    <span v-for="item in categoryList" :key="item.categoryId" v-if="item.categoryId == currentGood.goodsCategoryId">{{item.categoryName}}</span>
+                                <template>
+                                    <span v-for="item in categoryList" :key="item.categoryId">
+                                        <span v-if="item.categoryId == currentGood.goodsCategoryId">{{item.categoryName}}</span>
+                                    </span>
                                 </template>
                             </el-form-item>   
                         </el-col>
-                    </el-row>
-                    <el-row>
-                        <el-col :span="8">
+                        <el-col :span="7" :offset="1">
                             <el-form-item label="品牌类别:"> 
                                 <span>{{currentGood.goodsBrand}}</span>
                             </el-form-item>
                         </el-col>
-                        <el-col :span="9">
+                    </el-row>
+                    <el-row>
+                        <el-col :span="7">
                             <el-form-item label="生产日期:"> 
                                 <span>{{currentGood.stockGoodsProductionDate}}</span>
                             </el-form-item>
                         </el-col>
-                        <el-col :span="7">
+                        <el-col :span="8" :offset="1">
                             <el-form-item label="实时库存:"> 
                                 <span>{{currentGood.stockInventory}}</span>
                             </el-form-item>
                         </el-col>
-                    </el-row>
-                    <el-row>
-                        <el-col :span="6">
+                        <el-col :span="7" :offset="1">
                             <el-form-item label="保质期/天:"> 
                                 <span>{{currentGood.stockGoodsShelfLife}}</span>
                             </el-form-item>
                         </el-col>
-                        <el-col :span="6">
+                    </el-row>
+                    <el-row>
+                        <el-col :span="7">
                             <el-form-item label="售价/元:"> 
                                 <span>{{currentGood.stockGoodsPrice}}</span>
                             </el-form-item>
                         </el-col>
-                        <el-col :span="6">
+                        <el-col :span="8" :offset="1">
                             <el-form-item label="规格:"> 
                                 <span>{{currentGood.goodsSpecifications}}</span>
                             </el-form-item>
                         </el-col>
-                        <el-col :span="5">
+                        <el-col :span="7" :offset="1">
                             <el-form-item label="单位:"> 
-                                <!-- eslint-disable-next-line -->
-                                <template slot-scope="scope">
-                                    <span v-for="item in unitList" :key="item.unitId" v-if="item.unitId == currentGood.stockUnitId">{{item.unitName}}</span>
+                                <template>
+                                    <span v-for="item in unitList" :key="item.unitId">
+                                        <span v-if="item.unitId == currentGood.stockUnitId">{{item.unitName}}</span>
+                                    </span>
                                 </template>
                             </el-form-item>
                         </el-col>
@@ -200,7 +201,6 @@
                     <el-row>
                         <el-col :span="12">
                             <el-form-item label="商品图片"> 
-                                <!-- eslint-disable-next-line -->
                                 <template slot-scope="scope">
                                     <img :src="currentGood.goodsPicture" alt="图片">
                                 </template>
@@ -270,7 +270,7 @@
                         </el-col>
                         <el-col :span="7">
                             <el-form-item label="售价/元:"> 
-                                <el-input auto-complete="off" v-model="currentGood.stockGoodsPrice"></el-input>
+                                <el-input auto-complete="off" v-model.number="currentGood.stockGoodsPrice"></el-input>
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -282,8 +282,7 @@
                         </el-col>
                         <el-col :span="7">
                             <el-form-item label="单位:"> 
-                                <!-- eslint-disable-next-line -->
-                                <template slot-scope="scope">
+                                <template>
                                     <el-select v-model="currentGood.stockUnitId" disabled>
                                         <el-option v-for="item in unitList" :key="item.unitId" :label="item.unitName" :value="item.unitId" ></el-option>
                                     </el-select>
@@ -320,7 +319,7 @@
                         </el-col>
                         <el-col :span="11" :offset="1">
                             <el-form-item label="商品类别:">
-                                <template>
+                                <template slot-scope="scope">
                                      <el-select v-model="currentGood.goodsCategoryId">
                                         <el-option v-for="item in categoryList" :key="item.categoryId" :label="item.categoryName" :value="item.categoryId" ></el-option>
                                     </el-select>
@@ -331,7 +330,7 @@
                     <el-row>
                         <el-col :span="11">
                             <el-form-item label="单位:">
-                                <template>
+                                <template slot-scope="scope">
                                      <el-select v-model="currentGood.goodsUnit">
                                         <el-option v-for="item in unitList" :key="item.unitId" :label="item.unitName" :value="item.unitId" ></el-option>
                                     </el-select>
@@ -385,7 +384,7 @@
                         </el-col>
                         <el-col :span="11" :offset="1">
                             <el-form-item label="商品类别:">
-                                <template>
+                                <template slot-scope="scope">
                                      <el-select v-model="currentGood.goodsCategoryId" disabled>
                                         <el-option v-for="item in categoryList" :key="item.categoryId" :label="item.categoryName" :value="item.categoryId" ></el-option>
                                     </el-select>
@@ -396,7 +395,7 @@
                     <el-row>
                         <el-col :span="11">
                             <el-form-item label="单位:">
-                                <template>
+                                <template slot-scope="scope">
                                      <el-select v-model="currentGood.goodsUnit">
                                         <el-option v-for="item in unitList" :key="item.unitId" :label="item.unitName" :value="item.unitId"></el-option>
                                     </el-select>
@@ -417,7 +416,7 @@
                         </el-col>
                         <el-col :span="11" :offset="1">
                             <el-form-item label="订货量">
-                                <el-input v-model="currentGood.stockOrderNum" auto-complete="off"></el-input>
+                                <el-input v-model.number="currentGood.stockOrderNum" auto-complete="off"></el-input>
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -430,7 +429,7 @@
         </el-card>
         <el-pagination :current-page="queryInfo.pageIndex" :page-sizes="[queryInfo.infoCount]" :page-size="queryInfo.infoCount" 
             @current-change="currentChange"
-            layout="total, sizes, prev, pager, next, jumper" :total="queryInfo.total">
+            layout="total, sizes, prev, pager, next, jumper" :total="queryInfo.total" v-if="isFirst">
         </el-pagination>
     </div>
 </template>
@@ -452,10 +451,10 @@
                 isSecond:false,
                 //指定商品需求
                 selected:{
-                    selectedGoodId:'',
-                    selectedGoodName:'',
-                    selectedGoodCategory:'',
-                    selectedBrandName:''
+                    selectedGoodsId:"",
+                    selectedGoodsName:"",
+                    selectedCategoryId:"",
+                    selectedGoodsBrand:""
                 },
                 //商品类别列表
                 categoryList:[],
@@ -472,7 +471,7 @@
                 //分页信息
                 queryInfo:{
                     pageIndex:1,
-                    infoCount:4,
+                    infoCount:3,
                     total:0
                 },
                 //二级菜单列表
@@ -489,7 +488,14 @@
                 functionList_three:[],
                 //绘制按钮
                 isDraw:false,
-                dataURL:''
+                // 保留时间戳
+                tempTime:'',
+                // 保留第一条记录的stockId
+                tempStockId:'',
+                // 模糊查询的列表(查库存)
+                goodsStockNumList:[],
+                // 是否进行模糊查询
+                isLazzy:false
             }
         },
         mounted(){
@@ -569,12 +575,41 @@
             },
             //查询指定需求的商品
             searchGood(){
-                this.$axios.post('/goods/searchGood',this.selected)
+                this.selected.selectedGoodsId = this.selected.selectedGoodsId == "" ? null : this.selected.selectedGoodsId
+                this.selected.selectedGoodsBrand = this.selected.selectedGoodsBrand == "" ? null : this.selected.selectedGoodsBrand
+                this.selected.selectedCategoryId = this.selected.selectedCategoryId == 1000 ? null : this.selected.selectedCategoryId
+                this.selected.selectedCategoryId = this.selected.selectedCategoryId == "" ? null : this.selected.selectedCategoryId
+                this.selected.selectedGoodsName = this.selected.selectedGoodsName == "" ? null : this.selected.selectedGoodsName
+
+                let goods = {
+                    goodsId:this.selected.selectedGoodsId,
+                    goodsBrand:this.selected.selectedGoodsBrand,
+                    goodsCategoryId:this.selected.selectedCategoryId,
+                    goodsName:this.selected.selectedGoodsName
+                }
+                let data = {
+                    goods : JSON.stringify(goods),
+                    staffId: window.sessionStorage.getItem('staffId'),
+                    pageSize:this.queryInfo.infoCount,
+                    pageIndex:this.queryInfo.pageIndex-1
+                }
+                this.$axios.post('/showinventory/findByConditions',this.$qs.stringify(data), {
+                    headers:{
+                        staffToken: window.sessionStorage.getItem('staffToken')
+                    }
+                })
                 .then((res) => {
-                    this.goodList = res.data.obj
+                    if (res.data.success) {
+                        this.categoryList = res.data.categoryList
+                        this.goodsStockNumList = res.data.goodsStockNumList
+                        this.queryInfo.total = res.data.recordSum
+                        this.isLazzy = true
+                    } else {
+                        this.$message.error(res.data.errMsg)
+                    }
                 })
                 .catch((err) => {
-                    this.$message.error(err)
+                    this.$message.error(err.message)
                 })
             },
             //获取按钮功能
@@ -635,7 +670,6 @@
             addNewGood() {
                 var fd = new FormData();
                 var blob = this.dataURItoBlob(this.currentGood.goodsPicture);
-                console.log(blob)
                 
                 let goods = {
                     goodsId: this.currentGood.goodsId,
@@ -741,6 +775,7 @@
             },
             //修改指定商品信息
             editGoodInfo(good) {
+                this.tempStockId = good.stockId
                 let data = {
                     stockGoodsId:good.stockGoodsId
                 }
@@ -752,7 +787,7 @@
                 .then((res) => {
                     if (res.data.success) {
                         this.currentGood = res.data.goodsStockA
-                        console.log(this.currentGood)
+                        this.tempTime = this.currentGood.stockGoodsProductionDate
                         //时间转换
                         let data = new Date(this.currentGood.stockGoodsProductionDate);
                         this.currentGood.stockGoodsProductionDate = data.getFullYear() + "-" + (data.getMonth() + 1) + "-" + data.getDate();
@@ -775,11 +810,11 @@
                 this.editGoodDialog = false
                 let stock = {
                     stockGoodsId:this.currentGood.stockGoodsId,
-                    stockId:this.currentGood.stockId,
+                    stockId:this.tempStockId,
                     goodsStockId:this.currentGood.goodsId,
                     stockUnitId:this.currentGood.stockUnitId,
                     stockGoodsBatchNumber:this.currentGood.stockGoodsBatchNumber,
-                    stockGoodsProductionDate:this.currentGood.stockGoodsProductionDate,
+                    stockGoodsProductionDate:this.tempTime,
                     stocGoodsShelfLife:this.currentGood.stockGoodsShelfLife,
                     stockGoodsPrice:this.currentGood.stockGoodsPrice,
                     stockInventory:this.currentGood.stockInventory,
@@ -863,7 +898,11 @@
             //获取指定页面的信息
             currentChange(currentPage){
                 this.queryInfo.pageIndex = currentPage
-                this.getPartGood()
+                if (this.isLazzy) {
+                    this.searchGood()
+                } else {
+                    this.getPartGood()
+                }
             }
         }
     }
@@ -886,7 +925,7 @@
     }
 }
 .el-pagination{
-    margin-top: 10px;
-    padding-left: 120px;
+    width: 50%;
+    margin: 10px auto;
 }
 </style>

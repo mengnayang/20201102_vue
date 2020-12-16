@@ -24,11 +24,11 @@
                     <el-row>
                         <el-col :span="2">第</el-col>
                         <el-col :span="9">
-                            <el-select size="mini" v-model="selected.stocktakingId">
-                                <el-option :value="0" :label="'全部'"></el-option>
-                                <el-option :value="1" :labal="1"></el-option>
-                                <el-option :value="2" :labal="2"></el-option>
-                                <el-option :value="3" :labal="3"></el-option>
+                            <el-select size="mini" v-model="selected.stocktakingCount">
+                                <el-option :key="1000" :value="1000" label="全部"></el-option>
+                                <el-option :key="1" :value="1" labal="1"></el-option>
+                                <el-option :key="2" :value="2" labal="2"></el-option>
+                                <el-option :key="3" :value="3" labal="3"></el-option>
                             </el-select>
                         </el-col>
                         <el-col :span="6">次盘点</el-col>
@@ -46,6 +46,7 @@
                         <el-col :span="7">发起员工:</el-col>
                         <el-col :span="15">
                             <el-select size="mini" v-model="selected.stocktakingLaunchedStaffId">
+                                <el-option :key="1000" :value="1000" label="全部"></el-option>
                                 <el-option v-for="item in staffList" :value="item.staffId" :key="item.staffId" :label="item.staffName"></el-option>
                             </el-select>
                         </el-col>
@@ -56,6 +57,7 @@
                         <el-col :span="7">提交员工:</el-col>
                         <el-col :span="15">
                             <el-select size="mini" v-model="selected.stocktakingSubmitStaffId">
+                                <el-option :key="1000" :value="1000" label="全部"></el-option>
                                 <el-option v-for="item in staffList" :value="item.staffId" :key="item.staffId" :label="item.staffName"></el-option>
                             </el-select>
                         </el-col>
@@ -66,84 +68,68 @@
                         <el-col :span="7">盘点状态:</el-col>
                         <el-col :span="15">
                             <el-select size="mini"  v-model="selected.stocktakingAllStatus">
-                                <el-option :value="0" label="全部"></el-option>
-                                <el-option :value="1" labal="已盘点"></el-option>
-                                <el-option :value="2" labal="未盘点"></el-option>
+                                <el-option :key="1000" :value="1000" label="全部"></el-option>
+                                <el-option :key="0" :value="0" label="初始状态待盘点"></el-option>
+                                <el-option :key="1" :value="1" label="已盘点待提交"></el-option>
+                                <el-option :key="2" :value="2" label="已仓库管理员已提交更新库存"></el-option>
+                                <el-option :key="-1" :value="-1" label="已取消盘点"></el-option>
                             </el-select>
                         </el-col>
                     </el-row>
                 </el-col>
                 <el-col :span="6">
-                    <el-button type="primary" size="small" @click="searchPartStock()">查询</el-button>
-                    <el-button type="primary" size="small" @click="rollback()" :disabled="isFirst">返回上一层</el-button>
+                    <el-button type="primary" size="mini" @click="searchPartStock1()">查询</el-button>
+                    <el-button type="primary" size="mini" @click="rollback()" :disabled="isFirst">返回上一层</el-button>
                 </el-col>
             </el-row>
             <!-- 二层 -->
             <el-row v-show="isSecond">
-                <el-col :span="6">
-                    <el-row>
-                        <el-col :span="7">盘点类别:</el-col>
-                        <el-col :span="15">
-                            <el-select size="mini" v-model="selected.stocktakingLaunchedStaffId">
-                                <el-option v-for="item in staffList" :value="item.staffId" :key="item.staffId" :label="item.staffName"></el-option>
-                            </el-select>
-                        </el-col>
-                    </el-row>
+                <el-col :span="2">商品编号:</el-col>
+                <el-col :span="5">
+                    <el-input v-model="value.goodsId" size="mini"></el-input>
                 </el-col>
-                <el-col :span="6">
-                    <el-row>
-                        <el-col :span="7">盈亏:</el-col>
-                        <el-col :span="15">
-                            <el-select size="mini" v-model="selected.stocktakingSubmitStaffId">
-                                <el-option v-for="item in staffList" :value="item.staffId" :key="item.staffId" :label="item.staffName"></el-option>
-                            </el-select>
-                        </el-col>
-                    </el-row>
+                <el-col :span="1" :offset="1">盈亏:</el-col>
+                <el-col :span="5">
+                    <el-select size="mini"  v-model="value.profitStatus">
+                        <el-option :key="1000" :value="1000" label="全部"></el-option>
+                        <el-option :key="0" :value="0" label="盘点无亏盈"></el-option>
+                        <el-option :key="1" :value="1" label="盘盈"></el-option>
+                        <el-option :key="-1" :value="-1" label="盘亏"></el-option>
+                    </el-select>
                 </el-col>
-                <!-- <el-col :span="6">
-                    <el-row>
-                        <el-col :span="7">商品名称:</el-col>
-                        <el-col :span="15">
-                            <el-select size="mini"  v-model="selected.stocktakingAllStatus">
-                                <el-option :value="0" :label="'全部'"></el-option>
-                                <el-option :value="1" :labal="'已盘点'"></el-option>
-                                <el-option :value="2" :labal="'未盘点'"></el-option>
-                            </el-select>
-                        </el-col>
-                    </el-row>
-                </el-col> -->
+                <el-col :span="2" :offset="1">盘点状态:</el-col>
+                    <el-col :span="5">
+                        <el-select size="mini"  v-model="value.stocktakingStatus">
+                            <el-option :key="1000" :value="1000" label="全部"></el-option>
+                            <el-option :key="-1" :value="-1" label="已取消盘点"></el-option>
+                            <el-option :key="0" :value="0" label="初始状态待盘点"></el-option>
+                            <el-option :key="1" :value="1" label="已盘点待提交"></el-option>
+                            <el-option :key="2" :value="2" label="已仓库管理员已提交更新库存"></el-option>  
+                        </el-select>
+                    </el-col>
+            </el-row>
+            <el-row v-show="isSecond">
                 <el-col :span="6">
-                    <el-row>
-                        <el-col :span="7">盘点状态:</el-col>
-                        <el-col :span="15">
-                            <el-select size="mini"  v-model="selected.stocktakingAllStatus">
-                                <el-option :value="0" :label="'全部'"></el-option>
-                                <el-option :value="1" :labal="'已盘点'"></el-option>
-                                <el-option :value="2" :labal="'未盘点'"></el-option>
-                            </el-select>
-                        </el-col>
-                    </el-row>
-                </el-col>
-                <el-col :span="6">
-                    <el-button type="primary" size="small" @click="searchPartStock()">查询</el-button>
-                    <el-button type="primary" size="small" @click="rollback()" :disabled="isFirst">返回上一层</el-button>
+                    <el-button type="primary" size="mini" @click="searchPartStock2()">查询</el-button>
+                    <el-button type="primary" size="mini" @click="rollback()" :disabled="isFirst">返回上一层</el-button>
                 </el-col>
             </el-row>
             <!-- 选取商品列表需求选择区 -->
             <el-row v-show="isThird">
                 <el-col :span="2">商品类别:</el-col>
                 <el-col :span="5">
-                    <el-select size="mini" v-model="selected1.categoryId">
+                    <el-select size="mini" v-model="selected3.categoryId">
                         <el-option v-for="item in categoryList" :key="item.categoryId" :value="item.categoryId" :label="item.categoryName"></el-option>
                     </el-select>
                 </el-col>
                 <el-col :span="6">
-                    <el-button type="primary" size="small" @click="rollbackFirst()">返回</el-button>
+                    <el-button type="primary" size="mini" @click="searchPartStock3()">查询</el-button>
+                    <el-button type="primary" size="mini" @click="rollbackFirst()">返回</el-button>
                 </el-col>
             </el-row>
             <!-- 表单区域 -->
             <!-- 一级 -->
-            <el-table :data="stocktakingRecordList" border stripe v-show="isFirst">
+            <el-table :data="isLazzy1 ? stocktakingRecordList_lazzy : stocktakingRecordList" border stripe v-show="isFirst">
                 <el-table-column label="盘点编号" prop="stocktakingId" fixed align="center" width="180px"></el-table-column>
                 <el-table-column label="发起员工" width="170px" align="center">
                     <template slot-scope="scope">
@@ -179,14 +165,14 @@
                 </el-table-column>
             </el-table>
             <!-- 二级 -->
-            <el-table :data="stockingGoodsList" border stripe v-show="isSecond">
+            <el-table :data="isLazzy2 ? stockingGoodsList_lazzy : stockingGoodsList" border stripe v-show="isSecond">
                 <el-table-column label="商品图片" prop="goodsPicture" fixed align="center" width="120px"></el-table-column>
                 <el-table-column label="盘点编号" prop="stocktakingId" fixed align="center" width="120px"></el-table-column>
-                <el-table-column label="商品编号" prop="stockGoodsId" align="center" width="150px"></el-table-column>
+                <el-table-column label="商品编号" prop="stocktakingStockGoodsId" align="center" width="150px"></el-table-column>
                 <el-table-column label="商品名称" prop="goodsName" align="center" width="150px"></el-table-column>
                 <el-table-column label="商品类别" width="120px" prop="categoryName" align="center"></el-table-column>
                 <el-table-column label="品牌名称" width="120px" prop="goodsBrand" align="center"></el-table-column>
-                <el-table-column label="实时库存量" width="120px" prop="stockInventory" align="center"></el-table-column>
+                <el-table-column label="实时库存量" width="120px" prop="stockNum" align="center"></el-table-column>
                 <el-table-column label="盘点数量" width="120px" prop="stocktakingNum" align="center"></el-table-column>
                 <el-table-column label="盘点状态" width="220px" align="center">
                     <template slot-scope="scope">
@@ -232,41 +218,25 @@
         </el-card>
         <!-- 一层 -->
         <el-pagination v-show="isFirst"
-        :current-page="queryInfo.pageIndex" :page-sizes="[queryInfo.infoCount]" 
-        :page-size="queryInfo.infoCount" :total="queryInfo.total"
+        :current-page="queryInfo1.pageIndex" :page-sizes="[queryInfo1.infoCount]" 
+        :page-size="queryInfo1.infoCount" :total="queryInfo1.total"
         @current-change="currentChange1"
         layout="total, sizes, prev, pager, next, jumper">
         </el-pagination>
         <!-- 二层 -->
         <el-pagination v-show="isSecond"
-        :current-page="queryInfo.pageIndex" :page-sizes="[queryInfo.infoCount]" 
-        :page-size="queryInfo.infoCount" :total="queryInfo.total"
+        :current-page="queryInfo2.pageIndex" :page-sizes="[queryInfo2.infoCount]" 
+        :page-size="queryInfo2.infoCount" :total="queryInfo2.total"
         @current-change="currentChange2"
         layout="total, sizes, prev, pager, next, jumper">
         </el-pagination>
         <!-- 三层 -->
         <el-pagination v-show="isThird"
-        :current-page="queryInfo.pageIndex" :page-sizes="[queryInfo.infoCount]" 
-        :page-size="queryInfo.infoCount" :total="queryInfo.total"
+        :current-page="queryInfo3.pageIndex" :page-sizes="[queryInfo3.infoCount]" 
+        :page-size="queryInfo3.infoCount" :total="queryInfo3.total"
         @current-change="currentChange3"
         layout="total, sizes, prev, pager, next, jumper">
         </el-pagination>
-        <!-- 一层 -->
-        <!-- <el-row v-show="isFirst">
-            <el-col :span="6" :offset="18">
-                <el-button-group v-for="func in functionList_six" :key="func.functionId">
-                    <el-button :type="func.btnType" size="small" @click="immediateStocktaking()">立即盘点</el-button>
-                </el-button-group>
-            </el-col>
-        </el-row> -->
-        <!-- 二层 -->
-        <el-row v-show="isStocktaking == 1">
-            <el-col :span="6" :offset="20">
-                <el-button-group v-for="func in functionList_four" :key="func.functionId">
-                    <el-button :type="func.btnType" size="small" @click="submitAllStocktaking()">提交总盘点</el-button>
-                </el-button-group>
-            </el-col>
-        </el-row>
         <!-- 选取层 -->
         <el-row v-show="isThird">
             <el-col :span="2" :offset="19">
@@ -400,7 +370,7 @@
                     </el-col>
                     <el-col :span="8">
                         <el-form-item label="盘点数量:">
-                            <el-input v-model="current.stocktaking.stocktakingNum" auto-complete="off"></el-input>
+                            <el-input v-model.number="current.stocktaking.stocktakingNum" auto-complete="off"></el-input>
                         </el-form-item>
                     </el-col>  
                 </el-row>
@@ -472,7 +442,7 @@
                 <el-row>
                     <el-col :span="8">
                         <el-form-item label="实时库存:">
-                            <el-input v-model="current.stock.stockInventory" auto-complete="off" disabled></el-input>
+                            <el-input v-model.number="current.stock.stockInventory" auto-complete="off" disabled></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
@@ -507,7 +477,17 @@
                 //库存列表
                 stockList:[],
                 //查询条件
-                queryInfo:{
+                queryInfo1:{
+                    total:0,
+                    pageIndex:1,
+                    infoCount:3
+                },
+                queryInfo2:{
+                    total:0,
+                    pageIndex:1,
+                    infoCount:3
+                },
+                queryInfo3:{
                     total:0,
                     pageIndex:1,
                     infoCount:3
@@ -530,14 +510,26 @@
                 functionList_four:[],
                 //员工列表
                 staffList:[],
-                //查询的条件
+                // 商品信息查询栏一层
                 selected:{
-                    stocktakingId:'',
+                    stocktakingCount:'',
                     stocktakingLaunchedStaffId:'',
                     stocktakingSubmitStaffId:'',
                     stocktakingAllStatus:'',
                     stocktakingCommitDate:''
                 },
+                // 商品信息查询栏二层
+                value:{
+                    goodsId:"",
+                    profitStatus:null,
+                    stocktakingStatus:null
+                },
+                // 选取商品查询栏
+                selected3:{
+                    categoryId:''
+                },
+                // 选取商品列表的类别栏
+                categoryList:[],
                 //一层是否渲染
                 isFirst:true,
                 //二层是否渲染
@@ -558,20 +550,22 @@
                 lookDialog:false,
                 //修改盘点商品信息详情弹框
                 editDialog:false,
-                isStocktaking:0,
                 // 选取商品列表的信息栏
                 goodsStockAList:[],
-                // 选取商品列表的类别栏
-                categoryList:[],
-                selected1:{
-                    categoryId:''
-                },
                 //选取商品列表的查询需求是否渲染
                 isThird:false,
                 //选择的行数
                 multipleSelection:[],
                 // 当前盘点总记录的信息
-                scope_local:''
+                scope_local:'',
+                // 是否模糊查询
+                isLazzy1:false,
+                // 模糊查询列表
+                stocktakingRecordList_lazzy:[],
+                // 是否模糊查询
+                isLazzy2:false,
+                // 模糊查询列表
+                stockingGoodsList_lazzy:[]
             }
         },
         created() {
@@ -591,8 +585,8 @@
                 }
 
                 let data = {
-                    pageIndex: this.queryInfo.pageIndex-1,
-                    pageSize: this.queryInfo.infoCount,
+                    pageIndex: this.queryInfo1.pageIndex-1,
+                    pageSize: this.queryInfo1.infoCount,
                     secondaryMenuId: this.secondaryMenuId,
                     staffId:window.sessionStorage.getItem('staffId')
                 }   
@@ -606,7 +600,7 @@
                         this.functionList = res.data.functionList
                         this.staffList = res.data.staffList
                         this.stocktakingRecordList = res.data.stocktakingRecordList
-                        this.queryInfo.total = res.data.recordSum
+                        this.queryInfo1.total = res.data.recordSum
                         this.drawBtn()
                         this.stocktakingRecordList.map((item) => {
                             let date = new Date(item.stocktakingLaunchedDate)
@@ -662,34 +656,123 @@
                     }
             },
             //模糊查询部分库存信息
-            searchPartStock() {
-                console.log(this.selected)
+            searchPartStock1() {
+                this.isLazzy1 = true
+
+                if (this.selected.stocktakingCommitDate == "") {
+                    this.$message.warning('请选择盘点时间')
+                } else {
+                    let date = new Date(this.selected.stocktakingCommitDate)
+                    this.selected.stocktakingCommitDate = date.getFullYear() + '' + (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1))
+                    + '' + (date.getDate() < 10 ? '0' + date.getDate() : date.getDate());
+                    
+                    this.selected.stocktakingCount = this.selected.stocktakingCount == 1000 ? "" : this.selected.stocktakingCount
+
+                    let stocktakingId = this.selected.stocktakingCommitDate + this.selected.stocktakingCount
+
+                    console.log(stocktakingId)
+
+                    this.selected.stocktakingLaunchedStaffId = this.selected.stocktakingLaunchedStaffId == 1000 ? null : this.selected.stocktakingLaunchedStaffId
+                    this.selected.stocktakingSubmitStaffId = this.selected.stocktakingSubmitStaffId == 1000 ? null : this.selected.stocktakingSubmitStaffId
+                    this.selected.stocktakingLaunchedStaffId = this.selected.stocktakingLaunchedStaffId == "" ? null : this.selected.stocktakingLaunchedStaffId
+                    this.selected.stocktakingSubmitStaffId = this.selected.stocktakingSubmitStaffId == "" ? null : this.selected.stocktakingSubmitStaffId
+                    this.selected.stocktakingAllStatus = this.selected.stocktakingAllStatus == "" ? null : this.selected.stocktakingAllStatus
+                    this.selected.stocktakingAllStatus = this.selected.stocktakingAllStatus == 1000 ? null : this.selected.stocktakingAllStatus
+
+                    let stocktakingRecord = {
+                        stocktakingId:stocktakingId,
+                        stocktakingLaunchedStaffId:this.selected.stocktakingLaunchedStaffId,
+                        stocktakingSubmitStaffId:this.selected.stocktakingSubmitStaffId,
+                        stocktakingAllStatus:this.selected.stocktakingAllStatus
+                    }
+                    let data = {
+                        stocktakingRecord : JSON.stringify(stocktakingRecord),
+                        pageSize:this.queryInfo1.infoCount,
+                        pageIndex:this.queryInfo1.pageIndex-1,
+                        staffId:window.sessionStorage.getItem('staffId')
+                    }
+                    this.$axios.post('/stocktaking/findByConditions',this.$qs.stringify(data),{
+                        headers:{
+                            staffToken:window.sessionStorage.getItem('staffToken')
+                        }
+                    })
+                    .then((res) => {
+                        if (res.data.success) {
+                            this.stocktakingRecordList_lazzy = res.data.stocktakingRecordList
+                            this.queryInfo1.total = res.data.recordSum
+                        } else {
+                            this.$message.error(res.data.errMsg)
+                        }
+                    })
+                    .catch((err) => {
+                        this.$message.error(err.message)
+                    })
+                }
+            },
+            searchPartStock2() {
+                this.isLazzy2 = true
+
+                let stocktakingId = this.scope_local.row.stocktakingId
+                this.value.goodsId = this.value.goodsId == "" ? null : this.value.goodsId
+                this.value.stocktakingStatus = this.value.stocktakingStatus == 1000 ? null : this.value.stocktakingStatus
+                this.value.profitStatus = this.value.profitStatus == 1000 ? null : this.value.profitStatus
+                this.value.stocktakingStatus = this.value.stocktakingStatus == "" ? null : this.value.stocktakingStatus
+                this.value.profitStatus = this.value.profitStatus == "" ? null : this.value.profitStatus
+
+                let stocktaking = {
+                    stocktakingId:stocktakingId,
+                    stocktakingStockGoodsId:this.value.goodsId,
+                    stocktakingStatus:this.value.stocktakingStatus,
+                    stocktakingProfitLossStatus:this.value.profitStatus
+                }
+                console.log(stocktaking)
+                let data = {
+                    stocktaking : JSON.stringify(stocktaking),
+                    pageSize:this.queryInfo2.infoCount,
+                    pageIndex:this.queryInfo2.pageIndex-1,
+                    staffId:window.sessionStorage.getItem('staffId')
+                }
+                this.$axios.post('/stocktaking/stocktakinggoodslistfindByConditions',this.$qs.stringify(data),{
+                    headers:{
+                        staffToken:window.sessionStorage.getItem('staffToken')
+                    }
+                })
+                .then((res) => {
+                    if (res.data.success) {
+                        this.stockingGoodsList_lazzy = res.data.stocktakingGoodsList
+                        this.queryInfo2.total = res.data.recordSum
+                    } else {
+                        this.$message.error(res.data.errMsg)
+                    }
+                })
+                .catch((err) => {
+                    this.$message.error(err.message)
+                })
             },
             //根据指定页码获取相应的库存信息
             currentChange1(currentPage) {
-                this.queryInfo.pageIndex = currentPage
+                this.queryInfo1.pageIndex = currentPage
                 this.getStockList()
             },
             currentChange2(currentPage) {
-                this.queryInfo.pageIndex = currentPage
+                this.queryInfo2.pageIndex = currentPage
                 this.lookAllDialogInfo(this.scope_local)
             },
             currentChange3(currentPage) {
-                this.queryInfo.pageIndex = currentPage
+                this.queryInfo3.pageIndex = currentPage
                 this.selectGoodList()
             },
             //层级转换
             rollback() {
                 this.isSecond = false,
                 this.isFirst = true,
-                this.isStocktaking = 0
+                this.getStockList()
             },
             //选择需求列表转换至最初
             rollbackFirst() {
                 this.isSecond = false,
                 this.isFirst = true,
                 this.isThird = false,
-                this.pageIndex = 1,
                 this.getStockList()
             },
             //获取按钮功能
@@ -718,8 +801,8 @@
                 let good = scope.row
                 let data = {
                     stocktakingId:good.stocktakingId,
-                    pageIndex:this.queryInfo.pageIndex-1,
-                    pageSize:this.queryInfo.infoCount
+                    pageIndex:this.queryInfo2.pageIndex-1,
+                    pageSize:this.queryInfo2.infoCount
                 }
                 this.$axios.post('/stocktaking/stocktakinggoodslist', this.$qs.stringify(data), {
                     headers:{
@@ -728,16 +811,10 @@
                 })
                 .then((res) => {
                     if (res.data.success) {
-                        this.stockingGoodsList = res.data.stockingGoodsList
-                        this.queryInfo.total = res.data.recordSum
+                        this.stockingGoodsList = res.data.stocktakingGoodsList
+                        this.queryInfo2.total = res.data.recordSum
                         this.isFirst = false
-                        this.isSecond = true
-                        if (this.stockingGoodsList[scope.$index] == undefined) {
-                            this.isStocktaking = 0
-                        } else {
-                            //不存在盘点类别
-                            this.isStocktaking = this.stockingGoodsList[scope.$index].stocktakingStatus
-                        }                        
+                        this.isSecond = true          
                     } else {
                         this.$message.error(res.data.errMsg)
                     }
@@ -748,9 +825,11 @@
             },
             //查看该用户所分配的某商品的详细信息
             lookDialogInfo(good) {
+                console.log(good)
+                console.log(good.stocktakingStockGoodsId)
                 let data = {
                     stocktakingId:good.stocktakingId,
-                    stocktakingStockGoodsId:good.stockGoodsId
+                    stocktakingStockGoodsId:good.stocktakingStockGoodsId
                 }
                 this.$axios.post('/stocktaking/stocktakinggoodsdetails', this.$qs.stringify(data), {
                     headers:{
@@ -783,7 +862,7 @@
             editDialogInfo(good) {
                 let data = {
                     stocktakingId:good.stocktakingId,
-                    stocktakingStockGoodsId:good.stockGoodsId
+                    stocktakingStockGoodsId:good.stocktakingStockGoodsId
                 }
                 this.$axios.post('/stocktaking/stocktakinggoodsdetails', this.$qs.stringify(data), {
                     headers:{
@@ -872,8 +951,8 @@
             //选取商品列表
             selectGoodList() {
                 let data = {
-                    pageIndex: this.queryInfo.pageIndex-1,
-                    pageSize:this.queryInfo.infoCount
+                    pageIndex: this.queryInfo3.pageIndex-1,
+                    pageSize:this.queryInfo3.infoCount
                 }
                 this.$axios.post('/stocktaking/selectStocktakingGoods', this.$qs.stringify(data), {
                     headers:{
@@ -884,7 +963,7 @@
                     if (res.data.success) {
                         this.categoryList = res.data.categoryList
                         this.goodsStockAList = res.data.goodsStockAList
-                        this.queryInfo.total = res.data.recordSum
+                        this.queryInfo3.total = res.data.recordSum
                         this.isFirst = false
                         this.isSecond = false
                         this.isThird = true
@@ -903,7 +982,6 @@
             //检测table的选项
             handleSelectionChange(selections) {
                 this.multipleSelection = selections;
-                // console.log(selections)
             },
             //取消所选
             toggleSelection(rows) {

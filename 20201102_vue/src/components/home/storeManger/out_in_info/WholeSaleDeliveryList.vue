@@ -9,41 +9,50 @@
         <!-- 卡片区域 -->
         <el-card>
             <!-- 功能区域 -->
-            <!-- <el-row :gutter="10">
-                <el-col :span="8">
-                    <span>出库编号</span>
-                    <el-select size="small">
-                        <el-option></el-option>
+            <el-row>
+                <el-col :span="2">
+                    <span>出库编号:</span>
+                </el-col>
+                <el-col :span="5">
+                    <el-input v-model="selected.selectedDeliveryId" size="mini"></el-input>
+                </el-col>
+                <el-col :span="7" :offset="1">
+                    <span>出库状态:</span>
+                    <el-select size="mini" v-model="selected.selectedDeliveryStatus">
+                        <el-option :key="1000" :value="1000" label="全部"></el-option>
+                        <el-option :key="0" :value="0" label="营业员初次发起"></el-option>
+                        <el-option :key="1" :value="1" label="库房管理员确认出库"></el-option>
+                        <el-option :key="-1" :value="-1" label="库房管理员驳回出库单"></el-option>
                     </el-select>
                 </el-col>
-                <el-col :span="8">
-                    <span>订单编号</span>
-                    <el-select size="small">
-                        <el-option></el-option>
-                    </el-select>
-                </el-col>
-                <el-col :span="8">
-                    <span>订单发起人</span>
-                    <el-select size="small">
-                        <el-option></el-option>
+                <el-col :span="7" :offset="1">
+                    <span>结账状态:</span>
+                    <el-select size="mini" v-model="selected.selectedDeliveryCheckOutStatus">
+                        <el-option :key="1000" :value="1000" label="全部"></el-option>
+                        <el-option :key="0" :value="0" label="未结账"></el-option>
+                        <el-option :key="1" :value="1" label="已结账"></el-option>
                     </el-select>
                 </el-col>
             </el-row>
-            <el-row :gutter="10">
+            <el-row>
                 <el-col :span="8">
-                    <span>状态</span>
-                    <el-select size="small">
-                        <el-option></el-option>
+                    <span>退款状态：</span>
+                    <el-select size="mini" v-model="selected.selectedDeliveryRefundStatus">
+                        <el-option :key="1000" :value="1000" label="全部"></el-option>
+                        <el-option :key="0" :value="0" label="未发生退款"></el-option>
+                        <el-option :key="1" :value="1" label="已发生退款"></el-option>
                     </el-select>
                 </el-col>
-                <el-col :span="4">
-                    <el-button type="primary" size="small" @click="searchGood()">查询</el-button>
+                <el-col :span="2">
+                    <el-button type="primary" size="mini" @click="searchDelivery()">查询</el-button>
                 </el-col>
-            </el-row> -->
-            <el-button type="primary" :disabled="isFirst" size="small" @click="changeLayer()">返回上一级</el-button>
+                <el-col :span="4">
+                    <el-button type="primary" :disabled="isFirst" size="mini" @click="changeLayer()">返回上一级</el-button>
+                </el-col>
+            </el-row>
             <!-- 表单区域 -->
             <!-- 一级 -->
-            <el-table :data="deliveryRecordList" border stripe v-show="isFirst">
+            <el-table :data="isLazzy ? deliveryRecordList_lazzy : deliveryRecordList" border stripe v-show="isFirst">
                 <el-table-column label="出库编号" prop="deliveryId" fixed width="120" align="center"></el-table-column>
                 <el-table-column label="出库状态"  width="180" align="center">
                     <template slot-scope="scope">
@@ -156,7 +165,7 @@
                     </el-col>
                     <el-col :span="8">
                         <el-form-item label="结账状态：">
-                            <template slot-scope="scope">
+                            <template>
                                 <span v-if="currentInfo.deliveryRecord.deliveryCheckOutStatus == 0">未付款</span>
                                 <span v-else>已付款</span>
                             </template>
@@ -287,7 +296,18 @@
                     staff:'',
                     stock:'',
                     unit:''
-                }
+                },
+                // 查询信息
+                selected:{
+                    selectedDeliveryCheckOutStatus:'',
+                    selectedDeliveryStatus:'',
+                    selectedDeliveryRefundStatus:'',
+                    selectedDeliveryId:''
+                },
+                // 是否模糊查询
+                isLazzy: false,
+                // 模糊查询的列表
+                deliveryRecordList_lazzy:[]
             }
         },
         created() {
@@ -320,7 +340,7 @@
                     if (res.data.success) {
                         this.functionList = res.data.functionList
                         this.deliveryRecordList = res.data.deliveryRecordList
-                        this.queryInfo.infoCount = res.data.recordSum
+                        this.queryInfo.total = res.data.recordSum
                         this.staffMap = res.data.staffMap
                         this.drawBtn()
 
@@ -376,6 +396,48 @@
                 } else if (functionWeight == 3) {
                     this.lookDialogInfo(rowInfo)
                 } 
+            },
+            searchDelivery(){
+                this.isLazzy = true
+                this.selected.selectedDeliveryId = this.selected.selectedDeliveryId == "" ? null : this.selected.selectedDeliveryId
+                this.selected.selectedDeliveryCheckOutStatus = this.selected.selectedDeliveryCheckOutStatus == "" ? null : this.selected.selectedDeliveryCheckOutStatus
+                this.selected.selectedDeliveryCheckOutStatus = this.selected.selectedDeliveryCheckOutStatus == 1000 ? null : this.selected.selectedDeliveryCheckOutStatus
+                this.selected.selectedDeliveryStatus = this.selected.selectedDeliveryStatus == "" ? null : this.selected.selectedDeliveryStatus
+                this.selected.selectedDeliveryRefundStatus = this.selected.selectedDeliveryRefundStatus == "" ? null : this.selected.selectedDeliveryRefundStatus
+
+                let deliveryRecord = {
+                    deliveryId:this.selected.selectedDeliveryId,
+                    deliveryStatus:this.selected.selectedDeliveryStatus,
+                    deliveryCheckOutStatus:this.selected.selectedDeliveryCheckOutStatus,
+                    deliveryRefundStatus:this.selected.selectedDeliveryRefundStatus
+                }
+                let data = {
+                    deliveryRecord :JSON.stringify(deliveryRecord),
+                    pageSize:this.queryInfo.infoCount,
+                    pageIndex:this.queryInfo.pageIndex-1,
+                    staffId:window.sessionStorage.getItem('staffId')
+                }
+                this.$axios.post('/wholesaledeliverylist/findByConditions', this.$qs.stringify(data), {
+                    headers:{
+                        staffToken:window.sessionStorage.getItem('staffToken')
+                    }
+                })
+                .then((res) => {
+                    if (res.data.success) {
+                        this.deliveryRecordList_lazzy = res.data.deliveryRecordList
+                        this.queryInfo.total = res.data.recordSum
+
+                        this.deliveryRecordList_lazzy.map((item) => {
+                            let data = new Date(item.deliveryCreateDate)
+                            item.deliveryCreateDate = data.getFullYear() + "-" + (data.getMonth()+1) + "-" + data.getDate()
+                        })
+                    } else {
+                        this.$message.error(res.data.errMsg)
+                    }
+                })
+                .catch((err) => {
+                    this.$message.error(err.message)
+                })
             },
             //确认入库
             confirmIntoStore(rowInfo) {

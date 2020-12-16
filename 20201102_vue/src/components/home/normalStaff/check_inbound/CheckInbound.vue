@@ -181,14 +181,9 @@
                     <span>
 
                     </span>
-                    <el-tooltip effect="light" placement="top" content="取消">
-                        <el-button type="primary" icon="el-icon-delete" @click="checkInboundBillDialog=false"></el-button>
-                    </el-tooltip>
-                    
+                    <el-button type="primary"  @click="checkInboundBillDialog=false">取 消</el-button>
                     <el-button-group v-for="func in functionList_two" :key="func.functionId" >
-                            <el-tooltip effect="light" placement="top" :content="func.functionName" :enterable="false">
-                                <el-button :type="func.btnType"  :icon="func.btnIcon" @click="submitInboundBill()"></el-button>
-                            </el-tooltip>
+                            <el-button :type="func.btnType"   @click="submitInboundBill()">提 交</el-button>
                     </el-button-group>
                 </span>
             </el-dialog>
@@ -342,6 +337,9 @@
                 .then((res)=>{
                     this.currentInboundBill=res.data
                     // console.log(this.currentInboundBill)
+                    let data = new Date(this.currentInboundBill.exportBill.exportBillProductionDate)
+                    this.currentInboundBill.exportBill.exportBillProductionDate = data.getFullYear() + "-" + (data.getMonth()+1) + "-" + data.getDate()
+                    
                 })
                 .catch((err) => {
                     this.$message.error(err.message)
@@ -410,7 +408,22 @@
                     data.exportBill.exportBillStatus=2
                 }else if(this.checkStatus=='检查未通过'){
                     data.exportBill.exportBillStatus=-2
+                }else{
+                    data.exportBill.exportBillStatus=null
                 }
+                //判断是否为空字符串
+                if(data.exportBill.exportBillId==''){
+                    data.exportBill.exportBillId=null
+                }
+                if(data.exportBill.exportBillCouponId==''){
+                    data.exportBill.exportBillCouponId=null
+                }
+                if(data.exportBill.exportBillGoodsBatchNumber==''){
+                    data.exportBill.exportBillGoodsBatchNumber=null
+                }
+
+              
+
                 data.exportBill=JSON.stringify(data.exportBill)
                 console.log(data.exportBill)
 
@@ -442,8 +455,18 @@
                             this.isDraw = true
                         }
                     }
+
                     this.queryInfo.total = res.data.recordSum
                     this.exportBillList=res.data.exportBillList
+                    this.exportBillList.map((item) => {
+                            let data = new Date(item.exportBillProductionDate)
+                            item.exportBillProductionDate = data.getFullYear() + "-" + (data.getMonth()+1) + "-" + data.getDate()
+                    })
+                    this.exportBillList.map((item) => {
+                            let data = new Date(item.exportBillTime)
+                            item.exportBillTime = data.getFullYear() + "-" + (data.getMonth()+1) + "-" + data.getDate()
+                    })
+
                 })
                 .catch((err) => {
                     this.$message.error(err.message)

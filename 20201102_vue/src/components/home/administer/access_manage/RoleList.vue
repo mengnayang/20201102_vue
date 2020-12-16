@@ -59,7 +59,7 @@
         <!-- 修改用户信息的弹框 -->
         <el-dialog title="修改用户信息"  :visible.sync="editUserDialog" width="390px">
             <!-- 修改用户的信息表单 -->
-            <el-form :model="editStaff" label-width="100px" >
+            <el-form :model="editStaff" label-width="100px" ref="editStaffRef" :rules="newStaffRules">
                 <el-form-item label="用户名" required prop="staffName"> 
                     <el-input type="text" v-model="editStaff.staffName"></el-input>
                 </el-form-item>
@@ -99,6 +99,40 @@
     export default{
         name: 'RoleList',
         data() {
+            //校验姓名
+            var checkName = (rule, value, callback) => {
+                if (value == '') {
+                    callback(new Error('姓名不能为空'))
+                } 
+                callback()
+            } 
+            //校验电话号码
+            var checkPhone = (rule, value, callback) => {
+                if (value == '') {
+                    callback(new Error('联系方式不能为空'))
+                } else {
+                    let isNull = value.match(/^1(3\d|4[4-9]|5[0-35-9]|6[67]|7[013-8]|8\d|9\d)\d{8}$/)
+                    if (isNull == null) {
+                        callback(new Error('联系方式不合法'))
+                    }
+                    callback()
+                }
+            }
+            //校验密码
+            var checkPassword = (rule, value, callback) => {
+                if (value == '') {
+                    callback(new Error('新密码不能为空'))
+                } else {
+                    if (value.length < 8 || value.length > 16) {
+                        if (value == this.passwordMD5) {
+                            callback()
+                        } else {
+                            callback(new Error('密码必须满足8~16位'))
+                        }
+                    }
+                    callback()
+                }
+            }
             return{
                 //请求权限列表的先决条件
                 queryInfo:{
@@ -117,6 +151,18 @@
                 functionList_one:[],
                 //是否已经渲染功能按钮
                 isDraw:false,
+                //新用户的表单验证规则
+                newStaffRules:{
+                    staffName:[
+                        {validator:checkName, trigger:'blur'}
+                    ],
+                    staffPhone:[
+                        {validator:checkPhone, trigger:'blur'}
+                    ],
+                    staffPassword:[
+                        {validator:checkPassword, trigger:"blur"}
+                    ]
+                },
                 //是否存在角色分配
                 isExistsHandRole:false,
                 //存储展开项的信息
@@ -134,6 +180,8 @@
                     staffPassword:'',
                     staffStatus:''
                 },
+                // 存储加密后的密码
+                passwordMD5:'',
                 // 每行展开状态
                 expandedStatus:0,
                 //树形关系
@@ -283,6 +331,9 @@
                 this.editStaff.staffName = Staff.staffName
                 this.editStaff.staffPhone = Staff.staffPhone
                 this.editStaff.staffPassword = Staff.staffPassword
+
+                this.passwordMD5 = Staff.staffPassword
+
                 if (Staff.staffPosition == null) {
                     this.editStaff.staffPosition = "无"
                 }
@@ -298,42 +349,46 @@
             },
             //修改用户
             editUser() {
-                if (this.editStaff.staffStatus == "正常") {
-                    this.editStaff.staffStatus = 1000
-                } else if (this.editStaff.staffStatus == "刚注册") {
-                    this.editStaff.staffStatus = 1001
-                } else if (this.editStaff.staffStatus == "无权限") {
-                    this.editStaff.staffStatus = 0
-                } else if (this.editStaff.staffStatus == "离职") {
-                    this.editStaff.staffStatus = -1
-                }
-                let staff = {
-                    staffId: this.editStaff.staffId,
-                    staffName: this.editStaff.staffName,
-                    staffPassword: this.editStaff.staffPassword,
-                    staffPhone: this.editStaff.staffPhone,
-                    staffStatus: this.editStaff.staffStatus
-                }
-                let data = {
-                    staffA: JSON.stringify(staff)
-                } 
-                this.$axios.post('/stafflistjurisdiction/modifycommit', this.$qs.stringify(data), {
-                    headers:{
-                        staffToken: window.sessionStorage.getItem("staffToken")
+                this.$refs.editStaffRef.validate(valid => {
+                    if (!valid) return
+
+                    if (this.editStaff.staffStatus == "正常") {
+                        this.editStaff.staffStatus = 1000
+                    } else if (this.editStaff.staffStatus == "刚注册") {
+                        this.editStaff.staffStatus = 1001
+                    } else if (this.editStaff.staffStatus == "无权限") {
+                        this.editStaff.staffStatus = 0
+                    } else if (this.editStaff.staffStatus == "离职") {
+                        this.editStaff.staffStatus = -1
                     }
-                })
-                .then((res) => {
-                    if (res.data.success) {
-                        this.$message.success("修改成功")
-                        this.getRoleList()
-                    } else {
-                        this.$message.error(res.data.errMsg)
+                    let staff = {
+                        staffId: this.editStaff.staffId,
+                        staffName: this.editStaff.staffName,
+                        staffPassword: this.editStaff.staffPassword,
+                        staffPhone: this.editStaff.staffPhone,
+                        staffStatus: this.editStaff.staffStatus
                     }
+                    let data = {
+                        staffA: JSON.stringify(staff)
+                    } 
+                    this.$axios.post('/stafflistjurisdiction/modifycommit', this.$qs.stringify(data), {
+                        headers:{
+                            staffToken: window.sessionStorage.getItem("staffToken")
+                        }
+                    })
+                    .then((res) => {
+                        if (res.data.success) {
+                            this.$message.success("修改成功")
+                            this.getRoleList()
+                        } else {
+                            this.$message.error(res.data.errMsg)
+                        }
+                    })
+                    .catch((err) => {
+                        this.$message.error(err.message)
+                    })
+                    this.editUserDialog = false
                 })
-                .catch((err) => {
-                    this.$message.error(err.message)
-                })
-                this.editUserDialog = false
             },
             //删除指定用户的权限
             async removeUserById(staff) {
@@ -371,9 +426,6 @@
             },
             //删除用户权限
             removeRoleById(staff,functionId, layer) {
-                // console.log(staff)
-                // console.log(functionId)
-                // console.log(layer)
                 if (layer == 1) {
                     for (let i = 0; i < this.roleList.length; i++) {
                         if (this.roleList[i].primaryMenuId == functionId) {
@@ -415,7 +467,6 @@
                         }
                     }
                 }
-                console.log(newRoleList)
                 let data = {
                     staffJurisdictionList:JSON.stringify(newRoleList),
                     userId:window.sessionStorage.getItem('staffId')
@@ -505,7 +556,7 @@
             },
             //把权限信息转换成树
             changeToTree(data1) {
-                let key = 0
+                let key = 100
                 let third_arr = []
                 let second_arr = []
                 let first_arr = []
@@ -517,13 +568,13 @@
                         third_arr = []
                         for (let k = 0; k < data1[i].secondaryMenuTreeList[j].functionTreeList.length; k++) {
                             let third = {
-                                id:key,
+                                id:data1[i].secondaryMenuTreeList[j].functionTreeList[k].functionId,
                                 label:data1[i].secondaryMenuTreeList[j].functionTreeList[k].functionName,
                             }
                             
                             third_arr.push(third)
                             if (data1[i].secondaryMenuTreeList[j].functionTreeList[k].isSelected == 1) {
-                                selecnode.push(key)
+                                selecnode.push(data1[i].secondaryMenuTreeList[j].functionTreeList[k].functionId)
                             }
                             key = key + 1
                         }

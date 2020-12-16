@@ -9,39 +9,37 @@
         <!-- 卡片区域 -->
         <el-card>
             <!-- 功能区域 -->
-            <el-row :gutter="10">
-                <!-- <el-col :span="8">
-                    <span>入库编号</span>
-                    <el-select size="small">
-                        <el-option></el-option>
-                    </el-select>
-                </el-col> -->
-                <!-- <el-col :span="8">
-                    <span>订货单编号</span>
-                    <el-select size="small">
-                        <el-option></el-option>
-                    </el-select>
-                </el-col> -->
-                <!-- <el-col :span="8">
-                    <span>商品编号</span>
-                    <el-select size="small">
-                        <el-option></el-option>
-                    </el-select>
-                </el-col> -->
-            </el-row>
             <el-row>
-                <!-- <el-col :span="8">
-                    <span>状态</span>
-                    <el-select size="small">
-                        <el-option></el-option>
+                <el-col :span="2">
+                    <span>入库编号:</span>
+                </el-col>
+                <el-col :span="5">
+                    <el-input v-model="selected.selectedExportBillId" size="mini"></el-input>
+                </el-col>
+                <el-col :span="2" :offset="1">
+                    <span>订单编号:</span>
+                </el-col>
+                <el-col :span="5">
+                    <el-input v-model="selected.selectedExportBillCouponId" size="mini"></el-input>
+                </el-col>
+                <el-col :span="8" :offset="1">
+                    <span>入库状态</span>
+                    <el-select size="mini" v-model="selected.selectedExportBillStatus">
+                        <el-option :key="100" :value="100" label="全部"></el-option>
+                        <el-option :key="10" :value="10" label="刚生成入库单"></el-option>
+                        <el-option :key="1" :value="1" label="库房管理员已完善信息"></el-option>
+                        <el-option :key="2" :value="2" label="职工已检查通过"></el-option>
+                        <el-option :key="-2" :value="-2" label="职工已检查未通过"></el-option>
+                        <el-option :key="3" :value="3" label="库房管理员已入库"></el-option>
+                        <el-option :key="-1" :value="-1" label="库房管理员审核不通过"></el-option>
                     </el-select>
                 </el-col>
-                <el-col :span="4">
-                    <el-button type="primary" size="small" @click="searchGood()">查询</el-button>
-                </el-col> -->
+                <el-col :span="8">
+                    <el-button type="primary" size="mini" @click="searchExportBill()">查询</el-button>
+                </el-col>
             </el-row>
             <!-- 表单区域 -->
-            <el-table :data="exportBillList" border stripe>
+            <el-table :data="isLazzy ? exportBillList_lazzy : exportBillList" border stripe>
                 <el-table-column label="入库编号" prop="exportBillId" fixed width="250" align="center"></el-table-column>
                 <el-table-column label="订单编号" prop="exportBillCouponId" width="100" align="center"></el-table-column>
                 <el-table-column label="供货商编号" prop="exportBillSupplierId"  width="100" align="center"></el-table-column>
@@ -51,12 +49,13 @@
                 <el-table-column label="供货价格" prop="exportBillPrice" width="120" align="center"></el-table-column>
                 <el-table-column label="入库状态" width="180" align="center">
                     <template slot-scope="scope">
-                        <span v-if="scope.row.exportBillStatus == 0">刚生成入库单</span>
+                        <span v-if="scope.row.exportBillStatus == 1000">全部</span>
+                        <span v-else-if="scope.row.exportBillStatus == 0">刚生成入库单</span>
                         <span v-else-if="scope.row.exportBillStatus == 1">库房管理员已完善信息</span>
                         <span v-else-if="scope.row.exportBillStatus == 2">职工已检查通过</span>
                         <span v-else-if="scope.row.exportBillStatus == -2">职工已检查未通过</span>
                         <span v-else-if="scope.row.exportBillStatus == 3">库房管理员已入库</span>
-                        <span v-else>库房管理员审核不通过</span>
+                        <span v-else-if="scope.row.exportBillStatus == -1">库房管理员审核不通过</span>
                     </template>
                 </el-table-column>
                 <el-table-column label="已付款项" prop="exportBillPaid" width="80" align="center"></el-table-column>
@@ -66,7 +65,7 @@
                 <el-table-column label="备注" prop="exportBillRemark" width="150" align="center"></el-table-column>
                 <el-table-column label="操作" fixed="right" width="260" align="center">
                     <template slot-scope="scope">
-                        <el-button-group v-for="func in functionList" :key="func.functionId">
+                        <el-button-group v-for="func in functionList_one" :key="func.functionId">
                             <el-tooltip effect="light" placement="top" :content="func.functionName" :enterable="false">
                                 <el-button :type="func.btnType" size="mini" :icon="func.btnIcon" @click="getButtonStatus(scope.row,func.functionWeight)"></el-button>
                             </el-tooltip>
@@ -82,26 +81,26 @@
         layout="total, sizes, prev, pager, next, jumper">
         </el-pagination>
         <!-- 采购入库单的信息弹框 -->
-        <el-dialog title="采购入库单" :visible.sync="lookDialog" width="600px">
+        <el-dialog title="采购入库单" :visible.sync="lookDialog" width="900px">
             <el-form>
                 <el-row>
                     <el-col :span="11" :offset="11" class="title">
-                        库存信息
+                        入库信息
                     </el-col>
                 </el-row>
                 <el-row>
-                    <el-col :span="12">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="入库编号：">{{exportBill.exportBillId}}</el-form-item> 
                     </el-col>
-                    <el-col :span="12">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="产品批号：">{{exportBill.exportBillGoodsBatchNumber}}</el-form-item> 
+                    </el-col>
+                    <el-col :span="6" :offset="2">
+                        <el-form-item label="供货编号：">{{exportBill.exportBillSupplierId}}</el-form-item> 
                     </el-col>
                 </el-row>
                 <el-row>
-                    <el-col :span="5">
-                        <el-form-item label="供货编号：">{{exportBill.exportBillSupplierId}}</el-form-item> 
-                    </el-col>
-                    <el-col :span="11">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="入库状态：">
                             <template>
                                 <span v-if="exportBill.exportBillStatus == 0">刚生成入库单</span>
@@ -113,23 +112,21 @@
                             </template>
                         </el-form-item> 
                     </el-col>
-                    <el-col :span="8">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="已付款项：">{{exportBill.exportBillPaid}}</el-form-item> 
                     </el-col>
-                </el-row>
-                <el-row>
-                    <el-col :span="8">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="入库日期：">{{exportBill.exportBillTime}}</el-form-item> 
                     </el-col>
-                    <el-col :span="8">
-                        <el-form-item label="确认职工：">{{exportBill.exportConfirmStaffId}}</el-form-item> 
-                    </el-col>
-                    <el-col :span="8">
-                        <el-form-item label="提交职工：">{{exportBill.exportSubmitStaffId}}</el-form-item> 
-                    </el-col>
                 </el-row>
                 <el-row>
-                    <el-col :span="8">
+                    <el-col :span="6" :offset="2">
+                        <el-form-item label="确认职工：">{{exportBill.exportConfirmStaffId}}</el-form-item> 
+                    </el-col>
+                    <el-col :span="6" :offset="2">
+                        <el-form-item label="提交职工：">{{exportBill.exportSubmitStaffId}}</el-form-item> 
+                    </el-col>
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="入库备注：">{{exportBill.exportBillRemark}}</el-form-item> 
                     </el-col>
                 </el-row>
@@ -139,24 +136,24 @@
                     </el-col>
                 </el-row>
                 <el-row>
-                    <el-col :span="12">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="订单编号:">
                             {{coupon.couponGoodsId}}
                         </el-form-item>
                     </el-col>
-                    <el-col :span="12">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="订单数量:">
                             {{coupon.couponNum}}
                         </el-form-item>
                     </el-col>
-                </el-row>
-                <el-row>
-                    <el-col :span="8">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="订单时间:">
                             {{coupon.couponTime}}
                         </el-form-item>
                     </el-col>
-                    <el-col :span="8">
+                </el-row>
+                <el-row>
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="订单状态:">
                             <template>
                                 <span v-if="coupon.couponStatus == 0">订货中</span>
@@ -165,7 +162,7 @@
                             </template>
                         </el-form-item>
                     </el-col>
-                    <el-col :span="8">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="订单发起职工:">
                             {{coupon.couponStaffId}}
                         </el-form-item>
@@ -177,58 +174,58 @@
                     </el-col>
                 </el-row>
                 <el-row>
-                    <el-col :span="12">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="商品编号:">
                             {{goods.goodsId}}
                         </el-form-item>
                     </el-col>
-                    <el-col :span="12">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="商品名称:">
                             {{goods.goodsName}}
                         </el-form-item>
                     </el-col>
-                </el-row>
-                <el-row>
-                    <el-col :span="8">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="商品类别：">
                             {{category.categoryName}}
                         </el-form-item>
                     </el-col>
-                    <el-col :span="8">
+                </el-row>
+                <el-row>
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="品牌名称：">
                             {{goods.goodsBrand}}
                         </el-form-item>
                     </el-col>
-                    <el-col :span="8">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="商品规格：">
                             {{goods.goodsSpecifications}}
                         </el-form-item>
                     </el-col>
-                </el-row>
-                <el-row>
-                    <el-col :span="8">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="商品单位：">
                             <span>{{unit.unitName}}</span>
                         </el-form-item>
                     </el-col>
-                     <el-col :span="8">
+                </el-row>
+                <el-row>
+                     <el-col :span="6" :offset="2">
                         <el-form-item label="生产日期：">
                             {{exportBill.exportBillProductionDate}}
                         </el-form-item>
                     </el-col>
-                    <el-col :span="8">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="保质期：">
                             {{exportBill.exportBillShelfLife}}
                         </el-form-item>
                     </el-col>
-                </el-row>
-                <el-row>
-                    <el-col :span="8">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="供货价格：">
                             {{exportBill.exportBillPrice}}
                         </el-form-item>
                     </el-col>
-                    <el-col :span="16">
+                </el-row>
+                <el-row>
+                    <el-col :span="16" :offset="2">
                         <el-form-item label="商品图片：">
                             <img :src="goods.goodsPicture" alt="图片">
                         </el-form-item>
@@ -240,14 +237,12 @@
             </span>
         </el-dialog>
         <!-- 修改采购入库单的信息弹框 -->
-        <el-dialog title="修改采购入库单" :visible.sync="editDialog" width="600px">
+        <el-dialog title="修改采购入库单" :visible.sync="editDialog" width="800px">
             <el-form label-width="100px">
                 <el-row>
                     <el-col :span="11" :offset="11" class="title">
-                        库存信息
+                        入库信息
                     </el-col>
-                </el-row>
-                <el-row>
                     <el-col :span="12">
                         <el-form-item label="入库编号：">
                             <el-input v-model="exportBill.exportBillId" size="small"></el-input>
@@ -260,48 +255,35 @@
                     </el-col>
                 </el-row>
                 <el-row>
-                    <el-col :span="8">
+                    <el-col :span="7">
                         <el-form-item label="供货编号：">
                             <el-input v-model="exportBill.exportBillSupplierId" size="small"></el-input>
                         </el-form-item> 
                     </el-col>
-                    <el-col :span="8">
+                    <el-col :span="10">
                         <el-form-item label="入库状态：">
                             <el-select v-model="exportBill.exportBillStatus">
                                 <el-option :value="0" label="刚生成入库单">刚生成入库单</el-option>
                                 <el-option :value="1" label="库房管理员已完善信息">库房管理员已完善信息</el-option>
                                 <el-option :value="2" label="职工已检查通过">职工已检查通过</el-option>
                                 <el-option :value="-2" label="职工已检查未通过">职工已检查未通过</el-option>
-                                <el-option :value="3" label="库房管理员已入库">库房管理员已入库</el-option>
                                 <el-option :value="-1" label="库房管理员审核不通过">库房管理员审核不通过</el-option>
                             </el-select>
                         </el-form-item> 
                     </el-col>
-                    <el-col :span="8">
+                    <el-col :span="7">
                         <el-form-item label="已付款项：">
                             <el-input v-model="exportBill.exportBillPaid" size="small"></el-input>  
                         </el-form-item> 
                     </el-col>
                 </el-row>
                 <el-row>
-                    <el-col :span="8">
+                    <el-col :span="7">
                         <el-form-item label="确认职工：">
                             <el-input v-model="exportBill.exportConfirmStaffId" size="small"></el-input>  
                         </el-form-item> 
                     </el-col>
-                    <el-col :span="16">
-                        <el-form-item label="入库日期：">
-                            <el-date-picker v-model="exportBill.exportBillTime"></el-date-picker>
-                        </el-form-item> 
-                    </el-col>
-                </el-row>
-                <el-row>
-                    <el-col :span="8">
-                        <el-form-item label="提交职工：">
-                            <el-input v-model="exportBill.exportSubmitStaffId" size="small"></el-input>
-                        </el-form-item> 
-                    </el-col>
-                    <el-col :span="16">
+                    <el-col :span="17">
                         <el-form-item label="入库备注：">
                             <el-input type="textarea" placeholder="暂无" v-model="exportBill.exportBillRemark" size="small"></el-input>
                         </el-form-item> 
@@ -314,29 +296,29 @@
                 </el-row>
                 <el-row>
                     <el-col :span="12">
-                        <el-form-item label="订单编号:">
+                        <el-form-item label="订单编号：">
                             <el-input v-model="coupon.couponGoodsId" size="small" disabled></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :span="6">
-                        <el-form-item label="订单数量:">
+                        <el-form-item label="订单数量：">
                             <el-input v-model="coupon.couponNum" size="small" disabled></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :span="6">
-                        <el-form-item label="订单状态:">
+                        <el-form-item label="订单状态：">
                             <el-input v-model="coupon.couponStatus" size="small" disabled></el-input>
                         </el-form-item>
                     </el-col>
                 </el-row>
                 <el-row>
-                    <el-col :span="16">
-                        <el-form-item label="订单时间:" width="100">
+                    <el-col :span="12">
+                        <el-form-item label="订单时间：" width="100">
                             <el-date-picker v-model="coupon.couponTime" disabled></el-date-picker>
                         </el-form-item>
                     </el-col>
                     <el-col :span="8">
-                        <el-form-item label="发起职工:">
+                        <el-form-item label="发起职工：">
                             <el-input v-model="coupon.couponStaffId" size="small" disabled></el-input>
                         </el-form-item>
                     </el-col>
@@ -348,12 +330,12 @@
                 </el-row>
                 <el-row>
                     <el-col :span="12">
-                        <el-form-item label="商品编号:">
+                        <el-form-item label="商品编号：">
                             <el-input v-model="goods.goodsId" size="small" disabled></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
-                        <el-form-item label="商品名称:">
+                        <el-form-item label="商品名称：">
                             <el-input v-model="goods.goodsName" size="small" disabled></el-input>
                         </el-form-item>
                     </el-col>
@@ -432,6 +414,8 @@
                 exportBillList:[],
                 //功能列表
                 functionList:[],
+                // 一级功能那个列表
+                functionList_one:[],
                 //是否渲染按钮
                 isDraw:false,
                 exportBill:'',
@@ -442,7 +426,16 @@
                 //查看采购入库单弹窗
                 lookDialog:false,
                 //修改采购入库单弹窗
-                editDialog:false
+                editDialog:false,
+                selected:{
+                    selectedExportBillId:'',
+                    selectedExportBillCouponId:'',
+                    selectedExportBillStatus:''
+                },
+                // 是否模糊查询
+                isLazzy:false,
+                // 模糊查询返回的数据
+                exportBillList_lazzy:[]
             }
         },
         created() {
@@ -451,6 +444,7 @@
         methods:{
             //获取部分采购入库单
             getPurchaseList() {
+                this.functionList_one=[]
                 // 获取当前二级菜单的id
                 this.secondaryMenuList = window.sessionStorage.getItem('secondaryMenuList')
                 this.secondaryMenuList = JSON.parse(this.secondaryMenuList)
@@ -495,7 +489,11 @@
             //根据指定页码获取相应的库存信息
             currentChange(currentPage) {
                 this.queryInfo.pageIndex = currentPage
-                this.getPurchaseList()
+                if (this.isLazzy) {
+                    this.searchExportBill()
+                } else {
+                    this.getPurchaseList()
+                }
             },
             drawBtn() {
                 //渲染功能按钮
@@ -504,15 +502,19 @@
                         if (this.functionList[i].functionWeight == 1) {
                             this.$set(this.functionList[i],"btnType","primary")
                             this.$set(this.functionList[i],"btnIcon","iconfont icon_look")
+                            this.functionList_one.push(this.functionList[i])
                         } else if (this.functionList[i].functionWeight == 2) {
                             this.$set(this.functionList[i],"btnType","success")
                             this.$set(this.functionList[i],"btnIcon","iconfont icon_edit")
+                            this.functionList_one.push(this.functionList[i])
                         } else if (this.functionList[i].functionWeight == 3) {
                             this.$set(this.functionList[i],"btnType","warning")
                             this.$set(this.functionList[i],"btnIcon","iconfont icon_confirm")
+                            this.functionList_one.push(this.functionList[i])
                         } else if (this.functionList[i].functionWeight == 4) {
                             this.$set(this.functionList[i],"btnType","danger")
                             this.$set(this.functionList[i],"btnIcon","iconfont icon_reject")
+                            this.functionList_one.push(this.functionList[i])
                         }
                         this.isDraw = true
                     }
@@ -529,6 +531,57 @@
                 } else if (functionWeight == 4) {
                     this.rejectIntoStore(rowInfo)
                 }
+            },
+            // 模糊查询采购入库单
+            searchExportBill(){
+                this.isLazzy = true
+                let temp = this.selected.selectedExportBillStatus
+                this.selected.selectedExportBillCouponId = this.selected.selectedExportBillCouponId == "" ? null : this.selected.selectedExportBillCouponId
+                this.selected.selectedExportBillId = this.selected.selectedExportBillId == "" ? null : this.selected.selectedExportBillId
+
+                if (this.selected.selectedExportBillStatus == "" || this.selected.selectedExportBillStatus == 100) {
+                    temp = null
+                } 
+                if (this.selected.selectedExportBillStatus == 10) {
+                    temp = 0
+                }
+
+                let exportBill = {
+                    exportBillId:this.selected.selectedExportBillId,
+                    exportBillCouponId:this.selected.selectedExportBillCouponId,
+                    exportBillStatus:temp
+                }
+                let data = {
+                    staffId : window.sessionStorage.getItem('staffId'),
+                    pageIndex:this.queryInfo.pageIndex-1,
+                    pageSize:this.queryInfo.infoCount,
+                    exportBill:JSON.stringify(exportBill)
+                }
+                this.$axios.post('/purchaselist/findByConditions', this.$qs.stringify(data),{
+                    headers:{
+                        staffToken:window.sessionStorage.getItem('staffToken')
+                    }
+                })
+                .then((res) => {
+                    if (res.data.success) {
+                        this.exportBillList_lazzy = res.data.exportBillList
+                        this.queryInfo.total = res.data.recordSum
+
+
+                        this.exportBillList_lazzy.map((item) => {
+                            let date = new Date(item.exportBillProductionDate)
+                            item.exportBillProductionDate = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate()
+                            date = new Date(item.exportBillTime)
+                            item.exportBillTime = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate()
+                        })
+
+                    } else {
+                        this.$message.error(res.data.errMsg)
+                    }
+                })
+                .catch((err) => {
+                    this.$message.error(err.message)
+                })
             },
             //查看采购入库单弹窗
             lookDialogInfo(rowInfo) {
@@ -712,6 +765,7 @@
     font-size: 20px;
     font-weight: 700;
     color: #000000;
+    margin-bottom: 10px;
 }
 .el-button{
     margin: 0 5px;

@@ -9,35 +9,40 @@
         <!-- 卡片区域 -->
         <el-card>
             <!-- 功能区域 -->
-            <!-- <el-row :gutter="10">
-                <el-col :span="8">
+            <el-row>
+                <el-col :span="2">
                     <span>订单编号</span>
-                    <el-select size="small">
-                        <el-option></el-option>
+                </el-col>
+                <el-col :span="5">   
+                    <el-input v-model="selected.selectedRetailId" size="mini"></el-input>
+                </el-col>
+                <el-col :span="2" :offset="1">
+                    <span>收款员工</span>
+                </el-col>
+                <el-col :span="5">   
+                    <el-select v-model="selected.selectedRetailCollectionStaffId" size="mini">
+                        <el-option :key="1000" :value="1000" label="全部"></el-option>
+                        <el-option v-for="item in staffList" :key="item.staffId" :value="item.staffId">{{item.staffName}}</el-option>
                     </el-select>
                 </el-col>
-                <el-col :span="8">
-                    <span>订单发起人</span>
-                    <el-select size="small">
-                        <el-option></el-option>
-                    </el-select>
-                </el-col>
-                <el-col :span="8">
-                    <span>状态</span>
-                    <el-select size="small">
-                        <el-option></el-option>
+                <el-col :span="8" :offset="1">
+                    <span>退款状态</span>
+                    <el-select size="mini" v-model="selected.selectedRetailRefundStatus">
+                        <el-option :key="1000" :value="1000" label="全部"></el-option>
+                        <el-option :key="0" :value="0" label="未发生退款"></el-option>
+                        <el-option :key="1" :value="1" label="已发生退款"></el-option>
                     </el-select>
                 </el-col>
             </el-row>
             <el-row>
-                <el-col :span="4">
-                    <el-button type="primary" size="small" @click="searchGood()">查询</el-button>
+                <el-col :span="8">
+                    <el-button type="primary" size="mini" @click="searchRetail()">查询</el-button>
+                    <el-button type="primary" :disabled="isFirst" size="mini" @click="changeLayer()">返回上一级</el-button>
                 </el-col>
-            </el-row> -->
-            <el-button type="primary" :disabled="isFirst" size="small" @click="changeLayer()">返回上一级</el-button>
+            </el-row>
             <!-- 表单区域 -->
             <!-- 一级 -->
-            <el-table :data="retailRecordList" border stripe v-show="isFirst">
+            <el-table :data="isLazzy ? retailRecordList_lazzy : retailRecordList" border stripe v-show="isFirst">
                 <el-table-column label="订单编号" prop="retailId" width="200" align="center"></el-table-column>
                 <el-table-column label="收款员工" prop="retailCollectionStaffId"  width="180" align="center">
                     <template slot-scope="scope">
@@ -46,7 +51,12 @@
                 </el-table-column>
                 <el-table-column label="商品总价格" prop="retailTotalPrice"  width="150" align="center"></el-table-column>
                 <el-table-column label="付款时间" prop="retailTime" width="160" align="center"></el-table-column>
-                <el-table-column label="退款状态" prop="retailRefundStatus" width="120" align="center"></el-table-column>
+                <el-table-column label="退款状态" width="120" align="center">
+                    <template slot-scope="scope">
+                        <span v-if="scope.row.retailRefundStatus == 0">未发生退款</span>
+                        <span v-if="scope.row.retailRefundStatus == 1">已发生退款</span>
+                    </template>
+                </el-table-column>
                 <el-table-column label="操作" fixed="right" width="120" align="center">
                     <template slot-scope="scope">
                         <el-button-group v-for="func in functionList_one" :key="func.functionId">
@@ -91,7 +101,7 @@
                 //查询零售单的先决条件
                 queryInfo:{
                     total:0,
-                    pageIndex:0,
+                    pageIndex:1,
                     infoCount:4
                 },
                 //二级菜单
@@ -127,7 +137,17 @@
                     goods:'',
                     category:'',
                     unit:''
-                }
+                },
+                // 查询条件
+                selected:{
+                    selectedRetailRefundStatus:'',
+                    selectedRetailCollectionStaffId:'',
+                    selectedRetailId:''
+                },
+                // 是否模糊查询
+                isLazzy:false,
+                // 模糊查询列表
+                retailRecordList_lazzy:[]
             }
         },
         created() {
@@ -146,7 +166,7 @@
                     }
                 }
                 let data = {
-                    pageIndex: this.queryInfo.pageIndex,
+                    pageIndex: this.queryInfo.pageIndex-1,
                     pageSize: this.queryInfo.infoCount,
                     secondaryMenuId: this.secondaryMenuId,
                     staffId:window.sessionStorage.getItem('staffId')
@@ -159,7 +179,7 @@
                 .then((res) => {
                     if (res.data.success) {
                         this.functionList = res.data.functionList
-                        this.queryInfo.infoCount = res.data.recordSum
+                        this.queryInfo.total = res.data.recordSum
                         this.retailRecordList = res.data.retailRecordList
                         this.staffList = res.data.staffList
                         this.drawBtn()
@@ -175,10 +195,57 @@
                     this.$message.error(err.message)
                 })
             },
+            // 模糊查询
+            searchRetail() {
+                this.isLazzy = true
+                this.selected.selectedRetailId = this.selected.selectedRetailId == "" ? null : this.selected.selectedRetailId
+                this.selected.selectedRetailCollectionStaffId = this.selected.selectedRetailCollectionStaffId == 1000 ? null : this.selected.selectedRetailCollectionStaffId
+                this.selected.selectedRetailRefundStatus = this.selected.selectedRetailRefundStatus == 1000 ? null : this.selected.selectedRetailRefundStatus
+                this.selected.selectedRetailCollectionStaffId = this.selected.selectedRetailCollectionStaffId == "" ? null : this.selected.selectedRetailCollectionStaffId
+                this.selected.selectedRetailRefundStatus = this.selected.selectedRetailRefundStatus == "" ? null : this.selected.selectedRetailRefundStatus
+
+                let retailRecord = {
+                    retailId:this.selected.selectedRetailId,
+                    retailCollectionStaffId:this.selected.selectedRetailCollectionStaffId,
+                    retailRefundStatus:this.selected.selectedRetailRefundStatus
+                }
+                let data = {
+                    staffId : window.sessionStorage.getItem('staffId'),
+                    pageIndex:this.queryInfo.pageIndex-1,
+                    pageSize:this.queryInfo.infoCount,
+                    retailRecord:JSON.stringify(retailRecord)
+                }
+                this.$axios.post('/retaildeliverylist/findByConditions', this.$qs.stringify(data),{
+                    headers:{
+                        staffToken:window.sessionStorage.getItem('staffToken')
+                    }
+                })
+                .then((res) => {
+                    if (res.data.success) {
+                        this.retailRecordList_lazzy = res.data.retailRecordList
+                        this.queryInfo.total = res.data.recordSum
+
+                        this.retailRecordList_lazzy.map((item) =>{
+                            let date = new Date(item.retailTime)
+                            item.retailTime = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate()
+                        })
+
+                    } else {
+                        this.$message.error(res.data.errMsg)
+                    }
+                })
+                .catch((err) => {
+                    this.$message.error(err.message)
+                })
+            },
             //根据指定页码获取相应的库存信息
             currentChange(currentPage) {
-                this.queryInfo.pageIndex(currentPage)
-                this.getRetailList()
+                this.queryInfo.pageIndex = currentPage
+                if (this.isLazzy) {
+                    this.searchRetail()
+                } else {
+                    this.getRetailList()
+                }
             },
             drawBtn() {
                 //渲染功能按钮

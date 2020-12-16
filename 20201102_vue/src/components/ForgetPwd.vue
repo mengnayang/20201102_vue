@@ -178,8 +178,8 @@ import identify from '../components/Identify'
                     })
                     if (flag) {
                         this.activeIndex++;
+                        this.textInfo = '修改'
                     }  
-                    this.textInfo = '修改'
                 } else if (this.activeIndex == 2) {
                     this.$refs.PasswordRef.validate(valid => {
                         flag = valid

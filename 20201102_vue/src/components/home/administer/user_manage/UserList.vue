@@ -82,7 +82,7 @@
         <!-- 修改用户信息的弹框 -->
         <el-dialog title="修改用户信息"  :visible.sync="editUserDialog" width="390px">
             <!-- 修改用户的信息表单 -->
-            <el-form :model="editStaff" label-width="100px" :rules="newStaffRules">
+            <el-form :model="editStaff" label-width="100px" :rules="newStaffRules" ref="editStaffRef">
                 <el-form-item label="用户名" required prop="staffName"> 
                     <el-input type="text" v-model="editStaff.staffName"></el-input>
                 </el-form-item>
@@ -164,7 +164,11 @@
                     callback(new Error('新密码不能为空'))
                 } else {
                     if (value.length < 8 || value.length > 16) {
-                        callback(new Error('密码必须满足8~16位'))
+                        if (value == this.passwordMD5) {
+                            callback()
+                        } else {
+                            callback(new Error('密码必须满足8~16位'))
+                        }
                     }
                     callback()
                 }
@@ -241,7 +245,9 @@
                 // 是否模糊查询
                 isPartData:false,
                 // 存储模糊查询的数组
-                userList_limit:[]
+                userList_limit:[],
+                // 加密的密码
+                passwordMD5:''
             }
         },
         created(){
@@ -277,7 +283,6 @@
                     this.queryInfo.total = res.data.recordSum
                     this.userList = res.data.staffAList
                     this.drawBtn()
-                    console.log(this.userList)
                 })
                 .catch((err) => {
                     this.$message.error(err.message)
@@ -301,12 +306,9 @@
                 })
                 .then((res) => {
                     if (res.data.success) {
-                        console.log(res)
                         this.queryInfo.total = res.data.recordSum
                         this.userList_limit = res.data.staffAList
                         this.drawBtn()
-                        console.log(this.userList)
-                        console.log(this.queryInfo.total)
                     } else {
                         this.$message.error(res.data.errMsg)
                     }
@@ -397,6 +399,10 @@
                 this.editStaff.staffName = Staff.staffName
                 this.editStaff.staffPhone = Staff.staffPhone
                 this.editStaff.staffPassword = Staff.staffPassword
+
+                //存储加密的密码
+                this.passwordMD5 = Staff.staffPassword
+
                 if (Staff.staffPosition == null) {
                     this.editStaff.staffPosition = "无"
                 }
@@ -413,42 +419,47 @@
             },
             //修改用户
             editUser() {
-                if (this.editStaff.staffStatus == "正常") {
-                    this.editStaff.staffStatus = 1000
-                } else if (this.editStaff.staffStatus == "刚注册") {
-                    this.editStaff.staffStatus = 1001
-                } else if (this.editStaff.staffStatus == "无权限") {
-                    this.editStaff.staffStatus = 0
-                } else if (this.editStaff.staffStatus == "离职") {
-                    this.editStaff.staffStatus = -1
-                }
-                let staff = {
-                    staffId: this.editStaff.staffId,
-                    staffName: this.editStaff.staffName,
-                    staffPassword: this.editStaff.staffPassword,
-                    staffPhone: this.editStaff.staffPhone,
-                    staffStatus: this.editStaff.staffStatus
-                }
-                let data = {
-                    staffA: JSON.stringify(staff)
-                } 
-                this.$axios.post('/stafflist/modifycommit', this.$qs.stringify(data), {
-                    headers:{
-                        staffToken: window.sessionStorage.getItem("staffToken")
+                this.$refs.editStaffRef.validate(valid => {
+                    if (!valid) return
+
+                    if (this.editStaff.staffStatus == "正常") {
+                        this.editStaff.staffStatus = 1000
+                    } else if (this.editStaff.staffStatus == "刚注册") {
+                        this.editStaff.staffStatus = 1001
+                    } else if (this.editStaff.staffStatus == "无权限") {
+                        this.editStaff.staffStatus = 0
+                    } else if (this.editStaff.staffStatus == "离职") {
+                        this.editStaff.staffStatus = -1
                     }
-                })
-                .then((res) => {
-                    if (res.data.success) {
-                        this.$message.success("修改成功")
-                        this.getUserList()
-                    } else {
-                        this.$message.error(res.data.errMsg)
+
+                    let staff = {
+                        staffId: this.editStaff.staffId,
+                        staffName: this.editStaff.staffName,
+                        staffPassword: this.editStaff.staffPassword,
+                        staffPhone: this.editStaff.staffPhone,
+                        staffStatus: this.editStaff.staffStatus
                     }
+                    let data = {
+                        staffA: JSON.stringify(staff)
+                    } 
+                    this.$axios.post('/stafflist/modifycommit', this.$qs.stringify(data), {
+                        headers:{
+                            staffToken: window.sessionStorage.getItem("staffToken")
+                        }
+                    })
+                    .then((res) => {
+                        if (res.data.success) {
+                            this.$message.success("修改成功")
+                            this.getUserList()
+                        } else {
+                            this.$message.error(res.data.errMsg)
+                        }
+                    })
+                    .catch((err) => {
+                        this.$message.error(err.message)
+                    })
+                    this.editUserDialog = false
                 })
-                .catch((err) => {
-                    this.$message.error(err.message)
-                })
-                this.editUserDialog = false
             },
             //删除用户
             async removeUserById(staff) {
@@ -542,32 +553,36 @@
             },
             //分配角色
             handRole() {
-                let staffPositionRelation = {
-                    staffId: this.editRole.staffId,
-                    staffPositionId: this.editRole.staffPositionId,
-                    staffPositionStatus: this.editRole.staffPositionStatus
-                }
+                if (this.editRole.staffPositionId == "") {
+                    this.$message.error('请选择要分配的角色')
+                } else {
+                    let staffPositionRelation = {
+                        staffId: this.editRole.staffId,
+                        staffPositionId: this.editRole.staffPositionId,
+                        staffPositionStatus: this.editRole.staffPositionStatus
+                    }
 
-                let data = {
-                    staffPositionRelation: JSON.stringify(staffPositionRelation)
+                    let data = {
+                        staffPositionRelation: JSON.stringify(staffPositionRelation)
+                    }
+                    this.$axios.post('/stafflist/positiondistributioncommit',this.$qs.stringify(data),{
+                        headers:{
+                            staffToken: window.sessionStorage.getItem('staffToken')
+                        }
+                    })
+                    .then((res) => {
+                        if (res.data.success) {
+                            this.$message.success('角色分配成功')
+                            this.getUserList()
+                        } else {
+                            this.$message.error(res.data.errMsg)
+                        }
+                    })
+                    .catch((err) => {
+                        this.$message.error(err.message)
+                    })
+                    this.handRoleDialog = false
                 }
-                this.$axios.post('/stafflist/positiondistributioncommit',this.$qs.stringify(data),{
-                    headers:{
-                        staffToken: window.sessionStorage.getItem('staffToken')
-                    }
-                })
-                .then((res) => {
-                    if (res.data.success) {
-                         this.$message.success('角色分配成功')
-                         this.getUserList()
-                    } else {
-                        this.$message.error(res.data.errMsg)
-                    }
-                })
-                .catch((err) => {
-                    this.$message.error(err.message)
-                })
-                this.handRoleDialog = false
             }
         }
     }

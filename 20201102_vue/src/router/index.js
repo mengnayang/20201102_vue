@@ -19,6 +19,9 @@ import BookEnter from '../components/home/manage/store_manage/BookEnter'
 import NoticeInfo from '../components/home/manage/issue_notice/NoticeInfo'
 import NomalStaffCheckStore from '../components/home/normalStaff/check_store/CheckStore.vue'
 import NomalStafffCheckInbound  from'../components/home/normalStaff/check_inbound/CheckInbound.vue'
+import GoodsInfomation from '../components/home/administer/good_infomation/GoodsInfomation.vue'
+import CategoryInfomation from '../components/home/administer/good_infomation/CategoryInfomation.vue'
+import Unitinformation from '../components/home/administer/good_infomation/Unitinformation.vue'
 
 
 Vue.use(Router)
@@ -51,6 +54,9 @@ const router = new Router({
         {path:'/issueNotice/noticeInfo',component:NoticeInfo},
         {path:'/stocktaking/viewStocktakingGoodsList',component:NomalStaffCheckStore},
         {path:'/exportinspect',component:NomalStafffCheckInbound},
+        {path:'/goodsinformation',component:GoodsInfomation},
+        {path:'/categoryinformation',component:CategoryInfomation},
+        {path:'/unitinformation',component:Unitinformation}
       ]
     },
     {path:'/forgetPwd', component: ForgerPwd}
