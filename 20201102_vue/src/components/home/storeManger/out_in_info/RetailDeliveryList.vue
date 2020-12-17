@@ -153,7 +153,9 @@
             }
         },
         created() {
-            this.getRetailList()
+            this.getRetailList(),
+            this.selected.selectedRetailCollectionStaffId = 100,
+            this.selected.selectedRetailRefundStatus = 100
         },
         methods:{
             //获取部分采购入库单
@@ -207,9 +209,6 @@
                 if (this.selected.selectedRetailRefundStatus == 10) {
                     temp = 0
                 }
-
-
-
                 this.selected.selectedRetailId = this.selected.selectedRetailId == "" ? null : this.selected.selectedRetailId
                 this.selected.selectedRetailCollectionStaffId = this.selected.selectedRetailCollectionStaffId == 100 ? null : this.selected.selectedRetailCollectionStaffId
                 this.selected.selectedRetailCollectionStaffId = this.selected.selectedRetailCollectionStaffId == "" ? null : this.selected.selectedRetailCollectionStaffId

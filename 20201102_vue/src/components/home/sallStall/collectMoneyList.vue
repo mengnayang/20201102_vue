@@ -279,7 +279,7 @@ export default {
         addToCart(scope){
             let flag = false
             for(let i = 0;i < this.cardListAll.length;i++){
-                if (scope.row.goodsId == this.cardListAll[i].goodsId) {
+                if (scope.row.stockGoodsId == this.cardListAll[i].stockGoodsId) {
                     this.cardListAll[i].num = scope.row.num
                     flag = true
                 }
@@ -365,7 +365,7 @@ export default {
             for(let i = 0;i < this.cardListAll.length;i++){
                 if(this.cardListAll[i].num > 0){
                     for (let j = 0; j < this.goodList.length; j++) {
-                        if (this.goodList[j].goodsId == this.cardListAll[i].goodsId) {
+                        if (this.goodList[j].stockGoodsId == this.cardListAll[i].stockGoodsId) {
                             this.goodList[j].num = this.cardListAll[i].num
                         }
                     }

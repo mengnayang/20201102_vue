@@ -53,7 +53,7 @@
                     </el-col>
                     <el-col :span="11" :offset="1">
                         <el-form-item label="商品类别:">
-                            <template slot-scope="scope">
+                            <template>
                                  <el-select v-model="currentGood.goodsCategoryId">
                                     <el-option v-for="item in categoryList" :key="item.categoryId" :label="item.categoryName" :value="item.categoryId" ></el-option>
                                 </el-select>
@@ -101,7 +101,7 @@
                     </el-col>
                     <el-col :span="11" :offset="1">
                         <el-form-item label="商品类别:">
-                            <template slot-scope="scope">
+                            <template>
                                  <el-select v-model="currentGood.goodsCategoryId">
                                     <el-option v-for="item in categoryList" :key="item.categoryId" :label="item.categoryName" :value="item.categoryId" ></el-option>
                                 </el-select>

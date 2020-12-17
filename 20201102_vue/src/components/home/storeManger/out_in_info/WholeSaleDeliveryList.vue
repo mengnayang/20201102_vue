@@ -53,7 +53,7 @@
             <!-- 表单区域 -->
             <!-- 一级 -->
             <el-table :data="isLazzy ? deliveryRecordList_lazzy : deliveryRecordList" border stripe v-show="isFirst">
-                <el-table-column label="出库编号" prop="deliveryId" fixed width="120" align="center"></el-table-column>
+                <el-table-column label="出库编号" prop="deliveryId" fixed width="140" align="center"></el-table-column>
                 <el-table-column label="出库状态"  width="180" align="center">
                     <template slot-scope="scope">
                         <span v-if="scope.row.deliveryStatus == 0">营业员初次发起</span>
@@ -63,11 +63,11 @@
                 </el-table-column>
                 <el-table-column label="入库时间" prop="deliveryCreateDate" width="120" align="center"></el-table-column>
                 <el-table-column label="总价格" prop="deliveryTotalPrice" width="120" align="center"></el-table-column>
-                <el-table-column label="已付款项" prop="deliveryPaid" width="120" align="center"></el-table-column>
+                <el-table-column label="已结账项" prop="deliveryPaid" width="120" align="center"></el-table-column>
                 <el-table-column label="结账状态" width="100" align="center">
                     <template slot-scope="scope">
-                        <span v-if="scope.row.deliveryCheckOutStatus == 0">未付款</span>
-                        <span v-else-if="scope.row.deliveryCheckOutStatus == 1">已付款</span>
+                        <span v-if="scope.row.deliveryCheckOutStatus == 0">未结账</span>
+                        <span v-else-if="scope.row.deliveryCheckOutStatus == 1">已结账</span>
                     </template>
                 </el-table-column>
                 <el-table-column label="退款状态" width="100" align="center">
@@ -139,7 +139,7 @@
                         <el-form-item label="出库数量：">{{currentInfo.delivery.deliveryNum}}</el-form-item> 
                     </el-col>
                     <el-col :span="6" :offset="2">
-                        <el-form-item label="已付款项：">{{currentInfo.deliveryRecord.deliveryPaid}}</el-form-item> 
+                        <el-form-item label="已结账项：">{{currentInfo.deliveryRecord.deliveryPaid}}</el-form-item> 
                     </el-col>
                     <el-col :span="6" :offset="2">
                         <el-form-item label="总价格：">{{currentInfo.deliveryRecord.deliveryTotalPrice}}</el-form-item> 
@@ -160,8 +160,8 @@
                     <el-col :span="6" :offset="2">
                         <el-form-item label="结账状态：">
                             <template>
-                                <span v-if="currentInfo.deliveryRecord.deliveryCheckOutStatus == 0">未付款</span>
-                                <span v-else>已付款</span>
+                                <span v-if="currentInfo.deliveryRecord.deliveryCheckOutStatus == 0">未结账</span>
+                                <span v-else>已结账</span>
                             </template>
                         </el-form-item> 
                     </el-col>
@@ -309,7 +309,10 @@
             }
         },
         created() {
-            this.getWholeSaleList()
+            this.getWholeSaleList(),
+            this.selected.selectedDeliveryRefundStatus = 100,
+            this.selected.selectedDeliveryCheckOutStatus = 100,
+            this.selected.selectedDeliveryStatus = 100
         },
         methods:{
             //获取部分采购入库单
@@ -469,7 +472,6 @@
             },
             //确认入库
             confirmIntoStore(rowInfo) {
-                console.log(rowInfo)
                 let deliveryStatus = rowInfo.deliveryStatus
                 if (deliveryStatus == 1) {
                     this.$message.error('出库失败, 订单已成功出库')
@@ -488,6 +490,7 @@
                     .then((res) => {
                         if (res.data.success) {
                             this.$message.success('入库成功')
+                            this.getWholeSaleList()
                         } else {
                             this.$message.error(res.data.errMsg)
                         }

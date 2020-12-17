@@ -245,7 +245,7 @@
                     </el-col>
                     <el-col :span="12">
                         <el-form-item label="入库编号：">
-                            <el-input v-model="exportBill.exportBillId" size="small"></el-input>
+                            <el-input v-model="exportBill.exportBillId" size="small" disabled></el-input>
                         </el-form-item> 
                     </el-col>
                     <el-col :span="12">
@@ -659,6 +659,27 @@
                 this.editDialog = true
             },
             editDialog1() {
+                let flag = this.onNumChange('产品批号',this.exportBill.exportBillGoodsBatchNumber)
+                if (flag == -1) {
+                    return
+                }
+                flag = this.onNumChange('供货编号',this.exportBill.exportBillSupplierId)
+                if (flag == -1) {
+                    return
+                }
+                flag = this.onNumChange('已付款项',this.exportBill.exportBillPaid)
+                if (flag == -1) {
+                    return
+                }
+                flag = this.onNumChange('供货价格',this.exportBill.exportBillPrice)
+                if (flag == -1) {
+                    return
+                }
+                flag = this.onNumChange('保质期',this.exportBill.exportBillShelfLife)
+                if (flag == -1) {
+                    return
+                }
+
                 let data = {
                     exportBill:JSON.stringify(this.exportBill)
                 }
@@ -756,6 +777,27 @@
                         .catch((err) => {
                             this.$message.error(err.message)
                         })
+                    }
+                }
+            },
+            //判断合法性
+            onNumChange(name, text_number){
+                if (name == '产品批号' || name == '供货价格' || name == '供货编号' || name == '已付款项' ||  name == '保质期') {
+                    if(text_number == '' || text_number == null){
+                        this.$message.error(name + "不能为空")
+                        return -1
+                    } else if(isNaN(text_number)) {
+                        this.$message.error(name + "存在不合法的输入")
+                        return -1
+                    } else {
+                        return  0
+                    }
+                } else {
+                    if(text_number == '' || text_number == null){
+                        this.$message.error(name + "不能为空")
+                        return -1
+                    } else {
+                        return  0
                     }
                 }
             }
