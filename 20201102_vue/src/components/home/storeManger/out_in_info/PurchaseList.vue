@@ -439,7 +439,8 @@
             }
         },
         created() {
-            this.getPurchaseList()
+            this.getPurchaseList(),
+            this.selected.selectedExportBillStatus = 100
         },
         methods:{
             //获取部分采购入库单
@@ -682,68 +683,80 @@
             },
             //确认入库
             async confirmIntoStore(exportBill) {
-                const confirmResult = await this.$confirm('确认相关入库信息已正确填写？','确认入库',{
-                    confirmButtonText:'入库',
-                    showCancelButton:true,
-                    type: 'success'
-                })
-                .catch(err => {
-                    this.$message.info('操作取消')
-                })
+                let status = exportBill.exportBillStatus
+                if (status == 3) {
+                    this.$message.error('入库失败, 不允许重复入库')
+                } else if (status == -1) {
+                    this.$message.error('入库失败, 库房管理员审核不通过')
+                } else {
+                    const confirmResult = await this.$confirm('确认相关入库信息已正确填写？','确认入库',{
+                        confirmButtonText:'入库',
+                        showCancelButton:true,
+                        type: 'success'
+                    })
+                    .catch(err => {
+                        this.$message.info('操作取消')
+                    })
 
-                if (confirmResult == 'confirm') {
-                    let data = {
-                        staffId : window.sessionStorage.getItem('staffId'),
-                        exportBillId:exportBill.exportBillId
+                    if (confirmResult == 'confirm') {
+                        let data = {
+                            staffId : window.sessionStorage.getItem('staffId'),
+                            exportBillId:exportBill.exportBillId
+                        }
+                        this.$axios.post('/purchaselist/confirm', this.$qs.stringify(data), {
+                            headers:{
+                                staffToken: window.sessionStorage.getItem('staffToken')
+                            }
+                        })
+                        .then((res) => {
+                            if (res.data.success) {
+                                this.$message.success('成功入库')
+                            } else {
+                                this.$message.error(res.data.errMsg)
+                            }
+                        })
+                        .catch((err) => {
+                            this.$message.error(err.message)
+                        })
                     }
-                    this.$axios.post('/purchaselist/confirm', this.$qs.stringify(data), {
-                        headers:{
-                            staffToken: window.sessionStorage.getItem('staffToken')
-                        }
-                    })
-                    .then((res) => {
-                        if (res.data.success) {
-                            this.$message.success('成功入库')
-                        } else {
-                            this.$message.error(res.data.errMsg)
-                        }
-                    })
-                    .catch((err) => {
-                        this.$message.error(err.message)
-                    })
                 }
             },
             //拒收
             async rejectIntoStore(exportBill) {
-                const confirmResult = await this.$confirm('此操作不可恢复，是否拒绝这条入库信息？','拒收',{
-                    confirmButtonText:'拒收',
-                    showCancelButton:true,
-                    type: 'warning'
-                })
-                .catch(err => {
-                    this.$message.info('操作取消')
-                })
+                let status = exportBill.exportBillStatus
+                if (status == 3) {
+                    this.$message.error('入库失败, 订单已成功入库')
+                }  else {
+                    const confirmResult = await this.$confirm('此操作不可恢复，是否拒绝这条入库信息？','拒收',{
+                        confirmButtonText:'拒收',
+                        showCancelButton:true,
+                        type: 'warning'
+                    })
+                    .catch(err => {
+                        this.$message.info('操作取消')
+                    })
 
-                if (confirmResult == 'confirm') {
-                    let data = {
-                        staffId : window.sessionStorage.getItem('staffId'),
-                        exportBillId: exportBill.exportBillId
+                    if (confirmResult == 'confirm') {
+                        let data = {
+                            staffId : window.sessionStorage.getItem('staffId'),
+                            exportBillId: exportBill.exportBillId
+                        }
+                        this.$axios.post('/purchaselist/rejection', this.$qs.stringify(data), {
+                            headers:{
+                                staffToken: window.sessionStorage.getItem('staffToken')
+                            }
+                        })
+                        .then((res) => {
+                            if (res.data.success) {
+                                this.$message.success('成功拒收')
+                            } else {
+                                this.$message.error(res.data.errMsg)
+                            }
+                        })
+                        .catch((err) => {
+                            this.$message.error(err.message)
+                        })
                     }
-                    this.$axios.post('/purchaselist/rejection', this.$qs.stringify(data), {
-                        headers:{
-                            staffToken: window.sessionStorage.getItem('staffToken')
-                        }
-                    })
-                    .then((res) => {
-                        if (res.data.success) {
-                            this.$message.success('成功拒收')
-                        } else {
-                            this.$message.error(res.data.errMsg)
-                        }
-                    })
-                    .catch((err) => {
-                        this.$message.error(err.message)
-                    })
                 }
             }
         }

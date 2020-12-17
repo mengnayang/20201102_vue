@@ -21,15 +21,15 @@
                 </el-col>
                 <el-col :span="5">   
                     <el-select v-model="selected.selectedRetailCollectionStaffId" size="mini">
-                        <el-option :key="1000" :value="1000" label="全部"></el-option>
-                        <el-option v-for="item in staffList" :key="item.staffId" :value="item.staffId">{{item.staffName}}</el-option>
+                        <el-option :key="100" :value="100" label="全部"></el-option>
+                        <el-option v-for="item in staffList" :key="item.staffId" :value="item.staffId" :label="item.staffName"></el-option>
                     </el-select>
                 </el-col>
                 <el-col :span="8" :offset="1">
                     <span>退款状态</span>
                     <el-select size="mini" v-model="selected.selectedRetailRefundStatus">
-                        <el-option :key="1000" :value="1000" label="全部"></el-option>
-                        <el-option :key="0" :value="0" label="未发生退款"></el-option>
+                        <el-option :key="100" :value="100" label="全部"></el-option>
+                        <el-option :key="10" :value="10" label="未发生退款"></el-option>
                         <el-option :key="1" :value="1" label="已发生退款"></el-option>
                     </el-select>
                 </el-col>
@@ -46,7 +46,9 @@
                 <el-table-column label="订单编号" prop="retailId" width="200" align="center"></el-table-column>
                 <el-table-column label="收款员工" prop="retailCollectionStaffId"  width="180" align="center">
                     <template slot-scope="scope">
-                        <span v-for="item in staffList" :key="item.staffId" v-if="item.staffId == scope.row.retailCollectionStaffId">{{item.staffName}}</span>
+                        <span v-for="item in staffList" :key="item.staffId">
+                            <span v-if="item.staffId == scope.row.retailCollectionStaffId">{{item.staffName}}</span>
+                        </span>
                     </template>
                 </el-table-column>
                 <el-table-column label="商品总价格" prop="retailTotalPrice"  width="150" align="center"></el-table-column>
@@ -198,16 +200,24 @@
             // 模糊查询
             searchRetail() {
                 this.isLazzy = true
+                let temp = this.selected.selectedRetailRefundStatus
+                if (this.selected.selectedRetailRefundStatus == "" || this.selected.selectedRetailRefundStatus == 100) {
+                    temp = null
+                }
+                if (this.selected.selectedRetailRefundStatus == 10) {
+                    temp = 0
+                }
+
+
+
                 this.selected.selectedRetailId = this.selected.selectedRetailId == "" ? null : this.selected.selectedRetailId
-                this.selected.selectedRetailCollectionStaffId = this.selected.selectedRetailCollectionStaffId == 1000 ? null : this.selected.selectedRetailCollectionStaffId
-                this.selected.selectedRetailRefundStatus = this.selected.selectedRetailRefundStatus == 1000 ? null : this.selected.selectedRetailRefundStatus
+                this.selected.selectedRetailCollectionStaffId = this.selected.selectedRetailCollectionStaffId == 100 ? null : this.selected.selectedRetailCollectionStaffId
                 this.selected.selectedRetailCollectionStaffId = this.selected.selectedRetailCollectionStaffId == "" ? null : this.selected.selectedRetailCollectionStaffId
-                this.selected.selectedRetailRefundStatus = this.selected.selectedRetailRefundStatus == "" ? null : this.selected.selectedRetailRefundStatus
 
                 let retailRecord = {
                     retailId:this.selected.selectedRetailId,
                     retailCollectionStaffId:this.selected.selectedRetailCollectionStaffId,
-                    retailRefundStatus:this.selected.selectedRetailRefundStatus
+                    retailRefundStatus:temp
                 }
                 let data = {
                     staffId : window.sessionStorage.getItem('staffId'),

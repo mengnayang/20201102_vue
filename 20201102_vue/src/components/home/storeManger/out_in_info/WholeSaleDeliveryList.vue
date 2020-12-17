@@ -19,8 +19,8 @@
                 <el-col :span="7" :offset="1">
                     <span>出库状态:</span>
                     <el-select size="mini" v-model="selected.selectedDeliveryStatus">
-                        <el-option :key="1000" :value="1000" label="全部"></el-option>
-                        <el-option :key="0" :value="0" label="营业员初次发起"></el-option>
+                        <el-option :key="100" :value="100" label="全部"></el-option>
+                        <el-option :key="10" :value="10" label="营业员初次发起"></el-option>
                         <el-option :key="1" :value="1" label="库房管理员确认出库"></el-option>
                         <el-option :key="-1" :value="-1" label="库房管理员驳回出库单"></el-option>
                     </el-select>
@@ -28,8 +28,8 @@
                 <el-col :span="7" :offset="1">
                     <span>结账状态:</span>
                     <el-select size="mini" v-model="selected.selectedDeliveryCheckOutStatus">
-                        <el-option :key="1000" :value="1000" label="全部"></el-option>
-                        <el-option :key="0" :value="0" label="未结账"></el-option>
+                        <el-option :key="100" :value="100" label="全部"></el-option>
+                        <el-option :key="10" :value="10" label="未结账"></el-option>
                         <el-option :key="1" :value="1" label="已结账"></el-option>
                     </el-select>
                 </el-col>
@@ -38,8 +38,8 @@
                 <el-col :span="8">
                     <span>退款状态：</span>
                     <el-select size="mini" v-model="selected.selectedDeliveryRefundStatus">
-                        <el-option :key="1000" :value="1000" label="全部"></el-option>
-                        <el-option :key="0" :value="0" label="未发生退款"></el-option>
+                        <el-option :key="100" :value="100" label="全部"></el-option>
+                        <el-option :key="10" :value="10" label="未发生退款"></el-option>
                         <el-option :key="1" :value="1" label="已发生退款"></el-option>
                     </el-select>
                 </el-col>
@@ -58,7 +58,7 @@
                     <template slot-scope="scope">
                         <span v-if="scope.row.deliveryStatus == 0">营业员初次发起</span>
                         <span v-else-if="scope.row.deliveryStatus == 1">库房管理员确认出库</span>
-                        <span v-else>库房管理员驳回出库单</span>
+                        <span v-else-if="scope.row.deliveryStatus == -1">库房管理员驳回出库单</span>
                     </template>
                 </el-table-column>
                 <el-table-column label="入库时间" prop="deliveryCreateDate" width="120" align="center"></el-table-column>
@@ -67,13 +67,13 @@
                 <el-table-column label="结账状态" width="100" align="center">
                     <template slot-scope="scope">
                         <span v-if="scope.row.deliveryCheckOutStatus == 0">未付款</span>
-                        <span v-else>已付款</span>
+                        <span v-else-if="scope.row.deliveryCheckOutStatus == 1">已付款</span>
                     </template>
                 </el-table-column>
                 <el-table-column label="退款状态" width="100" align="center">
                     <template slot-scope="scope">
                         <span v-if="scope.row.deliveryRefundStatus == 0">未发生退款</span>
-                        <span v-else>已发生退款</span>
+                        <span v-else-if="scope.row.deliveryRefundStatus == 1">已发生退款</span>
                     </template>
                 </el-table-column>
                 <el-table-column label="发起职工" prop="deliveryLaunchedStaffId"  width="100" align="center"></el-table-column>
@@ -116,54 +116,48 @@
         layout="total, sizes, prev, pager, next, jumper">
         </el-pagination>
         <!-- 查看商品详细信息弹框 -->
-        <el-dialog title="批发出库单信息" :visible.sync="lookDialog" width="600px">
+        <el-dialog title="批发出库单信息" :visible.sync="lookDialog" width="800px">
             <el-form>
                 <el-row>
-                    <el-col :span="11" :offset="9" class="title">
+                    <el-col :span="11" :offset="10" class="title">
                         出库信息
                     </el-col>
                 </el-row>
                 <el-row>
-                    <el-col :span="12">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="出库编号：">{{currentInfo.delivery.deliveryId}}</el-form-item> 
                     </el-col>
-                    <el-col :span="12">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="产品批号：">{{currentInfo.delivery.deliveryId}}</el-form-item> 
                     </el-col>
-                </el-row>
-                <el-row>
-                    <el-col :span="8">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="批发单价：">{{currentInfo.delivery.deliveryPrice}}</el-form-item> 
                     </el-col>
-                    <el-col :span="8">
+                </el-row>
+                <el-row>
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="出库数量：">{{currentInfo.delivery.deliveryNum}}</el-form-item> 
                     </el-col>
-                    <el-col :span="8">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="已付款项：">{{currentInfo.deliveryRecord.deliveryPaid}}</el-form-item> 
                     </el-col>
-                </el-row>
-                <el-row>
-                    <el-col :span="8">
-                        <el-form-item label="出库状态：">
-                            <template>
-                                <span v-if="currentInfo.deliveryRecord.deliveryStatus == 0">营业员初次发起</span>
-                                <span v-else-if="currentInfo.deliveryRecord.deliveryStatus == 1">库房管理员确认出库</span>
-                                <span v-else>库房管理员驳回出库单</span>
-                            </template>
-                        </el-form-item> 
-                    </el-col>
-                    <el-col :span="8">
-                        <el-form-item label="发起职工：">{{staffMap[currentInfo.deliveryRecord.deliveryLaunchedStaffId]}}</el-form-item> 
-                    </el-col>
-                    <el-col :span="8">
-                        <el-form-item label="处理职工：">{{staffMap[currentInfo.deliveryRecord.deliveryHandleStaffId]}}</el-form-item> 
-                    </el-col>
-                </el-row>
-                <el-row>
-                    <el-col :span="8">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="总价格：">{{currentInfo.deliveryRecord.deliveryTotalPrice}}</el-form-item> 
                     </el-col>
-                    <el-col :span="8">
+                </el-row>
+                <el-row>
+                    <el-col :span="6" :offset="2">
+                        <el-form-item label="发起职工：">{{staffMap[currentInfo.deliveryRecord.deliveryLaunchedStaffId]}}</el-form-item> 
+                    </el-col>
+                    <el-col :span="6" :offset="2">
+                        <el-form-item label="处理职工：">{{staffMap[currentInfo.deliveryRecord.deliveryHandleStaffId]}}</el-form-item> 
+                    </el-col>
+                    <el-col :span="6" :offset="2">
+                        <el-form-item label="创建时间：">{{currentInfo.deliveryRecord.deliveryCreateDate}}</el-form-item> 
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="结账状态：">
                             <template>
                                 <span v-if="currentInfo.deliveryRecord.deliveryCheckOutStatus == 0">未付款</span>
@@ -171,7 +165,7 @@
                             </template>
                         </el-form-item> 
                     </el-col>
-                    <el-col :span="8">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="退款状态：">
                             <template>
                                 <span v-if="currentInfo.deliveryRecord.deliveryRefundStatus == 0">未发生退款</span>
@@ -181,8 +175,14 @@
                     </el-col>
                 </el-row>
                 <el-row>
-                    <el-col :span="12">
-                        <el-form-item label="创建时间：">{{currentInfo.deliveryRecord.deliveryCreateDate}}</el-form-item> 
+                    <el-col :span="8" :offset="2">
+                        <el-form-item label="出库状态：">
+                            <template>
+                                <span v-if="currentInfo.deliveryRecord.deliveryStatus == 0">营业员初次发起</span>
+                                <span v-else-if="currentInfo.deliveryRecord.deliveryStatus == 1">库房管理员确认出库</span>
+                                <span v-else>库房管理员驳回出库单</span>
+                            </template>
+                        </el-form-item> 
                     </el-col>
                 </el-row>
                 <el-row>
@@ -191,53 +191,51 @@
                     </el-col>
                 </el-row>
                 <el-row>
-                    <el-col :span="12">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="商品编号:">
                             {{currentInfo.goods.goodsId}}
                         </el-form-item>
                     </el-col>
-                    <el-col :span="12">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="商品名称:">
                             {{currentInfo.goods.goodsName}}
                         </el-form-item>
                     </el-col>
-                </el-row>
-                <el-row>
-                    <el-col :span="8">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="商品类别：">
                             {{currentInfo.category.categoryName}}
                         </el-form-item>
                     </el-col>
-                    <el-col :span="8">
+                </el-row>
+                <el-row>
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="品牌名称：">
                             {{currentInfo.goods.goodsBrand}}
                         </el-form-item>
                     </el-col>
-                    <el-col :span="8">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="商品规格：">
                             {{currentInfo.goods.goodsSpecifications}}
                         </el-form-item>
                     </el-col>
-                </el-row>
-                <el-row>
-                    <el-col :span="8">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="商品单位：">
                             <span>{{currentInfo.unit.unitName}}</span>
                         </el-form-item>
                     </el-col>
-                    <el-col :span="8">
+                </el-row>
+                <el-row>
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="生产日期：">
                             {{currentInfo.stock.stockGoodsProductionDate}}
                         </el-form-item>
                     </el-col>
-                    <el-col :span="8">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="保质期：">
                             {{currentInfo.stock.stockGoodsShelfLife}}
                         </el-form-item>
                     </el-col>
-                </el-row>
-                <el-row>
-                    <el-col :span="12">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="商品图片：">
                             <img :src="currentInfo.goods.goodsPicture" alt="图片">
                         </el-form-item>
@@ -397,19 +395,49 @@
                     this.lookDialogInfo(rowInfo)
                 } 
             },
+            // 模糊查询
             searchDelivery(){
                 this.isLazzy = true
+                // 结账状态
+                let temp_1 = this.selected.selectedDeliveryCheckOutStatus
+
                 this.selected.selectedDeliveryId = this.selected.selectedDeliveryId == "" ? null : this.selected.selectedDeliveryId
-                this.selected.selectedDeliveryCheckOutStatus = this.selected.selectedDeliveryCheckOutStatus == "" ? null : this.selected.selectedDeliveryCheckOutStatus
-                this.selected.selectedDeliveryCheckOutStatus = this.selected.selectedDeliveryCheckOutStatus == 1000 ? null : this.selected.selectedDeliveryCheckOutStatus
                 this.selected.selectedDeliveryStatus = this.selected.selectedDeliveryStatus == "" ? null : this.selected.selectedDeliveryStatus
                 this.selected.selectedDeliveryRefundStatus = this.selected.selectedDeliveryRefundStatus == "" ? null : this.selected.selectedDeliveryRefundStatus
 
+                if (this.selected.selectedDeliveryCheckOutStatus == "" || this.selected.selectedDeliveryCheckOutStatus == 100) {
+                    temp_1 = null
+                }
+
+                if (this.selected.selectedDeliveryCheckOutStatus == 10) {
+                    temp_1 = 0
+                }
+
+                //退款状态
+                let temp_2 = this.selected.selectedDeliveryRefundStatus
+                if (this.selected.selectedDeliveryRefundStatus == "" || this.selected.selectedDeliveryRefundStatus == 100) {
+                    temp_2 = null
+                }
+
+                if (this.selected.selectedDeliveryRefundStatus == 10) {
+                    temp_2 = 0
+                }
+
+                // 出库状态
+                let temp_3 = this.selected.selectedDeliveryStatus
+                if (this.selected.selectedDeliveryStatus == "" || this.selected.selectedDeliveryStatus == 100) {
+                    temp_3 = null
+                }
+
+                if (this.selected.selectedDeliveryStatus == 10) {
+                    temp_3 = 0
+                }
+
                 let deliveryRecord = {
                     deliveryId:this.selected.selectedDeliveryId,
-                    deliveryStatus:this.selected.selectedDeliveryStatus,
-                    deliveryCheckOutStatus:this.selected.selectedDeliveryCheckOutStatus,
-                    deliveryRefundStatus:this.selected.selectedDeliveryRefundStatus
+                    deliveryStatus:temp_3,
+                    deliveryCheckOutStatus:temp_1,
+                    deliveryRefundStatus:temp_2
                 }
                 let data = {
                     deliveryRecord :JSON.stringify(deliveryRecord),
@@ -441,25 +469,33 @@
             },
             //确认入库
             confirmIntoStore(rowInfo) {
-                let data = {
-                    staffId : window.sessionStorage.getItem('staffId'),
-                    deliveryId: rowInfo.deliveryId
+                console.log(rowInfo)
+                let deliveryStatus = rowInfo.deliveryStatus
+                if (deliveryStatus == 1) {
+                    this.$message.error('出库失败, 订单已成功出库')
+                } else if (deliveryStatus == -1) {
+                    this.$message.error('出库失败, 库房管理员审核不通过')
+                } else {
+                    let data = {
+                        staffId : window.sessionStorage.getItem('staffId'),
+                        deliveryId: rowInfo.deliveryId
+                    }
+                    this.$axios.post('/wholesaledeliverylist/confirmwarehousing', this.$qs.stringify(data), {
+                        headers:{
+                            staffToken : window.sessionStorage.getItem('staffToken')
+                        }
+                    })
+                    .then((res) => {
+                        if (res.data.success) {
+                            this.$message.success('入库成功')
+                        } else {
+                            this.$message.error(res.data.errMsg)
+                        }
+                    })
+                    .catch((err) => {
+                        this.$message.error(err.message)
+                    })
                 }
-                this.$axios.post('/wholesaledeliverylist/confirmwarehousing', this.$qs.stringify(data), {
-                    headers:{
-                        staffToken : window.sessionStorage.getItem('staffToken')
-                    }
-                })
-                .then((res) => {
-                    if (res.data.success) {
-                        this.$message.success('入库成功')
-                    } else {
-                        this.$message.error(res.data.errMsg)
-                    }
-                })
-                .catch((err) => {
-                    this.$message.error(err.message)
-                })
             },
             //查看所有商品
             lookAllInfo(rowInfo) {
@@ -541,6 +577,7 @@
     font-size: 20px;
     font-weight: 700;
     color: #000000;
+    margin-bottom: 10px;
 }
 .el-button{
     margin: 0 5px;

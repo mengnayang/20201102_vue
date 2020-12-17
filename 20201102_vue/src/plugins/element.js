@@ -41,7 +41,10 @@ Switch,
 Collapse,
 CollapseItem,
 Checkbox,
-CheckboxGroup
+CheckboxGroup,
+InputNumber,
+Carousel,
+CarouselItem
 } from 'element-ui'
 Vue.use(Form)
 Vue.use(FormItem)
@@ -80,6 +83,9 @@ Vue.use(Collapse)
 Vue.use(CollapseItem)
 Vue.use(Checkbox)
 Vue.use(CheckboxGroup)
+Vue.use(InputNumber)
+Vue.use(Carousel)
+Vue.use(CarouselItem)
 
 //全局挂载
 Vue.prototype.$message = Message

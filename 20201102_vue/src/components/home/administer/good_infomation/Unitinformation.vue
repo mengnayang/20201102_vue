@@ -172,32 +172,36 @@
             },
             // 商品信息维护-增加
             addProtectUnit() {
-                let unit = {
-                    unitId:null,
-                    unitName:this.currentUnit.unitName,
-                }
-                let data = {
-                    staffId:window.sessionStorage.getItem('staffId'),
-                    unit:JSON.stringify(unit)
-                }
-                this.$axios.post('/unitinformation/add',this.$qs.stringify(data),{
-                    headers:{
-                        staffToken:window.sessionStorage.getItem('staffToken')
+                let flag = this.onNumChange('商品单位', this.currentUnit.unitName)
+                if (flag == -1) {
+                    return
+                } else {
+                    let unit = {
+                        unitId:null,
+                        unitName:this.currentUnit.unitName,
                     }
-                })
-                .then((res) => {
-                    if (res.data.success) {
-                        this.addProtectUnitDialog = false
-                        this.getProtectUnit()
-                        this.$message.success('商品单位修改成功')
-                    } else {
-                        this.$message.error(res.data.errMsg)
+                    let data = {
+                        staffId:window.sessionStorage.getItem('staffId'),
+                        unit:JSON.stringify(unit)
                     }
-                })
-                .catch((err) => {
-                    this.$message.error(err.message)
-                })
-                
+                    this.$axios.post('/unitinformation/add',this.$qs.stringify(data),{
+                        headers:{
+                            staffToken:window.sessionStorage.getItem('staffToken')
+                        }
+                    })
+                    .then((res) => {
+                        if (res.data.success) {
+                            this.addProtectUnitDialog = false
+                            this.getProtectUnit()
+                            this.$message.success('商品单位修改成功')
+                        } else {
+                            this.$message.error(res.data.errMsg)
+                        }
+                    })
+                    .catch((err) => {
+                        this.$message.error(err.message)
+                    })
+                }
             },
             // 商品信息维护弹框-修改
             editProtectUnitInfo(unit) {
@@ -207,32 +211,46 @@
             },
             // 商品信息维护-修改
             editProtectUnit() {
-                let unit = {
-                    unitId:this.currentUnit.unitId,
-                    unitName:this.currentUnit.unitName,
-                }
-                let data = {
-                    staffId:window.sessionStorage.getItem('staffId'),
-                    unit:JSON.stringify(unit)
-                }
-                this.$axios.post('/unitinformation/modify', this.$qs.stringify(data),{
-                    headers:{
-                        staffToken:window.sessionStorage.getItem('staffToken')
+                let flag = this.onNumChange('商品单位', this.currentUnit.unitName)
+                if (flag == -1) {
+                    return
+                } else {
+                    let unit = {
+                        unitId:this.currentUnit.unitId,
+                        unitName:this.currentUnit.unitName,
                     }
-                })
-                .then((res) => {
-                    if (res.data.success) {
-                        this.editProtectUnitDialog = false
-                        this.getProtectUnit()
-                        this.$message.success('商品单位添加成功')
-                    } else {
-                        this.$message.error(res.data.errMsg)
+                    let data = {
+                        staffId:window.sessionStorage.getItem('staffId'),
+                        unit:JSON.stringify(unit)
                     }
-                })
-                .catch((err) => {
-                    this.$message.error(err.message)
-                })
-            }
+                    this.$axios.post('/unitinformation/modify', this.$qs.stringify(data),{
+                        headers:{
+                            staffToken:window.sessionStorage.getItem('staffToken')
+                        }
+                    })
+                    .then((res) => {
+                        if (res.data.success) {
+                            this.editProtectUnitDialog = false
+                            this.getProtectUnit()
+                            this.$message.success('商品单位添加成功')
+                        } else {
+                            this.$message.error(res.data.errMsg)
+                        }
+                    })
+                    .catch((err) => {
+                        this.$message.error(err.message)
+                    })
+                }
+            },
+            //判断合法性
+            onNumChange(name, text_number){
+                if(text_number == '' || text_number == null){
+                    this.$message.error(name + "不能为空")
+                    return -1
+                } else {
+                    return  0
+                }
+            },
         }
     }
 </script>

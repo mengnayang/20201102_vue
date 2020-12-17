@@ -74,7 +74,7 @@
                 </el-table-column>
                 <el-table-column label="品牌类别" prop="goodsBrand" width="120" align="center"></el-table-column>
                 <!-- 库存量显示问题待解决 -->
-                <el-table-column label="库存量" prop="stockInventory" width="80" align="center"></el-table-column>
+                <el-table-column label="库存量" prop="stockNum" width="80" align="center"></el-table-column>
                 <el-table-column label="盘点量" prop="stocktakingNum"  width="80" align="center" ></el-table-column>
                 <!-- 根据true或者false选择 -->
                 <el-table-column label="盘点状态"  prop="stocktakingStatus"  :formatter="stateFormat" width="100" align="center"></el-table-column>

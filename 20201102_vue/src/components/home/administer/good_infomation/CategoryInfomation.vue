@@ -47,14 +47,14 @@
         <el-dialog title="商品类别维护-修改" :visible.sync="editProtectCategoryDialog" width="600px">
             <el-form label-width="100px" >
                 <el-row>
-                    <el-col :span="17" :offset="1">
+                    <el-col :span="14" :offset="5">
                         <el-form-item label="商品类别:">
                             <el-input v-model="currentCategory.categoryName" auto-complete="off"></el-input>
                         </el-form-item>
                     </el-col>
                 </el-row>
                 <el-row>
-                    <el-col :span="18" :offset="1">
+                    <el-col :span="18" :offset="5">
                         <el-form-item label="盘点职工:">
                             <template>
                                 <el-select v-model="currentCategory.staffId">
@@ -208,6 +208,14 @@
             },
             // 商品类别信息维护-增加
             addProtectCategory() {
+                let flag = this.onNumChange('商品类别', this.currentCategory.categoryName)
+                if (flag == -1) {
+                    return
+                }
+                flag = this.onNumChange('盘点职工', this.currentCategory.staffId)
+                if (flag == -1) {
+                    return
+                }
                 let category = {
                     categoryId:null,
                     categoryName:this.currentCategory.categoryName,
@@ -245,33 +253,47 @@
             },
             // 商品类别信息维护-修改
             editProtectCategory() {
-                let category = {
-                    categoryId:this.currentCategory.categoryId,
-                    categoryName:this.currentCategory.categoryName,
-                    stocktakingStaffId:this.currentCategory.staffId
-                }
-                let data = {
-                    staffId:window.sessionStorage.getItem('staffId'),
-                    category:JSON.stringify(category)
-                }
-                this.$axios.post('/categoryinformation/modify', this.$qs.stringify(data),{
-                    headers:{
-                        staffToken:window.sessionStorage.getItem('staffToken')
+                let flag = this.onNumChange('商品类别',this.currentCategory.categoryName)
+                if (flag == -1) {
+                    return 
+                } else if (flag == 0) {
+                    let category = {
+                        categoryId:this.currentCategory.categoryId,
+                        categoryName:this.currentCategory.categoryName,
+                        stocktakingStaffId:this.currentCategory.staffId
                     }
-                })
-                .then((res) => {
-                    if (res.data.success) {
-                        this.editProtectCategoryDialog = false
-                        this.getProtectCategory()
-                        this.$message.success('类别信息更新成功')
-                    } else {
-                        this.$message.error(res.data.errMsg)
+                    let data = {
+                        staffId:window.sessionStorage.getItem('staffId'),
+                        category:JSON.stringify(category)
                     }
-                })
-                .catch((err) => {
-                    this.$message.error(err.message)
-                })
-            }
+                    this.$axios.post('/categoryinformation/modify', this.$qs.stringify(data),{
+                        headers:{
+                            staffToken:window.sessionStorage.getItem('staffToken')
+                        }
+                    })
+                    .then((res) => {
+                        if (res.data.success) {
+                            this.editProtectCategoryDialog = false
+                            this.getProtectCategory()
+                            this.$message.success('类别信息更新成功')
+                        } else {
+                            this.$message.error(res.data.errMsg)
+                        }
+                    })
+                    .catch((err) => {
+                        this.$message.error(err.message)
+                    })
+                }
+            },
+            //判断合法性
+            onNumChange(name, text_number){
+                if(text_number == '' || text_number == null){
+                    this.$message.error(name + "不能为空")
+                    return -1
+                } else {
+                    return  0
+                }
+            },
         }
     }
 </script>

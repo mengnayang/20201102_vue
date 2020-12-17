@@ -133,17 +133,26 @@
                 <el-table-column label="盘点编号" prop="stocktakingId" fixed align="center" width="180px"></el-table-column>
                 <el-table-column label="发起员工" width="170px" align="center">
                     <template slot-scope="scope">
-                        <span v-for="item in staffList" :key="item.staffId" v-if="item.staffId == scope.row.stocktakingLaunchedStaffId">{{item.staffName}}</span>
+                        <span v-for="item in staffList" :key="item.staffId">
+                            <span v-if="item.staffId == scope.row.stocktakingLaunchedStaffId">{{item.staffName}}</span>
+                        </span>
                     </template>
                 </el-table-column>
-                <el-table-column label="提交员工" width="170px" prop="stocktakingSubmitStaffId" align="center"></el-table-column>
+                <el-table-column label="提交员工" width="170px" align="center">
+                    <template slot-scope="scope">
+                        <span v-for="item in staffList" :key="item.staffId">
+                            <span v-if="item.staffId == scope.row.stocktakingSubmitStaffId">{{item.staffName}}</span>
+                        </span>
+                    </template>
+                </el-table-column>
                 <el-table-column label="盈亏状态" width="170px" align="center">
                     <template slot-scope="scope">
-                        <span v-if="scope.row.stocktakingProfitLossPrice == 0">盘盈</span>
-                        <span v-else-if="scope.row.stocktakingProfitLossPrice == 1">盘亏</span>
+                        <span v-if="scope.row.stocktakingProfitLossPrice > 0">盘盈</span>
+                        <span v-else-if="scope.row.stocktakingProfitLossPrice < 0">盘亏</span>
                         <span v-else>盘点无盈亏</span>
                     </template>
                 </el-table-column>
+                <el-table-column label="盈亏金额" width="170px" prop="stocktakingProfitLossPrice" align="center"></el-table-column>                
                 <el-table-column label="盘点状态" width="220px" align="center">
                     <template slot-scope="scope">
                         <span v-if="scope.row.stocktakingAllStatus == 0">初始状态待盘点</span>
@@ -200,7 +209,9 @@
                 <el-table-column label="商品名称" prop="goodsName" align="center" width="150px"></el-table-column>
                 <el-table-column label="商品类别" width="120px" prop="goodsCategoryId" align="center">
                     <template slot-scope="scope">
-                        <span v-for="item in categoryList" :key="item.categoryId" v-if="scope.row.goodsCategoryId == item.categoryId">{{item.categoryName}}</span>
+                        <span v-for="item in categoryList" :key="item.categoryId">
+                            <span v-if="scope.row.goodsCategoryId == item.categoryId">{{item.categoryName}}</span>
+                        </span>
                     </template>
                 </el-table-column>
                 <el-table-column label="品牌名称" width="120px" prop="goodsBrand" align="center"></el-table-column>
@@ -211,7 +222,9 @@
                 <el-table-column label="产品规格" width="120px" prop="goodsSpecifications" align="center"></el-table-column>
                 <el-table-column label="盘点员工" width="120px" prop="goodsSpecifications" align="center">
                     <template slot-scope="scope">
-                        <span v-for="item in categoryList" :key="item.categoryId" v-if="scope.row.goodsCategoryId == item.categoryId">{{item.stocktakingStaffId}}</span>
+                        <span v-for="item in categoryList" :key="item.categoryId">
+                            <span v-if="scope.row.goodsCategoryId == item.categoryId">{{item.stocktakingStaffId}}</span>
+                        </span>
                     </template>
                 </el-table-column>
             </el-table>
@@ -1001,7 +1014,7 @@
                 }
                 let data = {
                     staffId: window.sessionStorage.getItem('staffId'),
-                    stockGoodsIdListStr: JSON.stringify(stockGoodsIdListStr)
+                    stockGoodsIdList: JSON.stringify(stockGoodsIdListStr)
                 }
                 this.$axios.post('/stocktaking/initiateStocktaking',this.$qs.stringify(data),{
                     headers:{
@@ -1022,6 +1035,7 @@
             // 提交总盘点
             submitAllStocktaking(rowInfo) { 
                 let data = {
+                    staffId:window.sessionStorage.getItem('staffId'),
                     stocktakingId:rowInfo.stocktakingId
                 }
                 this.$axios.post('/stocktaking/submitStocktaking', this.$qs.stringify(data),{

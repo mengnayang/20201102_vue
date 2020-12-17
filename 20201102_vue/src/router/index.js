@@ -22,6 +22,13 @@ import NomalStafffCheckInbound  from'../components/home/normalStaff/check_inboun
 import GoodsInfomation from '../components/home/administer/good_infomation/GoodsInfomation.vue'
 import CategoryInfomation from '../components/home/administer/good_infomation/CategoryInfomation.vue'
 import Unitinformation from '../components/home/administer/good_infomation/Unitinformation.vue'
+import RefunWholeSale from '../components/home/sallStall/refunwholesale.vue'
+import DeliveryDetails from '../components/home/sallStall/deliverydetails.vue'
+import RetailSall from '../components/home/sallStall/retailSall.vue'
+import RetailDeliveryDetails from '../components/home/sallStall/RetailDeliveryDetails.vue'
+import CollectMoneyLiist from '../components/home/sallStall/collectMoneyList.vue'
+import CollectMonneyRetailList from '../components/home/sallStall/collectMonneyRetailList.vue'
+
 
 
 Vue.use(Router)
@@ -56,7 +63,13 @@ const router = new Router({
         {path:'/exportinspect',component:NomalStafffCheckInbound},
         {path:'/goodsinformation',component:GoodsInfomation},
         {path:'/categoryinformation',component:CategoryInfomation},
-        {path:'/unitinformation',component:Unitinformation}
+        {path:'/unitinformation',component:Unitinformation},
+        {path:'/deliveryreturn',component:RefunWholeSale},
+        {path:'/deliveryreturn/deliverydetails',component:DeliveryDetails},
+        {path:'/retailreturn',component:RetailSall},
+        {path:'/retailreturn/retaildetails',component:RetailDeliveryDetails},
+        {path:'/deliverycashier',component:CollectMoneyLiist},
+        {path:'/retailcashier',component:CollectMonneyRetailList}
       ]
     },
     {path:'/forgetPwd', component: ForgerPwd}

@@ -197,7 +197,8 @@
             }
         },
         created() {
-            this.getOrderList()
+            this.getOrderList(),
+            this.selected.selectedOrderStatus = 100
         },
         methods:{
             //获取部分订单信息

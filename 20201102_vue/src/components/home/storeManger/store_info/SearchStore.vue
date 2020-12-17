@@ -108,7 +108,7 @@
                     <el-row>
                         <el-col :span="12">
                             <el-form-item label="商品图片"> 
-                                <template slot-scope="scope">
+                                <template>
                                     <img :src="currentGood.goodsPicture" alt="图片">
                                 </template>
                             </el-form-item>
@@ -133,8 +133,8 @@
                     </el-row>
                     <el-row>
                         <el-col :span="7">
-                            <el-form-item label="产品批号:">
-                                <span>{{currentGood.stockGoodsBatchNumber}}</span>
+                            <el-form-item label="生产日期:"> 
+                                <span>{{currentGood.stockGoodsProductionDate}}</span>
                             </el-form-item>
                         </el-col>
                         <el-col :span="8" :offset="1">
@@ -154,8 +154,8 @@
                     </el-row>
                     <el-row>
                         <el-col :span="7">
-                            <el-form-item label="生产日期:"> 
-                                <span>{{currentGood.stockGoodsProductionDate}}</span>
+                            <el-form-item label="售价/元:"> 
+                                <span>{{currentGood.stockGoodsPrice}}</span>
                             </el-form-item>
                         </el-col>
                         <el-col :span="8" :offset="1">
@@ -171,22 +171,17 @@
                     </el-row>
                     <el-row>
                         <el-col :span="7">
-                            <el-form-item label="售价/元:"> 
-                                <span>{{currentGood.stockGoodsPrice}}</span>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="8" :offset="1">
-                            <el-form-item label="规格:"> 
-                                <span>{{currentGood.goodsSpecifications}}</span>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="7" :offset="1">
                             <el-form-item label="单位:"> 
                                 <template>
                                     <span v-for="item in unitList" :key="item.unitId">
                                         <span v-if="item.unitId == currentGood.stockUnitId">{{item.unitName}}</span>
                                     </span>
                                 </template>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="8" :offset="1">
+                            <el-form-item label="规格:"> 
+                                <span>{{currentGood.goodsSpecifications}}</span>
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -201,7 +196,7 @@
                     <el-row>
                         <el-col :span="12">
                             <el-form-item label="商品图片"> 
-                                <template slot-scope="scope">
+                                <template>
                                     <img :src="currentGood.goodsPicture" alt="图片">
                                 </template>
                             </el-form-item>
@@ -233,8 +228,8 @@
                     </el-row>
                     <el-row>
                         <el-col :span="10">
-                            <el-form-item label="产品批号:">
-                                <el-input auto-complete="off" v-model="currentGood.stockGoodsBatchNumber" disabled></el-input>
+                            <el-form-item label="品牌类别:"> 
+                                <el-input auto-complete="off" v-model="currentGood.goodsBrand" disabled></el-input>
                             </el-form-item>
                         </el-col>
                         <el-col :span="10" :offset="1">
@@ -247,40 +242,35 @@
                     </el-row>
                     <el-row>
                         <el-col :span="10">
-                            <el-form-item label="品牌类别:"> 
-                                <el-input auto-complete="off" v-model="currentGood.goodsBrand" disabled></el-input>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="10" :offset="1">
                             <el-form-item label="生产日期:"> 
                                 <el-input auto-complete="off" v-model="currentGood.stockGoodsProductionDate" disabled></el-input>
                             </el-form-item>
                         </el-col>
-                    </el-row>
-                    <el-row>
-                        <el-col :span="7">
+                        <el-col :span="10" :offset="1">
                             <el-form-item label="实时库存:"> 
                                 <el-input auto-complete="off" v-model="currentGood.stockInventory" disabled></el-input>
                             </el-form-item>
                         </el-col>
-                        <el-col :span="7">
+                    </el-row>
+                    <el-row>
+                        <el-col :span="10">
                             <el-form-item label="保质期/天:"> 
                                 <el-input auto-complete="off" v-model="currentGood.stockGoodsShelfLife" disabled></el-input>
                             </el-form-item>
                         </el-col>
-                        <el-col :span="7">
-                            <el-form-item label="售价/元:"> 
-                                <el-input auto-complete="off" v-model.number="currentGood.stockGoodsPrice"></el-input>
+                        <el-col :span="10" :offset="1">
+                            <el-form-item label="售价/元:" prop="stockGoodsPrice"> 
+                                <el-input type="number" auto-complete="off" v-model.number="currentGood.stockGoodsPrice"></el-input>
                             </el-form-item>
                         </el-col>
                     </el-row>
                     <el-row>
-                        <el-col :span="7">
+                        <el-col :span="10">
                             <el-form-item label="规格:"> 
                                 <el-input auto-complete="off" v-model="currentGood.goodsSpecifications" disabled></el-input>
                             </el-form-item>
                         </el-col>
-                        <el-col :span="7">
+                        <el-col :span="10" :offset="1">
                             <el-form-item label="单位:"> 
                                 <template>
                                     <el-select v-model="currentGood.stockUnitId" disabled>
@@ -298,28 +288,28 @@
             </el-dialog>
             <!-- 补充新商品 -->
             <el-dialog title="新货补充" :visible.sync="addNewGoodDialog" width="600px">
-                <el-form label-width="100px" >
+                <el-form label-width="100px" ref="newGoodRef">
                     <el-row>
                         <el-col :span="11">
-                            <el-form-item label="商品编号:">
-                                <el-input v-model="currentGood.goodsId" auto-complete="off"></el-input>
+                            <el-form-item label="商品编号:" prop="goodsId">
+                                <el-input v-model.number="currentGood.goodsId" auto-complete="off"></el-input>
                             </el-form-item>
                         </el-col>
                         <el-col :span="11" :offset="1">
-                            <el-form-item label="商品名称:">
+                            <el-form-item label="商品名称:" prop="goodsName">
                                  <el-input v-model="currentGood.goodsName" auto-complete="off"></el-input>
                             </el-form-item>
                         </el-col>
                     </el-row>
                     <el-row>
                         <el-col :span="11">
-                            <el-form-item label="品牌名称:">
+                            <el-form-item label="品牌名称:" prop="goodsBrand">
                                 <el-input v-model="currentGood.goodsBrand" auto-complete="off"></el-input>
                             </el-form-item>
                         </el-col>
                         <el-col :span="11" :offset="1">
                             <el-form-item label="商品类别:">
-                                <template slot-scope="scope">
+                                <template>
                                      <el-select v-model="currentGood.goodsCategoryId">
                                         <el-option v-for="item in categoryList" :key="item.categoryId" :label="item.categoryName" :value="item.categoryId" ></el-option>
                                     </el-select>
@@ -330,7 +320,7 @@
                     <el-row>
                         <el-col :span="11">
                             <el-form-item label="单位:">
-                                <template slot-scope="scope">
+                                <template>
                                      <el-select v-model="currentGood.goodsUnit">
                                         <el-option v-for="item in unitList" :key="item.unitId" :label="item.unitName" :value="item.unitId" ></el-option>
                                     </el-select>
@@ -346,7 +336,7 @@
                     <el-row>
                         <el-col :span="11">
                             <el-form-item label="订货量:">
-                                <el-input v-model="currentGood.stockOrderNum" auto-complete="off"></el-input>
+                                <el-input v-model="currentGood.stockOrderNum" auto-complete="off" :min="0"></el-input>
                             </el-form-item>
                         </el-col>
                         <el-col :span="11" :offset="1">
@@ -363,7 +353,7 @@
             </el-dialog>
             <!-- 补充旧商品 -->
             <el-dialog title="旧货补充" :visible.sync="addOldGoodDialog" width="600px">
-                <el-form label-width="80px" >
+                <el-form label-width="80px">
                     <el-row>
                         <el-col :span="11">
                             <el-form-item label="商品编号:">
@@ -384,7 +374,7 @@
                         </el-col>
                         <el-col :span="11" :offset="1">
                             <el-form-item label="商品类别:">
-                                <template slot-scope="scope">
+                                <template>
                                      <el-select v-model="currentGood.goodsCategoryId" disabled>
                                         <el-option v-for="item in categoryList" :key="item.categoryId" :label="item.categoryName" :value="item.categoryId" ></el-option>
                                     </el-select>
@@ -395,7 +385,7 @@
                     <el-row>
                         <el-col :span="11">
                             <el-form-item label="单位:">
-                                <template slot-scope="scope">
+                                <template>
                                      <el-select v-model="currentGood.goodsUnit">
                                         <el-option v-for="item in unitList" :key="item.unitId" :label="item.unitName" :value="item.unitId"></el-option>
                                     </el-select>
@@ -415,8 +405,8 @@
                             </el-form-item>
                         </el-col>
                         <el-col :span="11" :offset="1">
-                            <el-form-item label="订货量">
-                                <el-input v-model.number="currentGood.stockOrderNum" auto-complete="off"></el-input>
+                            <el-form-item label="订货量" required>
+                                <el-input type="number" v-model.number="currentGood.stockOrderNum" auto-complete="off"></el-input>
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -495,11 +485,15 @@
                 // 模糊查询的列表(查库存)
                 goodsStockNumList:[],
                 // 是否进行模糊查询
-                isLazzy:false
+                isLazzy:false,
+                // 存储第一层列表信息，便于第二层刷新
+                tempGood:'',
+                flag : 0
             }
         },
         mounted(){
-            this.getPartGood()
+            this.getPartGood(),
+            this.selected.selectedCategoryId = 1000
         },
         methods:{
             //初始获取部分商品
@@ -628,6 +622,8 @@
             addNewGoodInfo() {
                 //将当前的商品信息置空，因多处用到，防止数据错乱
                 this.currentGood = []
+                this.currentGood.goodsUnit = 1
+                this.currentGood.goodsCategoryId = 1
                 let data = {}
                 this.$axios.post('/showinventory/newgoods', this.$qs.stringify(data),{
                     headers:{
@@ -668,8 +664,28 @@
             },
             //新货补充
             addNewGood() {
-                var fd = new FormData();
-                var blob = this.dataURItoBlob(this.currentGood.goodsPicture);
+                let flag = this.onNumChange('商品编号',this.currentGood.goodsId)
+                if (flag == -1) {
+                    return
+                }
+                flag = this.onNumChange('商品名称',this.currentGood.goodsName)
+                if (flag == -1) {
+                    return
+                }
+                flag = this.onNumChange('品牌名称',this.currentGood.goodsBrand)
+                if (flag == -1) {
+                    return
+                }
+                flag = this.onNumChange('规格',this.currentGood.goodsSpecifications)
+                if (flag == -1) {
+                    return
+                }
+                flag = this.onNumChange('订货量',this.currentGood.stockOrderNum)
+                if (flag == -1) {
+                    return
+                }
+                // var fd = new FormData();
+                // var blob = this.dataURItoBlob(this.currentGood.goodsPicture);
                 
                 let goods = {
                     goodsId: this.currentGood.goodsId,
@@ -677,7 +693,8 @@
                     goodsCategoryId:this.currentGood.goodsCategoryId,
                     goodsBrand:this.currentGood.goodsBrand,
                     goodsSpecifications:this.currentGood.goodsSpecifications,
-                    goodsPicture:blob
+                    // goodsPicture:blob
+                    goodsPicture:""
                 }
                 let coupon = {
                     couponGoodsId:this.currentGood.goodsId,
@@ -693,14 +710,14 @@
                 let config = {
                     headers: {
                         staffToken: window.sessionStorage.getItem('staffToken')
-                    },
+                    }
                 }
                 
-                fd.append('goods',JSON.stringify(goods))
-                fd.append('coupon',JSON.stringify(coupon))
-                fd.append('staffId',window.sessionStorage.getItem('staffId'))
-                console.log(fd.get('goods'))
-                this.$axios.post('/showinventory/newgoodscommit',fd,config)
+                // fd.append('goods',JSON.stringify(goods))
+                // fd.append('coupon',JSON.stringify(coupon))
+                // fd.append('staffId',window.sessionStorage.getItem('staffId'))
+                // console.log(fd.get('goods'))
+                this.$axios.post('/showinventory/newgoodscommit',this.$qs.stringify(data),config)
                 .then((res) => {
                     if (res.data.success) {
                         this.$message.success('添加成功')
@@ -716,6 +733,7 @@
             },
             //获取指定商品的商品库存表
             getAllGoodInfo(good) {
+                this.tempGood = good
                 this.isFirst = false
                 this.isSecond = true
                 let data = {
@@ -807,6 +825,10 @@
             },
             //确认修改商品信息弹窗
             confirmDialog() {
+                this.flag = this.onNumChange('售价', this.currentGood.stockGoodsPrice)
+                if (this.flag == -1) {
+                    return 
+                }
                 this.editGoodDialog = false
                 let stock = {
                     stockGoodsId:this.currentGood.stockGoodsId,
@@ -815,7 +837,7 @@
                     stockUnitId:this.currentGood.stockUnitId,
                     stockGoodsBatchNumber:this.currentGood.stockGoodsBatchNumber,
                     stockGoodsProductionDate:this.tempTime,
-                    stocGoodsShelfLife:this.currentGood.stockGoodsShelfLife,
+                    stockGoodsShelfLife:this.currentGood.stockGoodsShelfLife,
                     stockGoodsPrice:this.currentGood.stockGoodsPrice,
                     stockInventory:this.currentGood.stockInventory,
                     stockExportBillId:this.currentGood.stockExportBillId
@@ -832,13 +854,14 @@
                 .then((res) => {
                     if(res.data.success) {
                         this.$message.success('修改成功')
-                        this.getPartGood()
+                        this.getAllGoodInfo(this.tempGood)
+                        this.flag = 0
                     } else {
                         this.$message.error(res.data.errMsg)
                     }
                 })
                 .catch((err) => {
-                    this.$message.error(err.message)
+                        this.$message.error(err.message)
                 })
             },
             //旧货补充窗口
@@ -855,6 +878,7 @@
                 .then((res) => {
                     if (res.data.success) {
                         this.unitList = res.data.unitList
+                        this.currentGood.goodsUnit = 1
                     } else {
                         this.$message.error(res.data.errMsg)
                     }
@@ -867,33 +891,39 @@
             },
             //提交旧货补充
             addOldGood() {
-                let coupon = {
-                    couponGoodsId:this.currentGood.goodsId,
-                    couponUnitId:this.currentGood.goodsUnit,
-                    couponNum:this.currentGood.stockOrderNum,
-                    couponStaffId: window.sessionStorage.getItem('staffId')
-                }
-                let data = {
-                    staffId: window.sessionStorage.getItem('staffId'),
-                    coupon: JSON.stringify(coupon)
-                }
-                this.$axios.post('/replenishmentapplication/replenishmentcommit', this.$qs.stringify(data), {
-                    headers:{
-                        staffToken: window.sessionStorage.getItem('staffToken')
+                this.flag = this.onNumChange('订货量', this.currentGood.stockOrderNum)
+                if (this.flag == -1) {
+                    return 
+                } else if (this.flag == 0) {
+                    let coupon = {
+                        couponGoodsId:this.currentGood.goodsId,
+                        couponUnitId:this.currentGood.goodsUnit,
+                        couponNum:this.currentGood.stockOrderNum,
+                        couponStaffId: window.sessionStorage.getItem('staffId')
                     }
-                })
-                .then((res) => {
-                    if (res.data.success) {
-                        this.$message.success('补充申请提交成功')
-                        this.getPartGood()
-                    } else {
-                        this.$message.error(res.data.errMsg)
+                    let data = {
+                        staffId: window.sessionStorage.getItem('staffId'),
+                        coupon: JSON.stringify(coupon)
                     }
-                })
-                .catch((err) => {
+                    this.$axios.post('/replenishmentapplication/replenishmentcommit', this.$qs.stringify(data), {
+                        headers:{
+                            staffToken: window.sessionStorage.getItem('staffToken')
+                        }
+                    })
+                    .then((res) => {
+                        if (res.data.success) {
+                            this.$message.success('补货申请提交成功')
+                            this.getPartGood()
+                            this.flag = 0
+                        } else {
+                            this.$message.error(res.data.errMsg)
+                        }
+                    })
+                    .catch((err) => {
                     this.$message.error(err.message)
-                })
-                this.addOldGoodDialog = false
+                    })
+                    this.addOldGoodDialog = false
+                }
             },
             //获取指定页面的信息
             currentChange(currentPage){
@@ -903,7 +933,28 @@
                 } else {
                     this.getPartGood()
                 }
-            }
+            },
+            //判断合法性
+            onNumChange(name, text_number){
+                if (name == '订货量') {
+                    if(text_number == '' || text_number == null){
+                        this.$message.error(name + "不能为空")
+                        return -1
+                    } else if(isNaN(text_number)) {
+                        this.$message.error("请输入数字")
+                        return -1
+                    } else {
+                        return  0
+                    }
+                } else {
+                    if(text_number == '' || text_number == null){
+                        this.$message.error(name + "不能为空")
+                        return -1
+                    } else {
+                        return  0
+                    }
+                }
+            },
         }
     }
 </script>
