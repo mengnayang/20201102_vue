@@ -23,6 +23,7 @@
                 <el-col :span="8">
                     <span>类别编号</span>
                     <el-select v-model="selected.goodsCategoryId"  placeholder="请选择" size="small" clearable>
+                        <el-option :key="1000" :value="1000" label="全部"></el-option>
                         <el-option v-for="item in allData.categoryList" :label="item.categoryId" :key="item.categoryId" :value="item.categoryId"></el-option>
                     </el-select>
                 </el-col>
@@ -40,7 +41,9 @@
             <el-table :data="goodList" border stripe>
             <el-table-column type="index"></el-table-column>
             <el-table-column label="商品图片" prop="goodsPicture" width="162px" align="center"></el-table-column>
-            <el-table-column label="商品编号" prop="goodsId" width="140px" align="center"></el-table-column>
+            <el-table-column label="商品编号" prop="goodsId" width="240" align="center"></el-table-column>
+            <el-table-column label="库存编号" prop="stockGoodsId" width="240" align="center"></el-table-column>
+
             <el-table-column label="商品名称" prop="goodsName" width="140px" align="center"></el-table-column>
             <el-table-column label="商品类别" prop="goodsCategoryId" width="80px" align="center"> 
                 <template slot-scope="scope">
@@ -66,7 +69,7 @@
             <el-table-column label="库存量" prop="stockInventory" width="70px" align="center"></el-table-column>
             <el-table-column label="保质期/天" prop="stockGoodsShelfLife" width="85px" align="center"></el-table-column>
             <el-table-column label="售价/元" prop="stockGoodsPrice" width="75px" align="center"></el-table-column>
-            <el-table-column label="生产日期" prop="stockGoodsProductionDate" width="95px" align="center"></el-table-column>
+            <el-table-column label="生产日期" prop="stockGoodsProductionDate" width="120" align="center"></el-table-column>
             <el-table-column label="单位" prop="stockUnitId" width="70px" align="center">
                 <template slot-scope="scope">
                     <span v-if="scope.row.unitId == 1">盒</span>
@@ -88,7 +91,7 @@
             <el-table :data="cardListAll" border stripe>
                 <el-table-column type="index"></el-table-column>
                 <el-table-column label="商品图片" prop="goodsPicture"></el-table-column>
-                <el-table-column label="商品编号" prop="goodsId" width="140px"></el-table-column>
+                <el-table-column label="商品编号" prop="goodsId" width="240"></el-table-column>
                 <el-table-column label="商品名称" prop="goodsName" width="140px"></el-table-column>
                 <el-table-column label="商品类别" prop="goodsCategoryId" width="80px" align="center"> 
                 <template slot-scope="scope">
@@ -119,8 +122,8 @@
                     <el-input type="text" id="sumPrice" width="70px" :disabled="true" v-model.number="newRetailRecord.retailTotalPrice"></el-input>
                 </el-form-item>
                 <el-form-item style="float:right" >
-                    <el-button type="primary" @click="shoppingCartDialog = false">返回</el-button>
-                    <el-button type="primary" @click="confirm()">确认</el-button>
+                        <el-button type="primary" @click="shoppingCartDialog = false" size="mini">返回</el-button>
+                        <el-button type="success" @click="confirm()" size="mini">确认</el-button>
                 </el-form-item>
             </el-form>
         </el-dialog>
@@ -237,6 +240,8 @@ export default {
     },
     created(){
         this.getGoodList()
+        this.selected.goodsCategoryId=1000
+
     },
     methods:{
         //计算总价
@@ -266,7 +271,7 @@ export default {
         addToCart(scope){
             let flag = false
             for(let i = 0;i < this.cardListAll.length;i++){
-                if (scope.row.goodsId == this.cardListAll[i].goodsId) {
+                if (scope.row.stockGoodsId == this.cardListAll[i].stockGoodsId) {
                     this.cardListAll[i].num = scope.row.num
                     flag = true
                 }
@@ -299,7 +304,7 @@ export default {
             for(let i = 0;i < this.cardListAll.length;i++){
                 if(this.cardListAll[i].num > 0){
                     for (let j = 0; j < this.goodList.length; j++) {
-                        if (this.goodList[j].goodsId == this.cardListAll[i].goodsId) {
+                        if (this.goodList[j].stockGoodsId == this.cardListAll[i].stockGoodsId) {
                             this.goodList[j].num = this.cardListAll[i].num
                         }
                     }
@@ -370,11 +375,9 @@ export default {
 
             for(let i = 0;i < this.cardListAll.length ; i++){
                 retailList.push({
-                    retailStockGoodsId:this.cardListAll[i].goodsId,
+                    retailStockGoodsId:this.cardListAll[i].stockGoodsId,
                     retailPrice:this.cardListAll[i].stockGoodsPrice,
                     retailNum:this.cardListAll[i].num})
-                console.log(retailList)
-                console.log(newRetailRecord)
             }
 
             let data = {
@@ -388,24 +391,30 @@ export default {
                 }
             })
             .then((res) => {
-                console.log('11')
-                    // console.log(res)
+                    console.log(res)
                 if (res.data.success) {
                     this.$message.success("下单成功!")
+
                 } else {
                     this.$message.error(res.data.errMsg)
                 }
+                // location.reload()
+                this.shoppingCartDialog = false
+
             })
             .catch((err) => {
-                console.log('222')
                 this.$message.error(err.message)
             })
-            this.shoppingCartDialog = false
         },
         searchGood(){
+            this.queryInfo.total=0
+            this.queryInfo.pageIndex=1
             let data={
                 staffId:window.sessionStorage.staffId,
-                goods:this.selected
+                goods:this.selected,
+                pageIndex: this.queryInfo.pageIndex - 1,
+                pageSize: this.queryInfo.infoCount,
+                secondaryMenuId: this.secondaryMenuId,
             }
             if(data.goods.goodsId==''){
                 data.goods.goodsId=null
@@ -418,6 +427,9 @@ export default {
             }
             if(data.goods.goodsBrand==''){
                 data.goods.goodsBrand=null
+            }
+            if(data.goods.goodsCategoryId==1000){
+                data.goods.goodsCategoryId=null
             }
            data.goods=JSON.stringify(data.goods)
            this.$axios.post('/retailcashier/findByConditions', this.$qs.stringify(data),{

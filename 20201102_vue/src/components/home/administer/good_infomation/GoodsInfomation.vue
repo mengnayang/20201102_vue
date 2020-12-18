@@ -9,7 +9,11 @@
         <!-- 卡片区域 -->
         <el-card>
             <el-table :data="goodsList" border>
-                <el-table-column label="商品图片" prop="goodsPicture" align="center"></el-table-column>
+                <el-table-column label="商品图片" align="center">
+                    <template slot-scope="scope">
+                        <img :src="'http://localhost:8080' + scope.row.goodsPicture" alt="图片" class="all_img">  
+                    </template>
+                </el-table-column>
                 <el-table-column label="商品编号" prop="goodsId" width="150px" align="center"></el-table-column>
                 <el-table-column label="商品名称" prop="goodsName" width="150px" align="center"></el-table-column>
                 <el-table-column label="商品类别" prop="goodsCategoryId" align="center"></el-table-column>
@@ -138,7 +142,7 @@
                 queryInfo:{
                     pageIndex:1,
                     total:0,
-                    infoCount:4
+                    infoCount:5
                 },
                 //二级菜单列表
                 secondaryMenuList:[],
@@ -336,5 +340,8 @@
 .el-pagination{
     width: 50%;
     margin: 10px auto;
+}
+.all_img{
+    width: 100px;
 }
 </style>

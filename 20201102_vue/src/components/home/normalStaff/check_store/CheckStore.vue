@@ -28,25 +28,21 @@
                     </el-select>
                 </el-col> -->
                 <el-col :span="8">
-                    <span>类别编号</span>
+                    <span>类别名称</span>
                     <el-select v-model="selected.goodsCategoryId"  placeholder="请选择" size="small" clearable>
-                        <el-option v-for="item in dataList.stockingGoodsList" :label="item.goodsCategoryId" :key="item.goodsCategoryId" :value="item.goodsCategoryId"></el-option>
+                        <el-option :key="1000" :value="1000" label="全部"></el-option>
+                        <el-option v-for="item in category" :label="item.categoryName" :key="item.categoryId" :value="item.categoryId"></el-option>
+
                     </el-select>
                 </el-col>
             </el-row>
             <el-row :gutter="10">
-                <!-- <el-col :span="8">
-                    <span>品牌类别</span>
-                    <el-select v-model="selected.selectedBrandName" filterable placeholder="请选择" size="small">
-                        <el-option v-for="item in dataList.stockingGoodsList" :label="item.goodsBrand" :key="item.stockGoodsId" :value="item.goodsBrand"></el-option>
-                    </el-select>
-                </el-col> -->
                 <!-- 盘点状态 -->
                 <el-col :span="8">
                     <span>盘点状态</span>
                     <el-select v-model="status" filterable placeholder="请选择" size="small" clearable>
                         <!-- 暂时这样写 -->
-                        <el-option v-for="item in ['待盘点','已盘点','已提交更新','取消盘点']"  :key="item" :value="item"></el-option>
+                        <el-option v-for="item in ['全部','待盘点','已盘点','已提交更新','取消盘点']"  :key="item" :value="item"></el-option>
                     </el-select>
                 </el-col>
                 <el-col :span="4">
@@ -55,13 +51,13 @@
             </el-row>
             <!-- 列表区域 -->
             <el-table :data="dataList.stockingGoodsList" border>
-                <el-table-column label="商品图片" fixed width="100" align="center">
+                <el-table-column label="商品图片" fixed width="120" align="center">
                     <template slot-scope="scope">
-                        <img :src="scope.row.goodsPicture" width="30px" height="20px" alt="图片">
+                        <img :src="'http://localhost:8080' + scope.row.goodsPicture" alt="图片" class="all_img"> 
                     </template>
                 </el-table-column>
-                <el-table-column label="商品编号" prop="stockGoodsId" fixed width="120" align="center"></el-table-column>
-                <el-table-column label="产品批号" prop="stockGoodsBatchNumber" fixed width="120" align="center"></el-table-column>
+                <el-table-column label="商品编号" prop="stockGoodsId" fixed width="240" align="center"></el-table-column>
+                <el-table-column label="产品批号" prop="stockGoodsBatchNumber" fixed width="240" align="center"></el-table-column>
                 <el-table-column label="商品名称" prop="goodsName" fixed width="140" align="center"></el-table-column>
                 <el-table-column label="商品类别" prop="goodsCategoryId" width="140" align="center">
                     <template slot-scope="scope">
@@ -74,7 +70,7 @@
                 </el-table-column>
                 <el-table-column label="品牌类别" prop="goodsBrand" width="120" align="center"></el-table-column>
                 <!-- 库存量显示问题待解决 -->
-                <el-table-column label="库存量" prop="stockNum" width="80" align="center"></el-table-column>
+                <el-table-column label="库存量" prop="stockInventory" width="80" align="center"></el-table-column>
                 <el-table-column label="盘点量" prop="stocktakingNum"  width="80" align="center" ></el-table-column>
                 <!-- 根据true或者false选择 -->
                 <el-table-column label="盘点状态"  prop="stocktakingStatus"  :formatter="stateFormat" width="100" align="center"></el-table-column>
@@ -95,9 +91,9 @@
                     <el-row>
                         <el-col :span="8">
                             <el-form-item label="货品图片"> 
-                                eslint-disable-next-line
+                                <!-- eslint-disable-next-line -->
                                 <template slot-scope="scope">
-                                    <img :src="currentStoreList.goods.goodsPicture" alt="图片">
+                                    <img :src="'http://localhost:8080' + currentStoreList.goods.goodsPicture" alt="图片" class="all_img"> 
                                 </template>
                             </el-form-item>
                         </el-col>
@@ -178,9 +174,9 @@
                 </el-form>
                 <span slot="footer" class="dislog-footer">
                     <!-- <template slot-scope="scope"> -->
-                        <el-button type="primary" icon="el-icon-delete" @click="checkStoreDialog=false" >取 消</el-button>
+                        <el-button type="primary" size="mini"  @click="checkStoreDialog=false" >取 消</el-button>
                         <el-button-group v-for="func in functionList_two" :key="func.functionId">
-                                <el-button :type="func.btnType"  :icon="func.btnIcon" @click="submitStore()">提 交</el-button>
+                                <el-button :type="func.btnType" size="mini"  @click="submitStore()">提 交</el-button>
                         </el-button-group>
                     <!-- </template> -->
                     <!-- <el-button type="button" @click="shutDialog()">取消</el-button>
@@ -267,6 +263,8 @@
                       unitName:''
                   }
                 },
+                //类别
+                category:'',
                 // currentStoreList:[],
                 //分页信息
                 queryInfo:{
@@ -277,7 +275,9 @@
             }
         },
         created(){
-            this.getStoreList()
+            this.getStoreList(),
+            this.selected.goodsCategoryId=1000,
+            this.status='全部'
         },
         methods:{
              //初始获取部分用户信息
@@ -304,11 +304,13 @@
                     }
                 })
                 .then((res) => {
+                    console.log(res.data)
                     if (res.data.functionList != undefined) {
                         this.functionList = res.data.functionList
                     }
                     this.queryInfo.total = res.data.recordSum
                     this.dataList=res.data
+                    this.category=res.data.categoryList
                     //渲染功能按钮
                     if(!this.isDraw) {
                         for (var i = 0; i < this.functionList.length; i++) {
@@ -377,14 +379,18 @@
                 }else{
                     data.stockingGoods.stocktakingStatus=null
                 }
+                if(data.stockingGoods.goodsCategoryId==1000){
+                    data.stockingGoods.goodsCategoryId=null
+                }
+                console.log(data)
                 //判断是否为空字符串
                 if(data.stockingGoods.stockGoodsId==''){
                     data.stockingGoods.stockGoodsId=null
                 }
                 if(data.stockingGoods.goodsName==''||data.stockingGoods.goodsName==null){
                     data.stockingGoods.goodsName=null
-                    this.$message.info('请填写商品名称')
-                    return
+                    // this.$message.info('请填写商品名称')
+                    // return
 
                 }
                 if(data.stockingGoods.categoryName==''){
@@ -488,10 +494,12 @@
                     if (res.data.success) {
                         this.checkStoreDialog=false
                         this.$message.success('盘点成功')
+                        location.reload()
                     }else{
-                        this.checkStoreDialog=false
                         this.$message.error('提交失败')
                     }   
+
+
                 })
                 .catch((err) => {
                     this.checkStoreDialog=false
@@ -568,5 +576,8 @@
 }
 .input{
     width: 203px;
+}
+.all_img{
+    width: 100px;
 }
 </style>

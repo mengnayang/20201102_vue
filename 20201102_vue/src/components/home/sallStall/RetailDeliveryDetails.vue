@@ -76,7 +76,7 @@
             <div style="float:right">
                 <el-tooltip effect="light" placement="top" content="提交退货">
                         <!-- 根据状态判断是否按钮可用 -->
-                        <el-button :disabled='flag' type="success" icon="el-icon-check" @click="dialogVisible=true" ></el-button>
+                        <el-button :disabled='flag' type="success" icon="el-icon-check" @click="dialogVisible=true" size="mini"></el-button>
                         <!-- <el-button  type="success" icon="el-icon-check" @click="dialogVisible=true" ></el-button> -->
 
                 </el-tooltip>
@@ -90,8 +90,8 @@
             width="30%">
             <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" placeholder="请输入内容" v-model="refundCustomerRecord.refundCustomerReason" clearable></el-input>
             <span slot="footer" class="dialog-footer">
-                <el-button @click="dialogVisible = false">取 消</el-button>
-                <el-button type="primary" @click="commitReturn">提 交</el-button>
+                <el-button @click="dialogVisible = false" size="mini">取 消</el-button>
+                <el-button type="primary" @click="commitReturn" size="mini">提 交</el-button>
             </span>
         </el-dialog>
     </div>
@@ -339,7 +339,8 @@
                     }else{
                         this.$message.info('提交失败')
                     }   
-                    
+                    location.reload()
+                    this.$router.go(-1)
                 })
                 .catch((err) => {
                     this.$message.error(err.message)

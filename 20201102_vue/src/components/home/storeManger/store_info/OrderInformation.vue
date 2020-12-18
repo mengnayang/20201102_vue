@@ -68,79 +68,79 @@
         layout="total, sizes, prev, pager, next, jumper">
         </el-pagination>
         <!-- 查看订单详情 -->
-        <el-dialog title="订单信息" :visible.sync="lookDialog" width="500px">
+        <el-dialog title="订单信息" :visible.sync="lookDialog" width="800px">
             <el-form>
                 <el-row>
-                    <el-col :span="11">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="订单编号:">
                             <span>{{currentOrder.coupon.couponId}}</span>
                         </el-form-item>
                     </el-col>
-                    <el-col :span="11" :offset="1">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="订货时间:">
                             <span>{{currentOrder.coupon.couponTime}}</span>
                         </el-form-item>
                     </el-col>
-                </el-row>
-                <el-row>
-                    <el-col :span="11">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="订货数量:">
                             <span>{{currentOrder.coupon.couponNum}}</span>
                         </el-form-item>
                     </el-col>
-                    <el-col :span="11" :offset="1">
+                </el-row>
+                <el-row>
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="订货状态:">
-                            <span>{{currentOrder.coupon.couponStatus}}</span>
+                            <span v-if="currentOrder.coupon.couponStatus == -1">订货失败</span>
+                            <span v-else-if="currentOrder.coupon.couponStatus == 1">订货成功</span>
+                            <span v-else-if="currentOrder.coupon.couponStatus == 0">订货中</span>
                         </el-form-item>
                     </el-col>
                 </el-row>
                 <el-row>
-                    <el-col :span="11">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="操作职工:">
                             <span>{{currentOrder.staff.staffName}}</span>
                         </el-form-item>
                     </el-col>
-                </el-row>
-                <el-row>
-                    <el-col :span="11">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="商品编号:">
                             <span>{{currentOrder.goods.goodsId}}</span>
                         </el-form-item>
                     </el-col>
-                    <el-col :span="11" :offset="1">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="商品名称:">
                             <span>{{currentOrder.goods.goodsName}}</span>
                         </el-form-item>
                     </el-col>
                 </el-row>
                 <el-row>
-                    <el-col :span="11">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="商品类别:">
                             <span>{{currentOrder.category.categoryName}}</span>
                         </el-form-item>
                     </el-col>
-                    <el-col :span="11" :offset="1">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="品牌名称:">
                             <span>{{currentOrder.goods.goodsBrand}}</span>
                         </el-form-item>
                     </el-col>
-                </el-row>
-                <el-row>
-                    <el-col :span="11">
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="产品规格:">
                             <span>{{currentOrder.goods.goodsSpecifications}}</span>
                         </el-form-item>
                     </el-col>
-                    <el-col :span="11" :offset="1">
+                </el-row>
+                <el-row>
+                    <el-col :span="6" :offset="2">
                         <el-form-item label="单位:">
                             <span>{{currentOrder.unit.unitName}}</span>
                         </el-form-item>
                     </el-col>
-                </el-row>
-                <el-row>
-                    <el-col :span="12">
+                    <el-col :span="12" :offset="2">
                         <el-form-item label="商品图片:">
-                            <img :src="currentOrder.goods.goodsPicture" alt="图片">
+                            <template>
+                                <img :src="'http://localhost:8080' + currentOrder.goods.goodsPicture" alt="图片" class="all_img">  
+                            </template>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -161,7 +161,7 @@
                 queryInfo:{
                     total:0,
                     pageIndex:1,
-                    infoCount:3
+                    infoCount:5
                 },
                 //二级菜单
                 secondaryMenuList:[],
@@ -366,7 +366,10 @@
     color: #000000;
 }
 .el-pagination{
-    width: 50%;
+    width: 70%;
     margin: 10px auto;
+}
+.all_img{
+    width: 100px;
 }
 </style>

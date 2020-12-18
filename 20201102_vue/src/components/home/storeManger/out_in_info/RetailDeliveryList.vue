@@ -9,7 +9,7 @@
         <!-- 卡片区域 -->
         <el-card>
             <!-- 功能区域 -->
-            <el-row>
+            <el-row v-show="isFirst">
                 <el-col :span="2">
                     <span>订单编号</span>
                 </el-col>
@@ -35,8 +35,10 @@
                 </el-col>
             </el-row>
             <el-row>
-                <el-col :span="8">
+                <el-col :span="2" v-show="isFirst">
                     <el-button type="primary" size="mini" @click="searchRetail()">查询</el-button>
+                </el-col>
+                <el-col :span="2">
                     <el-button type="primary" :disabled="isFirst" size="mini" @click="changeLayer()">返回上一级</el-button>
                 </el-col>
             </el-row>
@@ -70,11 +72,11 @@
                 </el-table-column>
             </el-table>
             <!-- 二级 -->
-            <el-table :data="retailGoodsList" border stripe v-show="isSecond">
+            <el-table :data="retailList" border stripe v-show="isSecond">
                 <el-table-column label="订单编号" prop="retailId" width="200" align="center"></el-table-column>
-                <el-table-column label="收款员工" prop="retailCollectionStaffId"  width="200" align="center"></el-table-column>
-                <el-table-column label="商品总价格" prop="retailTotalPrice"  width="180" align="center"></el-table-column>
-                <el-table-column label="付款时间" prop="retailTime" width="180" align="center"></el-table-column>
+                <el-table-column label="商品编号" prop="retailStockGoodsId" width="200" align="center"></el-table-column>
+                <el-table-column label="订单数量" prop="retailNum"  width="200" align="center"></el-table-column>
+                <el-table-column label="订单价格" prop="retailPrice"  width="180" align="center"></el-table-column>
                 <el-table-column label="操作" fixed="right" width="150" align="center">
                     <template slot-scope="scope">
                         <el-button-group v-for="func in functionList_two" :key="func.functionId">
@@ -86,12 +88,133 @@
                 </el-table-column>
             </el-table>
         </el-card>
-        <el-pagination
-        :current-page="queryInfo.pageIndex" :page-sizes="[queryInfo.infoCount]" 
-        :page-size="queryInfo.infoCount" :total="queryInfo.total"
-        @current-change="currentChange"
+        <el-pagination v-show="isFirst"
+        :current-page="queryInfo1.pageIndex" :page-sizes="[queryInfo1.infoCount]" 
+        :page-size="queryInfo1.infoCount" :total="queryInfo1.total"
+        @current-change="currentChange1"
         layout="total, sizes, prev, pager, next, jumper">
         </el-pagination>
+        <el-pagination v-show="isSecond"
+        :current-page="queryInfo2.pageIndex" :page-sizes="[queryInfo2.infoCount]" 
+        :page-size="queryInfo2.infoCount" :total="queryInfo2.total"
+        @current-change="currentChange2"
+        layout="total, sizes, prev, pager, next, jumper">
+        </el-pagination>
+        <!-- 查看商品零售信息弹框 -->
+        <el-dialog title="零售商品信息" :visible.sync="lookGoodDialog" width="800px">
+            <el-form>
+                <el-row>
+                    <el-col :span="11" :offset="11" class="title">
+                        零售出库信息
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="7" :offset="1">
+                        <el-form-item label="仓库编号：">
+                            {{currentRetail.stock.stockId}}
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="7" :offset="1">
+                        <el-form-item label="入库编号：">
+                            {{currentRetail.stock.stockExportBillId}}
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="7" :offset="1">
+                        <el-form-item label="产品批号：">
+                            {{currentRetail.stock.stockGoodsBatchNumber }}
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="11" :offset="11" class="title">
+                        订单信息信息
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="7" :offset="1">
+                        <el-form-item label="订单编号：">
+                            {{currentRetail.retail.retailId}}
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="7" :offset="1">
+                        <el-form-item label="单价：">
+                            {{currentRetail.retail.retailPrice}}
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="7" :offset="1">
+                        <el-form-item label="订单数量：">
+                            {{currentRetail.retail.retailNum}}
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="7" :offset="1">
+                        <el-form-item label="商品总价格：">
+                            {{currentRetail.retailRecord.retailTotalPrice}}
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="7" :offset="1">
+                        <el-form-item label="操作职工：">
+                            {{currentRetail.retailRecord.retailCollectionStaffId}}
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="7" :offset="1">
+                        <el-form-item label="付款时间：">
+                            {{currentRetail.retailRecord.retailTime}}
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="11" :offset="11" class="title">
+                        商品信息
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :offset="1">
+                        <el-form-item label="商品图片：">
+                            <img :src="'http://localhost:8080' + currentRetail.goods.goodsPicture" alt="图片" class="all_img">  
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="7" :offset="1">
+                        <el-form-item label="商品编号：">
+                            {{currentRetail.goods.goodsId}}
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="7" :offset="1">
+                        <el-form-item label="商品名称：">
+                            {{currentRetail.goods.goodsName}}
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="7" :offset="1">
+                        <el-form-item label="品牌名称：">
+                            {{currentRetail.goods.goodsBrand}}
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="7" :offset="1">
+                        <el-form-item label="商品类别：">
+                            {{currentRetail.category.categoryName}}
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="7" :offset="1">
+                        <el-form-item label="产品规格：">
+                            {{currentRetail.goods.goodsSpecifications}}
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="7" :offset="1">
+                        <el-form-item label="品牌名称：">
+                            {{currentRetail.goods.goodsBrand}}
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button type="primary" @click="lookGoodDialog = false">取消</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 
@@ -101,10 +224,17 @@
         data() {
             return {
                 //查询零售单的先决条件
-                queryInfo:{
+                // 一层
+                queryInfo1:{
                     total:0,
                     pageIndex:1,
-                    infoCount:4
+                    infoCount:5
+                },
+                // 二层
+                queryInfo2:{
+                    total:0,
+                    pageIndex:1,
+                    infoCount:5
                 },
                 //二级菜单
                 secondaryMenuList:[],
@@ -149,7 +279,12 @@
                 // 是否模糊查询
                 isLazzy:false,
                 // 模糊查询列表
-                retailRecordList_lazzy:[]
+                retailRecordList_lazzy:[],
+                // 二层存储
+                retailList:[],
+                // 存储第一层的信息
+                currentRowInfo:'',
+                lookGoodDialog:false
             }
         },
         created() {
@@ -170,8 +305,8 @@
                     }
                 }
                 let data = {
-                    pageIndex: this.queryInfo.pageIndex-1,
-                    pageSize: this.queryInfo.infoCount,
+                    pageIndex: this.queryInfo1.pageIndex-1,
+                    pageSize: this.queryInfo1.infoCount,
                     secondaryMenuId: this.secondaryMenuId,
                     staffId:window.sessionStorage.getItem('staffId')
                 }
@@ -183,7 +318,7 @@
                 .then((res) => {
                     if (res.data.success) {
                         this.functionList = res.data.functionList
-                        this.queryInfo.total = res.data.recordSum
+                        this.queryInfo1.total = res.data.recordSum
                         this.retailRecordList = res.data.retailRecordList
                         this.staffList = res.data.staffList
                         this.drawBtn()
@@ -220,8 +355,8 @@
                 }
                 let data = {
                     staffId : window.sessionStorage.getItem('staffId'),
-                    pageIndex:this.queryInfo.pageIndex-1,
-                    pageSize:this.queryInfo.infoCount,
+                    pageIndex:this.queryInfo1.pageIndex-1,
+                    pageSize:this.queryInfo1.infoCount,
                     retailRecord:JSON.stringify(retailRecord)
                 }
                 this.$axios.post('/retaildeliverylist/findByConditions', this.$qs.stringify(data),{
@@ -232,7 +367,7 @@
                 .then((res) => {
                     if (res.data.success) {
                         this.retailRecordList_lazzy = res.data.retailRecordList
-                        this.queryInfo.total = res.data.recordSum
+                        this.queryInfo1.total = res.data.recordSum
 
                         this.retailRecordList_lazzy.map((item) =>{
                             let date = new Date(item.retailTime)
@@ -248,13 +383,20 @@
                 })
             },
             //根据指定页码获取相应的库存信息
-            currentChange(currentPage) {
-                this.queryInfo.pageIndex = currentPage
+            // 一层
+            currentChange1(currentPage) {
+                this.queryInfo1.pageIndex = currentPage
                 if (this.isLazzy) {
                     this.searchRetail()
                 } else {
                     this.getRetailList()
                 }
+            },
+            //根据指定页码获取相应的库存信息
+            //二层
+            currentChange2(currentPage) {
+                this.queryInfo2.pageIndex = currentPage
+                this.lookAllInfo(this.currentRowInfo)
             },
             drawBtn() {
                 //渲染功能按钮
@@ -276,18 +418,20 @@
             //转换层级
             changeLayer() {
                 this.isFirst = true,
-                this.isSecond = false
+                this.isSecond = false,
+                this.getRetailList()
             },
             //获取按钮功能
             getButtonStatus(rowInfo,functionWeight) {
                 if (functionWeight == 1) {
                     this.lookAllInfo(rowInfo)
-                } else if (functionWeight == 3) {
+                } else if (functionWeight == 2) {
                     this.lookDialogInfo(rowInfo)
-                } 
+                }
             },
             //查看所有商品
             lookAllInfo(rowInfo) {
+                this.currentRowInfo = rowInfo
                 let data = {
                     retailId:rowInfo.retailId
                 }
@@ -300,7 +444,8 @@
                     if (res.data.success) {
                         this.isFirst = false
                         this.isSecond = true
-                        this.retailGoodsList = res.data.retailGoodsList
+                        this.retailList = res.data.retailList
+                        // this.queryInfo2.total = res.data.recordSum
                     } else {
                         this.$message.error(res.data.errMsg)
                     }
@@ -311,6 +456,7 @@
             },
             //查看商品详情
             lookDialogInfo(rowInfo) {
+                this.lookGoodDialog = true
                 let data = {
                     retailId:rowInfo.retailId,
                     retailStockGoodsId:rowInfo.retailStockGoodsId,
@@ -322,7 +468,6 @@
                 })
                 .then((res) => {
                     if (res.data.success) {
-                        console.log(res.data)
                         if (res.data.success) {
                             this.currentRetail.retail = res.data.retail,
                             this.currentRetail.retailRecord = res.data.retailRecord
@@ -356,6 +501,15 @@
             margin-bottom: 0;
         }
     }
+}
+.title{
+    font-size: 20px;
+    font-weight: 700;
+    color: #000000;
+    margin-bottom: 10px;
+}
+.all_img{
+    width: 100px;
 }
 .el-pagination{
     width: 50%;

@@ -23,6 +23,7 @@
                 <el-col :span="8">
                     <span>类别编号</span>
                     <el-select v-model="selected.goodsCategoryId"  placeholder="请选择" size="small" clearable>
+                        <el-option :key="1000" :value="1000" label="全部"></el-option>
                         <el-option v-for="item in allData.categoryList" :label="item.categoryId" :key="item.categoryId" :value="item.categoryId"></el-option>
                     </el-select>
                 </el-col>
@@ -40,7 +41,8 @@
             <el-table :data="goodList" border stripe>
             <el-table-column type="index"></el-table-column>
             <el-table-column label="商品图片" prop="goodsPicture" width="162px" align="center"></el-table-column>
-            <el-table-column label="商品编号" prop="stockGoodsId" width="140px" align="center"></el-table-column>
+            <el-table-column label="商品编号" prop="goodsId" width="240" align="center"></el-table-column>
+            <el-table-column label="库存编号" prop="stockGoodsId" width="240" align="center"></el-table-column>
             <el-table-column label="商品名称" prop="goodsName" width="140px" align="center"></el-table-column>
             <el-table-column label="商品类别" prop="goodsCategoryId" width="80px" align="center"> 
                 <template slot-scope="scope">
@@ -66,7 +68,7 @@
             <el-table-column label="库存量" prop="stockInventory" width="70px" align="center"></el-table-column>
             <el-table-column label="保质期/天" prop="stockGoodsShelfLife" width="85px" align="center"></el-table-column>
             <el-table-column label="售价/元" prop="stockGoodsPrice" width="75px" align="center"></el-table-column>
-            <el-table-column label="生产日期" prop="stockGoodsProductionDate" width="95px" align="center"></el-table-column>
+            <el-table-column label="生产日期" prop="stockGoodsProductionDate" width="120" align="center"></el-table-column>
             <el-table-column label="单位" prop="stockUnitId" width="70px" align="center">
                 <template slot-scope="scope">
                     <span v-if="scope.row.unitId == 1">盒</span>
@@ -90,7 +92,7 @@
             <el-table :data="cardListAll" border stripe>
                 <el-table-column type="index"></el-table-column>
                 <el-table-column label="商品图片" prop="goodsPicture"></el-table-column>
-                <el-table-column label="商品编号" prop="stockGoodsId" width="140px"></el-table-column>
+                <el-table-column label="商品编号" prop="stockGoodsId" width="240"></el-table-column>
                 <el-table-column label="商品名称" prop="goodsName" width="140px"></el-table-column>
                 <el-table-column label="商品类别" prop="goodsCategoryId" width="80px" align="center"> 
                 <template slot-scope="scope">
@@ -129,8 +131,8 @@
                     <el-input type="text" v-model.number="newDeliveryRecord.deliveryPaid" @blur="onTotalPriceChange(newDeliveryRecord.deliveryPaid)"></el-input>
                 </el-form-item>
                 <el-form-item style="float:right" >
-                    <el-button type="primary" @click="shoppingCartDialog = false">返回</el-button>
-                    <el-button type="primary" @click="confirm()">确认</el-button>
+                    <el-button type="primary" @click="shoppingCartDialog = false" size="mini">返回</el-button>
+                    <el-button type="success" @click="confirm()" size="mini">确认</el-button>
                 </el-form-item>
             </el-form>
             <!--span slot="footer" class="dialog-footer">
@@ -251,7 +253,8 @@ export default {
         }
     },
     created(){
-        this.getGoodList()
+        this.getGoodList(),
+        this.selected.goodsCategoryId=1000
     },
     methods:{
         //计算总价
@@ -465,6 +468,7 @@ export default {
                 } else {
                     this.$message.error(res.data.errMsg)
                 }
+                location.reload()
                 this.shoppingCartDialog = false
             })
             .catch((err) => {
@@ -473,9 +477,14 @@ export default {
             })
         },
         searchGood(){
+            this.queryInfo.total=0
+            this.queryInfo.pageIndex=1
             let data={
                 staffId:window.sessionStorage.staffId,
-                goods:this.selected
+                goods:this.selected,
+                pageIndex: this.queryInfo.pageIndex - 1,
+                pageSize: this.queryInfo.infoCount,
+                secondaryMenuId: this.secondaryMenuId,
             }
             if(data.goods.goodsId==''){
                 data.goods.goodsId=null
@@ -489,6 +498,9 @@ export default {
             if(data.goods.goodsBrand==''){
                 data.goods.goodsBrand=null
             }
+            if(data.goods.goodsCategoryId==1000){
+                data.goods.goodsCategoryId=null
+            }
            data.goods=JSON.stringify(data.goods)
            this.$axios.post('/deliverycashier/findByConditions', this.$qs.stringify(data),{
                     headers:{
@@ -496,7 +508,7 @@ export default {
                     }
                 })
                 .then((res) => {
-                    
+                    console.log(res.data)
                     this.goodList = res.data.goodsStockAList
                     this.allData = res.data
                     // this.functionList = res.data.functionList

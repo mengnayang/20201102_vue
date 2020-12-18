@@ -28,6 +28,7 @@ import RetailSall from '../components/home/sallStall/retailSall.vue'
 import RetailDeliveryDetails from '../components/home/sallStall/RetailDeliveryDetails.vue'
 import CollectMoneyLiist from '../components/home/sallStall/collectMoneyList.vue'
 import CollectMonneyRetailList from '../components/home/sallStall/collectMonneyRetailList.vue'
+import Logging from '../components/home/administer/logging_info/Logging.vue'
 
 
 
@@ -69,7 +70,8 @@ const router = new Router({
         {path:'/retailreturn',component:RetailSall},
         {path:'/retailreturn/retaildetails',component:RetailDeliveryDetails},
         {path:'/deliverycashier',component:CollectMoneyLiist},
-        {path:'/retailcashier',component:CollectMonneyRetailList}
+        {path:'/retailcashier',component:CollectMonneyRetailList},
+        {path:'/logging',component:Logging}
       ]
     },
     {path:'/forgetPwd', component: ForgerPwd}

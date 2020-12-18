@@ -16,9 +16,9 @@
                     
                 </el-col>
                 <el-col :span="8">
-                    <span>退款</span>
+                    <span>退款状态</span>
                     <el-select v-model="retailRefundStatus"  placeholder="请选择" size="small" clearable>
-                        <el-option v-for="item in ['未退款','已退款']" :label="item" :key="item" :value="item"></el-option>
+                        <el-option v-for="item in ['全部','未退款','已退款']" :label="item" :key="item" :value="item"></el-option>
                     </el-select>
                 </el-col>
                 <el-col :span="4">
@@ -184,7 +184,8 @@
                     
         },
         created(){
-            this.getRetailReturnList()
+            this.getRetailReturnList(),
+            this.retailRefundStatus='全部'
         },
         methods:{
             //初始获取部分信息
@@ -252,9 +253,14 @@
             },
             //查询指定需求的商品
             searchGood(){
+                this.queryInfo.total=0
+                this.queryInfo.pageIndex=1
                 let data={
                     staffId:window.sessionStorage.staffId,
-                    retailRecord:this.selected
+                    retailRecord:this.selected,
+                    pageIndex: this.queryInfo.pageIndex - 1,
+                    pageSize: this.queryInfo.infoCount,
+                    secondaryMenuId: this.secondaryMenuId,
                 }
                 console.log(this.retailRefundStatus)
                 if(this.retailRefundStatus=='未退款'){
@@ -264,6 +270,7 @@
                 }else{
                     // this.$message.info('状态选择错误')
                     // return
+                    data.retailRecord.retailRefundStatus=null
                 }
                 if(data.retailRecord.retailId==''){
                     data.retailRecord.retailId=null

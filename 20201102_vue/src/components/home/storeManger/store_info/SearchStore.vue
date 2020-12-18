@@ -48,13 +48,13 @@
             <!-- 列表区域 -->
             <!-- 一级 -->
             <el-table :data="isLazzy ? goodsStockNumList : goodList" border v-show="isFirst">
-                <el-table-column label="商品图片" fixed width="100" align="center">
+                <el-table-column label="商品图片" fixed width="220" align="center">
                     <template slot-scope="scope">
-                        <img :src="scope.row.goodsPicture" width="30px" height="20px" alt="图片">
+                        <img :src="'http://localhost:8080' + scope.row.goodsPicture" alt="图片" class="all_img">  
                     </template>
                 </el-table-column>
                 <el-table-column label="商品编号" prop="goodsId" fixed width="140" align="center"></el-table-column>
-                <el-table-column label="商品名称" prop="goodsName" fixed width="180" align="center"></el-table-column>
+                <el-table-column label="商品名称" prop="goodsName" width="180" align="center"></el-table-column>
                 <el-table-column label="商品类别" prop="goodsCategory" width="120" align="center">
                     <template slot-scope="scope">
                         <span v-for="item in categoryList" :key="item.categoryId">
@@ -109,7 +109,7 @@
                         <el-col :span="12">
                             <el-form-item label="商品图片"> 
                                 <template>
-                                    <img :src="currentGood.goodsPicture" alt="图片">
+                                    <img :src="'http://localhost:8080' + currentGood.goodsPicture" alt="图片" class="all_img">  
                                 </template>
                             </el-form-item>
                         </el-col>
@@ -197,7 +197,7 @@
                         <el-col :span="12">
                             <el-form-item label="商品图片"> 
                                 <template>
-                                    <img :src="currentGood.goodsPicture" alt="图片">
+                                    <img :src="'http://localhost:8080' + currentGood.goodsPicture" alt="图片" class="all_img">  
                                 </template>
                             </el-form-item>
                         </el-col>
@@ -282,8 +282,8 @@
                     </el-row>
                 </el-form>
                 <span slot="footer" class="dislog-footer">
-                    <el-button type="primary" size="small" @click="shutDialog()">取消</el-button>
                     <el-button type="success" size="small" @click="confirmDialog()">修改</el-button>
+                    <el-button type="primary" size="small" @click="shutDialog()">取消</el-button>
                 </span>
             </el-dialog>
             <!-- 补充新商品 -->
@@ -341,7 +341,7 @@
                         </el-col>
                         <el-col :span="11" :offset="1">
                             <el-form-item label="上传图片">
-                                <input type="file" accept="image/*" multiple @change="handImage">
+                                <input type="file" accept="image/*" multiple  @change="handImage">
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -461,7 +461,7 @@
                 //分页信息
                 queryInfo:{
                     pageIndex:1,
-                    infoCount:3,
+                    infoCount:5,
                     total:0
                 },
                 //二级菜单列表
@@ -491,7 +491,7 @@
                 flag : 0
             }
         },
-        mounted(){
+        created(){
             this.getPartGood(),
             this.selected.selectedCategoryId = 1000
         },
@@ -622,8 +622,6 @@
             addNewGoodInfo() {
                 //将当前的商品信息置空，因多处用到，防止数据错乱
                 this.currentGood = []
-                this.currentGood.goodsUnit = 1
-                this.currentGood.goodsCategoryId = 1
                 let data = {}
                 this.$axios.post('/showinventory/newgoods', this.$qs.stringify(data),{
                     headers:{
@@ -644,13 +642,16 @@
                 this.addNewGoodDialog = true
             },
             handImage(e) {
-                let self = this;
-                let reader = new FileReader();
-                reader.readAsDataURL(e.target.files[0]);
-                reader.onload = function (e) {
-                    self.headImg = e.target.result; 
-                    self.currentGood.goodsPicture = self.headImg
-                }   
+            //     let self = this;
+            //     let reader = new FileReader();
+            //     reader.readAsDataURL(e.target.files[0]);
+            //     reader.onload = function (e) {
+            //         self.headImg = e.target.result; 
+            //         self.currentGood.goodsPicture = self.headImg
+            //     }   
+            console.log(e)
+                console.log(e.target.files[0])
+                this.currentGood.goodsPicture=e.target.files[0]
             },
             dataURItoBlob(dataURI) {
                 var byteString = atob(dataURI.split(',')[1]);
@@ -694,7 +695,7 @@
                     goodsBrand:this.currentGood.goodsBrand,
                     goodsSpecifications:this.currentGood.goodsSpecifications,
                     // goodsPicture:blob
-                    goodsPicture:""
+                    goodsPicture:null
                 }
                 let coupon = {
                     couponGoodsId:this.currentGood.goodsId,
@@ -709,15 +710,27 @@
                 }
                 let config = {
                     headers: {
-                        staffToken: window.sessionStorage.getItem('staffToken')
+                        staffToken: window.sessionStorage.getItem('staffToken'),
+                        // processData : false,  //必须false才会避开jQuery对 formdata 的默认处理   
+                        // contentType : false,  //必须false才会自动加上正确的Content-Type
                     }
                 }
-                
+                var formData = new FormData();
+                formData.append('image',this.currentGood.goodsPicture);
+                console.log(this.currentGood.goodsPicture);
+                formData.append('staffId', window.sessionStorage.getItem('staffId'));
+                formData.append('goods', JSON.stringify(goods));
+                formData.append('coupon', JSON.stringify(coupon));
+                this.$axios.post(
+                    '/showinventory/newgoodscommit',
+                    formData,
+                    config
+                )
                 // fd.append('goods',JSON.stringify(goods))
                 // fd.append('coupon',JSON.stringify(coupon))
                 // fd.append('staffId',window.sessionStorage.getItem('staffId'))
                 // console.log(fd.get('goods'))
-                this.$axios.post('/showinventory/newgoodscommit',this.$qs.stringify(data),config)
+                //this.$axios.post('/showinventory/newgoodscommit',this.$qs.stringify(data),config)
                 .then((res) => {
                     if (res.data.success) {
                         this.$message.success('添加成功')
@@ -978,5 +991,8 @@
 .el-pagination{
     width: 50%;
     margin: 10px auto;
+}
+.all_img{
+    width: 100px;
 }
 </style>

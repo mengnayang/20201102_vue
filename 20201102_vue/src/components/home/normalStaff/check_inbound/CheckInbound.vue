@@ -29,13 +29,14 @@
                 <el-col :span="8">
                     <span>供货商编号</span>
                     <el-select v-model="selected.exportBillSupplierId" filterable placeholder="请选择" size="small" clearable>
+                        <el-option :key="1000" :value="1000" label="全部"></el-option>
                         <el-option v-for="item in exportBillList" :label="item.exportBillSupplierId" :key="item.exportBillId" :value="item.exportBillSupplierId"></el-option>
                     </el-select>
                 </el-col>
                 <el-col :span="8">
                     <span>入库状态</span>
                     <el-select v-model="checkStatus" filterable placeholder="请选择" size="small" clearable>
-                        <el-option v-for="item in ['待库管完善','库管已完善','已检查通过','检查未通过']"  :key="item" :value="item"></el-option>
+                        <el-option v-for="item in ['全部','待库管完善','库管已完善','已检查通过','检查未通过']"  :key="item" :value="item"></el-option>
                     </el-select>
                 </el-col>
                 <el-col :span="4">
@@ -44,18 +45,18 @@
             </el-row>
             <!-- 列表区域 -->
             <el-table :data="exportBillList" border>
-                <el-table-column label="入库单编号" prop="exportBillId" fixed width="120" align="center"></el-table-column>
-                <el-table-column label="订货单编号" prop="exportBillCouponId" fixed width="120" align="center"></el-table-column>
-                <el-table-column label="供货商编号" prop="exportBillSupplierId" fixed width="120" align="center"></el-table-column>
-                <el-table-column label="产品批号" prop="exportBillGoodsBatchNumber" fixed width="120" align="center"></el-table-column>
+                <el-table-column label="入库单编号" prop="exportBillId" fixed width="240" align="center"></el-table-column>
+                <el-table-column label="订货单编号" prop="exportBillCouponId"  width="240" align="center"></el-table-column>
+                <el-table-column label="供货商编号" prop="exportBillSupplierId"  width="240" align="center"></el-table-column>
+                <el-table-column label="产品批号" prop="exportBillGoodsBatchNumber"  width="120" align="center"></el-table-column>
                 <!-- <el-table-column label="产品名" prop="exportBillGoodsBatchName" fixed width="120" align="center"></el-table-column> -->
                 <!-- <el-table-column label="入库量" prop="goods_store" width="120" align="center"></el-table-column> -->
-                <el-table-column label="生产日期" prop="exportBillProductionDate" width="120" align="center"></el-table-column>
+                <el-table-column label="生产日期" prop="exportBillProductionDate" width="240" align="center"></el-table-column>
                 <el-table-column label="保质期/天" prop="exportBillShelfLife" width="90" align="center"></el-table-column>
                 <!-- <el-table-column label="规格" prop="unit" width="180" align="center"></el-table-column> -->
-                <el-table-column label="供货价格" prop="exportBillPrice" width="80" align="center"></el-table-column>
-                <el-table-column label="入库时间" prop="exportBillTime" width="120" align="center"></el-table-column>
-                <el-table-column label="已付款项" prop="exportBillPaid"  width="80" align="center" ></el-table-column>
+                <el-table-column label="供货价格" prop="exportBillPrice" width="100" align="center"></el-table-column>
+                <el-table-column label="入库时间" prop="exportBillTime" width="240" align="center"></el-table-column>
+                <el-table-column label="已付款项" prop="exportBillPaid"  width="100" align="center" ></el-table-column>
                 <el-table-column label="入库状态" prop="exportBillStatus"  :formatter="BillStateFormat" width="100" align="center" ></el-table-column>
                 <!-- 审核状态的变化暂未实现、 -->
                 <el-table-column label="审核状态"  prop="exportBillStatus" :formatter="stateFormat" width="100" align="center"></el-table-column>
@@ -181,10 +182,12 @@
                     <span>
 
                     </span>
-                    <el-button type="primary"  @click="checkInboundBillDialog=false">取 消</el-button>
-                    <el-button-group v-for="func in functionList_two" :key="func.functionId" >
-                            <el-button :type="func.btnType"   @click="submitInboundBill()">提 交</el-button>
-                    </el-button-group>
+                    <span slot="footer" class="dislog-footer">
+                        <el-button type="primary"  @click="checkInboundBillDialog=false" size="mini">取 消</el-button>
+                        <el-button-group v-for="func in functionList_two" :key="func.functionId" >
+                                <el-button :type="func.btnType"   @click="submitInboundBill()" size="mini">提 交</el-button>
+                        </el-button-group>
+                    </span>
                 </span>
             </el-dialog>
         </el-card>
@@ -247,8 +250,11 @@
                 }
             }
         },
-        mounted(){
-            this.getInboundPart()
+        created(){
+            this.getInboundPart(),
+            this.selected.exportBillSupplierId=1000,
+            this.checkStatus='全部'
+
         },
         methods:{
             //初始获取部分信息
@@ -411,6 +417,9 @@
                 }else{
                     data.exportBill.exportBillStatus=null
                 }
+                if(data.exportBill.exportBillSupplierId==1000){
+                    data.exportBill.exportBillSupplierId=null
+                }
                 //判断是否为空字符串
                 if(data.exportBill.exportBillId==''){
                     data.exportBill.exportBillId=null
@@ -421,9 +430,6 @@
                 if(data.exportBill.exportBillGoodsBatchNumber==''){
                     data.exportBill.exportBillGoodsBatchNumber=null
                 }
-
-              
-
                 data.exportBill=JSON.stringify(data.exportBill)
                 console.log(data.exportBill)
 

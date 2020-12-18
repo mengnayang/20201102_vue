@@ -227,7 +227,7 @@
                 <el-row>
                     <el-col :span="16" :offset="2">
                         <el-form-item label="商品图片：">
-                            <img :src="goods.goodsPicture" alt="图片">
+                            <img :src="'http://localhost:8080' + goods.goodsPicture" alt="图片" class="all_img">  
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -382,7 +382,7 @@
                     </el-col>
                     <el-col :span="8">
                         <el-form-item label="商品图片：">
-                            <img :src="goods.goodsPicture" alt="图片">
+                            <img :src="'http://localhost:8080' + goods.goodsPicture" alt="图片" class="all_img">  
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -404,7 +404,7 @@
                 queryInfo:{
                     total:0,
                     pageIndex:1,
-                    infoCount:4
+                    infoCount:5
                 },
                 //二级菜单
                 secondaryMenuList:[],
@@ -746,7 +746,9 @@
             async rejectIntoStore(exportBill) {
                 let status = exportBill.exportBillStatus
                 if (status == 3) {
-                    this.$message.error('入库失败, 订单已成功入库')
+                    this.$message.error('入库失败, 采购入库单已成功入库')
+                } else if (status == -1) {
+                    this.$message.error('入库失败, 采购入库单已被库房管理员驳回')
                 }  else {
                     const confirmResult = await this.$confirm('此操作不可恢复，是否拒绝这条入库信息？','拒收',{
                         confirmButtonText:'拒收',
@@ -828,5 +830,8 @@
 .el-pagination{
     width: 50%;
     margin: 10px auto;
+}
+.all_img{
+    width: 100px;
 }
 </style>

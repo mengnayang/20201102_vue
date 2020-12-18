@@ -492,19 +492,19 @@
                 queryInfo1:{
                     total:0,
                     pageIndex:1,
-                    infoCount:3
+                    infoCount:5
                 },
                 // 二层
                 queryInfo2:{
                     total:0,
                     pageIndex:1,
-                    infoCount:3
+                    infoCount:5
                 },
                 // 选取商品列表 三层
                 queryInfo3:{
                     total:0,
                     pageIndex:1,
-                    infoCount:3
+                    infoCount:5
                 },
                 //二级菜单列表
                 secondaryMenuList:[],
@@ -585,7 +585,7 @@
                 // 模糊查询列表
                 goodsStockAList_lazzy:[],
                 // 存放已选取的商品类别列表
-                tempCategoryList:[]
+                tempCategoryList:[],
             }
         },
         created() {
@@ -595,8 +595,14 @@
             this.selected.stocktakingSubmitStaffId = 1000
             this.selected.stocktakingAllStatus = 1000
             this.selected3.categoryId = 100
+            this.getCurrentTime()
         },
         methods:{
+            // 获取当前的时间
+            getCurrentTime() {
+                let date = new Date()
+                this.selected.stocktakingCommitDate = date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate()
+            },
             //初始获取部分库存信息
             getStockList() {
                 // 获取当前二级菜单的id
@@ -684,15 +690,18 @@
             searchPartStock1() {
                 this.isLazzy1 = true
 
-                if (this.selected.stocktakingCommitDate == "" || this.selected.stocktakingCommitDate == null) {
-                    this.$message.warning('请选择要查询的盘点时间')
-                    return
-                } 
+                let temp = this.selected.stocktakingCommitDate
 
                 let date = new Date(this.selected.stocktakingCommitDate)
                 this.selected.stocktakingCommitDate = date.getFullYear() + '' + (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : (date.getMonth() + 1))
                 + '' + (date.getDate() < 10 ? '0' + date.getDate() : date.getDate());
                 
+                if (this.selected.stocktakingCommitDate == '19700101') {
+                    this.selected.stocktakingCommitDate = null
+                } else if (this.selected.stocktakingCommitDate == '197001011') {
+                    this.selected.stocktakingCommitDate = null
+                }
+
                 this.selected.stocktakingCount = this.selected.stocktakingCount == 1000 ? "" : this.selected.stocktakingCount
 
                 let stocktakingId = this.selected.stocktakingCommitDate + this.selected.stocktakingCount
@@ -725,6 +734,11 @@
                     if (res.data.success) {
                         this.stocktakingRecordList_lazzy = res.data.stocktakingRecordList
                         this.queryInfo1.total = res.data.recordSum
+                        this.selected.stocktakingCount = 1000,
+                        this.selected.stocktakingLaunchedStaffId = 1000
+                        this.selected.stocktakingSubmitStaffId = 1000
+                        this.selected.stocktakingAllStatus = 1000
+                        this.selected.stocktakingCommitDate = temp
                     } else {
                         this.$message.error(res.data.errMsg)
                     }
@@ -798,6 +812,20 @@
                             let date = new Date(item.stockGoodsProductionDate)
                             item.stockGoodsProductionDate = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate()
                         })
+
+                        // 渲染曾经选择的类别
+                        let selectedIndex = []
+                        for (let i = 0; i < this.goodsStockAList_lazzy.length; i++) {
+                            for (let j = 0; j < this.tempCategoryList.length ;j++) {
+                                if (this.goodsStockAList_lazzy[i].stockGoodsId == this.tempCategoryList[i].stockGoodsId) {
+                                    selectedIndex.push(this.tempCategoryList[i])
+                                    break
+                                }
+                            }
+                        }
+                        // 执行渲染
+                        this.toggleSelection(selectedIndex)
+
                     } else {
                         this.$message.error(res.data.errMsg)
                     }
@@ -1044,6 +1072,23 @@
                             let date = new Date(item.stockGoodsProductionDate)
                             item.stockGoodsProductionDate = date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate()
                         })
+
+                        // 渲染曾经选择的类别
+                        // let selectedIndex = ''
+                        // for (let i = 0; i < this.goodsStockAList.length; i++) {
+                        //     for (let j = 0; j < this.tempCategoryList.length ;j++) {
+                        //         if (this.goodsStockAList[i].stockGoodsId == this.tempCategoryList[i].stockGoodsId) {
+                        //             selectedIndex.append('goodsStockAList[' + i + ']')
+                        //             break
+                        //         }
+                        //     }
+                        // }
+                        // // 执行渲染
+                        // this.toggleSelection([this.goodsStockAList[1], this.goodsStockAList[2]])
+                        // console.log(selectedIndex)
+                        // console.log(this.goodsStockAList[0])
+                        // this.toggleSelection([this.goodsStockAList[0]])
+                        console.log(this.tempCategoryList)
                     } else {
                         this.$message.error(res.data.errMsg)
                     }
@@ -1073,14 +1118,38 @@
                         }
                     }
                 }
-                
-                console.log(this.tempCategoryList)
+
+                // 删除的index
+                let deleteIndex = []
+                for (let i = 0; i < this.goodsStockAList.length; i++) {
+                    let flag = false
+                    for (let j = 0; j < this.multipleSelection.length; j++) {
+                        if (this.multipleSelection[j].stockGoodsId == this.goodsStockAList[i].stockGoodsId) {
+                            flag = true
+                            break;
+                        }
+                    }
+                    if (!flag) {
+                        deleteIndex.push(this.goodsStockAList[i].stockGoodsId)
+                    }
+                }
+
+                // 在存储的列表中删除
+                for (let i = 0; i < deleteIndex.length; i++) {
+                    for (let j = 0; j < this.tempCategoryList.length; j++) {
+                        if (this.tempCategoryList[j].stockGoodsId == deleteIndex[i]) {
+                            this.$delete(this.tempCategoryList, j)
+                        }
+                    }
+                }
             },
-            //取消所选
+            //让已经选择的重新渲染 / 取消所选
             toggleSelection(rows) {
+                console.log(rows)
                 if (rows) {
                     rows.forEach(row => {
                         this.$refs.multipleTable.toggleRowSelection(row);
+                        console.log(row)
                     });
                 } else {
                     this.$refs.multipleTable.clearSelection();
@@ -1089,8 +1158,8 @@
             //发起盘点
             requestRecord() {
                 let stockGoodsIdListStr = []
-                for (let i = 0; i < this.multipleSelection.length; i++) {
-                    stockGoodsIdListStr.push(this.multipleSelection[i].stockGoodsId)
+                for (let i = 0; i < this.tempCategoryList.length; i++) {
+                    stockGoodsIdListStr.push(this.tempCategoryList[i].stockGoodsId)
                 }
                 let data = {
                     staffId: window.sessionStorage.getItem('staffId'),

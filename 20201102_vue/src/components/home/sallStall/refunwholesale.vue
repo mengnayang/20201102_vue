@@ -19,7 +19,7 @@
                 <el-col :span="8">
                     <span>出库状态</span>
                     <el-select v-model="deliveryStatus"  placeholder="请选择" size="small" clearable>
-                        <el-option v-for="item in ['待确认出库','已确认出库','已驳回请求']" :label="item" :key="item" :value="item"></el-option>
+                        <el-option v-for="item in ['全部','待确认出库','已确认出库','已驳回请求']" :label="item" :key="item" :value="item"></el-option>
                     </el-select>
                 </el-col>
                 <el-col :span="4">
@@ -28,15 +28,15 @@
             </el-row>
             <!-- 列表区域 -->
             <el-table :data="deliveryRecordList" border>
-                <el-table-column label="出库单编号" prop="deliveryId" fixed width="150" align="center"></el-table-column>
+                <el-table-column label="出库单编号" prop="deliveryId" fixed width="240" align="center"></el-table-column>
                 <el-table-column label="入库日期" prop="deliveryCreateDate" fixed width="150" align="center"></el-table-column>
                 <el-table-column label="已付款项" prop="deliveryPaid" fixed width="150" align="center"></el-table-column>
                 <el-table-column label="退货总价" prop="deliveryTotalPrice" width="120" align="center"></el-table-column>
                 <el-table-column label="退款状态" prop="deliveryStatus" :formatter="deliveryRefundStatusFormat" width="120" align="center"></el-table-column>
                 <el-table-column label="结款状态" prop="deliveryCheckOutStatus" :formatter="deliveryCheckOutStatusFormat" width="120" align="center"></el-table-column>
                 <el-table-column label="出库状态" prop="deliverySatus" :formatter="deliverySatusFormat" width="120" align="center"></el-table-column>
-                <el-table-column label="发起职工编号" prop="deliveryLaunchedStaffId"  width="150" align="center"></el-table-column>
-                <el-table-column label="收款员工编号" prop="deliveryLaunchedStaffId" width="150" align="center"></el-table-column>
+                <el-table-column label="发起职工编号" prop="deliveryLaunchedStaffId"  width="240" align="center"></el-table-column>
+                <el-table-column label="收款员工编号" prop="deliveryLaunchedStaffId" width="240" align="center"></el-table-column>
                 <el-table-column label="操作" fixed="right" width="150" align="center">
                    <template slot-scope="scope">
                         <el-button-group v-for="func in functionList_one" :key="func.functionId">
@@ -117,7 +117,8 @@
             };
         },
         created(){
-            this.getDeliveryRecordList()
+            this.getDeliveryRecordList(),
+            this.deliveryStatus='全部'
         },
         methods:{
             //初始获取部分商品
@@ -176,9 +177,14 @@
             },
             // //查询指定需求的商品
             searchGood(){
+                this.queryInfo.total=0
+                this.queryInfo.pageIndex=1
                 let data={
                     staffId:window.sessionStorage.staffId,
-                    deliveryRecord:this.selected
+                    deliveryRecord:this.selected,
+                    pageIndex: this.queryInfo.pageIndex - 1,
+                    pageSize: this.queryInfo.infoCount,
+                    secondaryMenuId: this.secondaryMenuId,
                 }
                 if(this.deliveryStatus=='待确认出库'){
                     data.deliveryRecord.deliveryStatus=0
@@ -189,6 +195,7 @@
                 }else{
                     // this.$message.info('状态选择错误')
                     // return
+                    data.deliveryRecord.deliveryStatus=null
                 }
                 if(data.deliveryRecord.deliveryId==''){
                     data.deliveryRecord.deliveryId=null
@@ -223,7 +230,12 @@
                             this.isDraw = true
                         }
                     }
+                    this.deliveryRecordList.map((item) => {
+                            let data = new Date(item.deliveryCreateDate)
+                            item.deliveryCreateDate = data.getFullYear() + "-" + (data.getMonth()+1) + "-" + data.getDate()
+                    })
                 }
+                
                 })
                 .catch((err) => {
                     this.$message.error(err.message)

@@ -90,7 +90,11 @@
             </el-table>
             <!-- 二级 -->
             <el-table :data="deliveryGoodsList" border stripe v-show="isSecond">
-                <el-table-column label="商品图片" prop="goodsPicture" fixed width="100" align="center"></el-table-column>
+                <el-table-column label="商品图片" fixed width="100" align="center" class="all_img">
+                    <template slot-scope="scope">
+                        <img :src="'http://localhost:8080' + scope.row.goodsPicture" alt="图片" class="all_img"> 
+                    </template>
+                </el-table-column>
                 <el-table-column label="商品编号" prop="deliveryStockGoodsId" fixed width="160" align="center"></el-table-column>
                 <el-table-column label="商品名称" prop="goodsName" fixed width="150" align="center"></el-table-column>
                 <el-table-column label="商品类别" prop="categoryName" width="100" align="center"></el-table-column>
@@ -237,7 +241,7 @@
                     </el-col>
                     <el-col :span="6" :offset="2">
                         <el-form-item label="商品图片：">
-                            <img :src="currentInfo.goods.goodsPicture" alt="图片">
+                            <img :src="'http://localhost:8080' + currentInfo.goods.goodsPicture" alt="图片" class="all_img"> 
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -258,7 +262,7 @@
                 queryInfo:{
                     total:0,
                     pageIndex:1,
-                    infoCount:4
+                    infoCount:5
                 },
                 //员工列表
                 staffMap:[],
@@ -588,5 +592,8 @@
 .el-pagination{
     width: 50%;
     margin: 10px auto;
+}
+.all_img{
+    width: 100px;
 }
 </style>
