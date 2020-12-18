@@ -46,7 +46,7 @@
                 </el-table-column>
                 <el-table-column label="商品编号" prop="retailStockGoodsId" fixed width="180" align="center"></el-table-column>
                 <el-table-column label="商品名称" prop="goodsName"  width="160" align="center"></el-table-column>
-                <el-table-column label="商品类别" prop="goodsCategoryName"  width="160" align="center"></el-table-column>
+                <el-table-column label="商品类别" prop="categoryName"  width="160" align="center"></el-table-column>
                 <el-table-column label="品牌名称" prop="goodsBrand"  width="160" align="center"></el-table-column>
                 <el-table-column label="零售单价" prop="retailPrice" width="140" align="center"></el-table-column>
                 <el-table-column label="零售数量" prop="retailNum"  width="160" align="center"></el-table-column>

@@ -176,7 +176,11 @@
             </el-table>
             <!-- 二级 -->
             <el-table :data="isLazzy2 ? stockingGoodsList_lazzy : stockingGoodsList" border stripe v-show="isSecond">
-                <el-table-column label="商品图片" prop="goodsPicture" fixed align="center" width="120px"></el-table-column>
+                <el-table-column label="商品图片" fixed align="center" width="120px">
+                    <template slot-scope="scope">
+                        <img :src="'http:localhost:8080' + scope.row.goodsPicture" alt="">
+                    </template>
+                </el-table-column>
                 <el-table-column label="盘点编号" prop="stocktakingId" fixed align="center" width="120px"></el-table-column>
                 <el-table-column label="商品编号" prop="stocktakingStockGoodsId" align="center" width="150px"></el-table-column>
                 <el-table-column label="商品名称" prop="goodsName" align="center" width="150px"></el-table-column>
@@ -205,7 +209,11 @@
             <!-- 选取商品列表 -->
             <el-table :data="isLazzy3 ? goodsStockAList_lazzy : goodsStockAList" ref="multipleTable" border stripe v-show="isThird" @selection-change="handleSelectionChange">
                 <el-table-column type="selection" width="60" align="center"></el-table-column>
-                <el-table-column label="商品图片" prop="goodsPicture" fixed align="center" width="150px"></el-table-column>
+                <el-table-column label="商品图片" prop="goodsPicture" fixed align="center" width="150px">
+                    <template slot-scope="scope">
+                        <img :src="'http:localhost:8080' + scope.row.goodsPicture" alt="商品图片" class="all_img">
+                    </template>
+                </el-table-column>
                 <el-table-column label="商品编号" prop="goodsId" fixed align="center" width="150px"></el-table-column>
                 <el-table-column label="商品名称" prop="goodsName" align="center" width="150px"></el-table-column>
                 <el-table-column label="商品类别" width="120px" prop="goodsCategoryId" align="center">
@@ -345,7 +353,7 @@
                 <el-row>
                     <el-col :span="6" :offset="2">
                         <el-form-item label="商品图片:">
-                            <img :src="current.goods.goodsPicture" alt="图片">
+                            <img :src="'http:localhost:8080' + current.goods.goodsPicture" alt="商品图片">
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -465,7 +473,7 @@
                     </el-col>
                     <el-col :span="9" :offset="1">
                         <el-form-item label="商品图片:">
-                            <img :src="current.goods.goodsPicture" alt="图片">
+                            <img :src="'http:localhost:8080' + current.goods.goodsPicture" alt="图片" class="all_img">
                         </el-form-item>
                     </el-col>
                 </el-row>

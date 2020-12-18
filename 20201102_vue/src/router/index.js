@@ -73,7 +73,7 @@ const router = new Router({
         {path:'/deliverycashier',component:CollectMoneyLiist},
         {path:'/retailcashier',component:CollectMonneyRetailList},
         {path:'/logging',component:Logging},
-        {path:'/logging/findByConditions',components:LoggingError}
+        {path:'/logging/findByConditions',component:LoggingError}
       ]
     },
     {path:'/forgetPwd', component: ForgerPwd}

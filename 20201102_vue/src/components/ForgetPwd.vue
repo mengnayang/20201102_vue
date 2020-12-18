@@ -34,10 +34,10 @@
                 </div>
                 <div v-else class="set_pwd_form">
                     <el-form  label-width="80px" :model="password" :rules="PasswordRules" ref="PasswordRef">
-                        <el-form-item label="新密码" required prop="staffPassword">
+                        <el-form-item label="旧密码" required prop="staffPassword">
                             <el-input type="password" v-model="password.staffPassword" auto-complete="off"></el-input>
                         </el-form-item>
-                        <el-form-item label="确认密码" required prop="staffPassword1">
+                        <el-form-item label="新密码" required prop="staffPassword1">
                             <el-input type="password" v-model="password.staffPassword1" auto-complete="off"></el-input>
                         </el-form-item>
                     </el-form>
@@ -90,7 +90,7 @@ import identify from '../components/Identify'
             }
             var checkPwd = (rule, value, callback) => {
                 if (value == '') {
-                    callback(new Error('新密码不能为空'))
+                    callback(new Error('旧密码不能为空'))
                 } else {
                     if (value.length < 8 || value.length > 16) {
                         callback(new Error('密码必须满足8~16位'))
@@ -99,13 +99,11 @@ import identify from '../components/Identify'
             }
             var checkPwd1 = (rule, value, callback) => {
                 if (value == '') {
-                    callback(new Error('确认密码不能为空'))
+                    callback(new Error('新不能为空'))
                 } else {
                     if (value.length < 8 || value.length > 16) {
                         callback(new Error('密码必须满足8~16位'))
-                    } else if(value != this.password.staffPassword) {
-                        callback(new Error('两次密码输入不一致'))
-                    }
+                    } 
                 }
             }
             return{
@@ -188,7 +186,9 @@ import identify from '../components/Identify'
                         this.activeIndex++;
                     }     
                     let data = {
-
+                        staffPhone:this.info.staffPhone,
+                        staffPassword:this.password.staffPassword,
+                        staffPassword:this.password.staffPassword1
                     }
                     this.$axios.post('/staff/changePassword', this.$qs.stringify(data))
                     .then((res) => {
@@ -227,7 +227,7 @@ import identify from '../components/Identify'
 <style lang="less" scoped>
 .forget_pwd_container{
     background: url("../assets/image/bg.jpg");
-    size: 100% 100%;
+    background-size: 100% 100%;
     height: 100%;
 }
 .forget_pwd{

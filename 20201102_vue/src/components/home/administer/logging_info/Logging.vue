@@ -9,76 +9,74 @@
         <!-- 卡片区域 -->
         <el-card>
             <!-- 功能区域 -->
-            <el-form :gutter="10" :inline="true">
-                <el-row>
-                    <el-col :span="2">
-                        <span>日志日期:</span>
-                    </el-col>
-                    <el-col :span="5">
-                        <el-date-picker size="mini"
-                            v-model="selected.selectedTimestmp"
-                            type="date"
-                            placeholder="选择日期时间">
-                        </el-date-picker>
-                    </el-col>
-                    <el-col :span="2" :offset="2">
-                        <span>操作员工:</span>
-                    </el-col>
-                    <el-col :span="5">
-                        <el-select v-model="selected.selectedStaffId" size="mini">
-                            <el-option :key="1000" :value="1000" label="全部"></el-option>
-                            <el-option v-for="item in staffAList" :key="item.staffId" :value="item.staffId" :label="item.staffName"></el-option>
-                        </el-select>
-                    </el-col>
-                    <!-- <el-col :span="2" :offset="1">
-                        <span>操作路径:</span>
-                    </el-col>
-                    <el-col :span="5">
-                        <el-input v-model="selected.selectedCheckUrl" size="mini" placeholder="请输入查询的操作方法"></el-input>
-                    </el-col> -->
-                    <el-col :span="2" :offset="1">
-                        <span>访问IP:</span>
-                    </el-col>
-                    <el-col :span="5">
-                        <el-input v-model="selected.selectedCheckIP" size="mini" placeholder="请输入查询的用户IP"></el-input>
-                    </el-col>
-                </el-row>
-                <el-row>
-                    <el-col :span="2">
-                        <span>操作功能:</span>
-                    </el-col>
-                    <el-col :span="5">
-                        <el-select v-model="selected.selectedFunction" size="mini">
-                            <el-option :key="1000" :value="1000" label="全部"></el-option>
-                            <el-option :key="1" :value="1" label="登陆操作"></el-option>
-                            <el-option :key="1" :value="1" label="退出操作"></el-option>
-                            <el-option :key="3" :value="3" label="查库存操作"></el-option>
-                            <el-option :key="4" :value="4" label="订单信息操作"></el-option>
-                            <el-option :key="5" :value="5" label="采购入库单操作"></el-option>
-                            <el-option :key="6" :value="6" label="批发出库单操作"></el-option>
-                            <el-option :key="7" :value="7" label="零售出库单操作"></el-option>
-                            <el-option :key="8" :value="8" label="盘点管理操作"></el-option>
-                            <el-option :key="9" :value="9" label="盘点设置操作"></el-option>
-                            <el-option :key="10" :value="10" label="批发收银操作"></el-option>
-                            <el-option :key="11" :value="11" label="零售收银操作"></el-option>
-                            <el-option :key="12" :value="12" label="批发退货操作"></el-option>
-                            <el-option :key="13" :value="13" label="零售退货操作"></el-option>
-                            <el-option :key="14" :value="14" label="货品盘点操作"></el-option>
-                            <el-option :key="15" :value="15" label="入库检查操作"></el-option>
-                            <el-option :key="16" :value="16" label="用户列表操作"></el-option>
-                            <el-option :key="17" :value="17" label="用户权限列表操作"></el-option>
-                            <el-option :key="18" :value="18" label="商品信息维护操作"></el-option>    
-                            <el-option :key="19" :value="19" label="类别信息维护操作"></el-option>
-                            <el-option :key="20" :value="20" label="单位信息维护操作"></el-option>
-                            <el-option :key="21" :value="21" label="日志记录操作"></el-option>
-                            <el-option :key="21" :value="21" label="错误日志操作"></el-option>
-                        </el-select>
-                    </el-col>
-                    <el-col :span="5" :offset="2">
-                        <el-button type="primary" size="mini" @click="searchLogging()">查询</el-button>
-                    </el-col>
-                </el-row>
-            </el-form>
+            <el-row>
+                <el-col :span="2">
+                    <span>日志日期:</span>
+                </el-col>
+                <el-col :span="5">
+                    <el-date-picker size="mini"
+                        v-model="selected.selectedTimestmp"
+                        type="date"
+                        placeholder="选择日期时间">
+                    </el-date-picker>
+                </el-col>
+                <el-col :span="2" :offset="2">
+                    <span>操作员工:</span>
+                </el-col>
+                <el-col :span="5">
+                    <el-select v-model="selected.selectedStaffId" size="mini">
+                        <el-option :key="1000" :value="1000" label="全部"></el-option>
+                        <el-option v-for="item in staffAList" :key="item.staffId" :value="item.staffId" :label="item.staffName"></el-option>
+                    </el-select>
+                </el-col>
+                <!-- <el-col :span="2" :offset="1">
+                    <span>操作路径:</span>
+                </el-col>
+                <el-col :span="5">
+                    <el-input v-model="selected.selectedCheckUrl" size="mini" placeholder="请输入查询的操作方法"></el-input>
+                </el-col> -->
+                <el-col :span="1.5" :offset="1">
+                    <span>访问IP：</span>
+                </el-col>
+                <el-col :span="5">
+                    <el-input v-model="selected.selectedCheckIP" size="mini" placeholder="请输入查询的用户IP"></el-input>
+                </el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="2">
+                    <span>操作功能:</span>
+                </el-col>
+                <el-col :span="5">
+                    <el-select v-model="selected.selectedFunction" size="mini">
+                        <el-option :key="1000" :value="1000" label="全部"></el-option>
+                        <el-option :key="1" :value="1" label="登陆操作"></el-option>
+                        <el-option :key="2" :value="2" label="退出操作"></el-option>
+                        <el-option :key="3" :value="3" label="查库存操作"></el-option>
+                        <el-option :key="4" :value="4" label="订单信息操作"></el-option>
+                        <el-option :key="5" :value="5" label="采购入库单操作"></el-option>
+                        <el-option :key="6" :value="6" label="批发出库单操作"></el-option>
+                        <el-option :key="7" :value="7" label="零售出库单操作"></el-option>
+                        <el-option :key="8" :value="8" label="盘点管理操作"></el-option>
+                        <el-option :key="9" :value="9" label="盘点设置操作"></el-option>
+                        <el-option :key="10" :value="10" label="批发收银操作"></el-option>
+                        <el-option :key="11" :value="11" label="零售收银操作"></el-option>
+                        <el-option :key="12" :value="12" label="批发退货操作"></el-option>
+                        <el-option :key="13" :value="13" label="零售退货操作"></el-option>
+                        <el-option :key="14" :value="14" label="货品盘点操作"></el-option>
+                        <el-option :key="15" :value="15" label="入库检查操作"></el-option>
+                        <el-option :key="16" :value="16" label="用户列表操作"></el-option>
+                        <el-option :key="17" :value="17" label="用户权限列表操作"></el-option>
+                        <el-option :key="18" :value="18" label="商品信息维护操作"></el-option>    
+                        <el-option :key="19" :value="19" label="类别信息维护操作"></el-option>
+                        <el-option :key="20" :value="20" label="单位信息维护操作"></el-option>
+                        <el-option :key="21" :value="21" label="日志记录操作"></el-option>
+                        <el-option :key="22" :value="22" label="错误日志操作"></el-option>
+                    </el-select>
+                </el-col>
+                <el-col :span="5" :offset="2">
+                    <el-button type="primary" size="mini" @click="searchLogging()">查询</el-button>
+                </el-col>
+            </el-row>
             
             <!-- 列表区域 -->
             <el-table :data="isLazzy ? loggingEventList_lazzy :loggingEventList" border>
