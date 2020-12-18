@@ -40,7 +40,7 @@
                     </el-select>
                 </el-col>
                 <el-col :span="4">
-                    <el-button type="primary" size="small" @click="searchGood()">查询</el-button>
+                    <el-button type="primary" size="small" @click="getSearchGood()">查询</el-button>
                 </el-col>
             </el-row>
             <!-- 列表区域 -->
@@ -78,7 +78,7 @@
                             <el-form-item label="货品图片"> 
                                 <!-- eslint-disable-next-line -->
                                 <template slot-scope="scope">
-                                    <img :src="currentInboundBill.goods.goodsPicture" alt="图片">
+                                    <img :src="'http://localhost:8080'+currentInboundBill.goods.goodsPicture" alt="图片">
                                 </template>
                             </el-form-item>
                         </el-col>
@@ -191,9 +191,15 @@
                 </span>
             </el-dialog>
         </el-card>
-        <el-pagination
+        <el-pagination v-if="!searchFlag"
         :current-page="queryInfo.pageIndex" :page-sizes="[queryInfo.infoCount]" 
         :page-size="queryInfo.infoCount" :total="queryInfo.total"
+        @current-change="currentChange"
+        layout="total, sizes, prev, pager, next, jumper">
+        </el-pagination>
+        <el-pagination v-if="searchFlag"
+        :current-page="searchQueryInfo.pageIndex" :page-sizes="[searchQueryInfo.infoCount]" 
+        :page-size="searchQueryInfo.infoCount" :total="searchQueryInfo.total"
         @current-change="currentChange"
         layout="total, sizes, prev, pager, next, jumper">
         </el-pagination>
@@ -245,9 +251,19 @@
                 //分页信息
                 queryInfo:{
                     pageIndex:1,
-                    infoCount:3,
-                    total:50
-                }
+                    infoCount:5,
+                    total:0
+                },
+                 //判断是否是模糊盘点
+                searchFlag:false,
+                //模糊查询初始化页数
+                searchQueryInfo:{
+                    total:0,
+                    pageIndex:1,
+                    infoCount:5
+                },
+                //判断模糊查询 页数是否初始化
+                init:true,
             }
         },
         created(){
@@ -259,6 +275,8 @@
         methods:{
             //初始获取部分信息
             getInboundPart() {
+                //将模糊查询设为false
+                this.searchFlag=false
                 // 获取当前二级菜单的id
                 this.secondaryMenuList = window.sessionStorage.getItem('secondaryMenuList')
                 this.secondaryMenuList = JSON.parse(this.secondaryMenuList)
@@ -396,12 +414,24 @@
                 })
                 
             },
+            //查询按钮点击时
+            getSearchGood(){
+                //点击按钮的时候初始化请求查询页数
+                this.init=true
+                this.searchGood()
+            },
             //查询指定需求的商品
             searchGood(){
+                this.searchFlag=true
+                if(this.init){
+                    this.searchQueryInfo.total=0
+                    this.searchQueryInfo.pageIndex=1
+                }
+                this.init=false
                 let data={
                     staffId:window.sessionStorage.staffId,
-                    pageIndex: this.queryInfo.pageIndex - 1,
-                    pageSize: this.queryInfo.infoCount,
+                    pageIndex: this.searchQueryInfo.pageIndex - 1,
+                    pageSize: this.searchQueryInfo.infoCount,
                     secondaryMenuId: this.secondaryMenuId,
                     exportBill: this.selected
                 }
@@ -462,7 +492,7 @@
                         }
                     }
 
-                    this.queryInfo.total = res.data.recordSum
+                    this.searchQueryInfo.total = res.data.recordSum
                     this.exportBillList=res.data.exportBillList
                     this.exportBillList.map((item) => {
                             let data = new Date(item.exportBillProductionDate)
@@ -480,8 +510,14 @@
             },
             //根据指定页码获取相应的库存信息
             currentChange(currentPage) {
-                this.queryInfo.pageIndex = currentPage
-                this.getInboundPart()
+                if(this.searchFlag){
+                //得到模糊查询的分页
+                this.searchQueryInfo.pageIndex = currentPage
+                this.searchGood()
+                }else{
+                    this.queryInfo.pageIndex = currentPage
+                    this.getInboundPart()
+                }
             },
             //入库状态
             BillStateFormat(row,column){
@@ -537,5 +573,8 @@
 }
 .input{
     width: 203px;
+}
+.all_img{
+    width: 100px;
 }
 </style>

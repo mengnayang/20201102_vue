@@ -21,10 +21,10 @@
                     
                 </el-col>
                 <el-col :span="8">
-                    <span>类别编号</span>
+                    <span>类别名称</span>
                     <el-select v-model="selected.goodsCategoryId"  placeholder="请选择" size="small" clearable>
                         <el-option :key="1000" :value="1000" label="全部"></el-option>
-                        <el-option v-for="item in allData.categoryList" :label="item.categoryId" :key="item.categoryId" :value="item.categoryId"></el-option>
+                        <el-option v-for="item in category" :label="item.categoryName" :key="item.categoryId" :value="item.categoryId"></el-option>
                     </el-select>
                 </el-col>
             </el-row>
@@ -34,36 +34,30 @@
                     <el-input class="input" type="text" v-model="selected.goodsBrand" placeholder="请输入"  size="small" clearable ></el-input>
                 </el-col>
                 <el-col :span="4">
-                    <el-button type="primary" size="small" @click="searchGood()">查询</el-button>
+                    <el-button type="primary" size="small" @click="getSearchGood()">查询</el-button>
                 </el-col>
             </el-row>
             <!-- table表格区域 -->
             <el-table :data="goodList" border stripe>
             <el-table-column type="index"></el-table-column>
-            <el-table-column label="商品图片" prop="goodsPicture" width="162px" align="center"></el-table-column>
+            <el-table-column label="商品图片" prop="goodsPicture" width="162px" align="center">
+                <template slot-scope="scope">
+                        <img :src="'http://localhost:8080'+scope.row.goodsPicture" alt="图片" class="all_img">
+                    </template>
+            </el-table-column>
             <el-table-column label="商品编号" prop="goodsId" width="240" align="center"></el-table-column>
             <el-table-column label="库存编号" prop="stockGoodsId" width="240" align="center"></el-table-column>
             <el-table-column label="商品名称" prop="goodsName" width="140px" align="center"></el-table-column>
             <el-table-column label="商品类别" prop="goodsCategoryId" width="80px" align="center"> 
                 <template slot-scope="scope">
-                    <span v-if="scope.row.goodsCategoryId == 1">方便速食</span>
-                    <span v-else-if="scope.row.goodsCategoryId == 2">生鲜水果</span>
-                    <span v-else-if="scope.row.goodsCategoryId == 3">休闲零食</span>
-                    <span v-else-if="scope.row.goodsCategoryId == 4">粮油米面</span>
-                    <span v-else-if="scope.row.goodsCategoryId == 5">乳饮酒水</span>
-                    <span v-else-if="scope.row.goodsCategoryId == 6">日用百货</span>
-                    <span v-else-if="scope.row.goodsCategoryId == 7">母婴用品</span>
-                    <span v-else-if="scope.row.goodsCategoryId == 8">个人护理</span>
-                    <span v-else-if="scope.row.goodsCategoryId == 9">纸品家清</span>
-                    <span v-else-if="scope.row.goodsCategoryId == 10">美容护肤</span>
-                    <span v-else-if="scope.row.goodsCategoryId == 11">酒水饮料</span>
-                    <span v-else-if="scope.row.goodsCategoryId == 12">童装童鞋</span>
-                    <span v-else-if="scope.row.goodsCategoryId == 13">家纺内衣</span>
-                    <span v-else-if="scope.row.goodsCategoryId == 14">宠物生活</span>
-                    <span v-else-if="scope.row.goodsCategoryId == 15">电器数码</span>
-                    <span v-else-if="scope.row.goodsCategoryId == 16">进口保健</span>
-                    <span v-else-if="scope.row.goodsCategoryId == 17">医药保健</span>
-                </template></el-table-column>
+                        <span v-for="item in category" :key="item.categoryId" >
+                            <span v-if="scope.row.goodsCategoryId==item.categoryId">
+                                {{item.categoryName}}
+                            </span>
+                        </span>
+                </template>
+                
+                </el-table-column>
             <el-table-column label="品牌名称" prop="goodsBrand" width="85px" align="center"></el-table-column>
             <el-table-column label="库存量" prop="stockInventory" width="70px" align="center"></el-table-column>
             <el-table-column label="保质期/天" prop="stockGoodsShelfLife" width="85px" align="center"></el-table-column>
@@ -71,12 +65,20 @@
             <el-table-column label="生产日期" prop="stockGoodsProductionDate" width="120" align="center"></el-table-column>
             <el-table-column label="单位" prop="stockUnitId" width="70px" align="center">
                 <template slot-scope="scope">
+                            <span v-for="item in unit" :key="item.unitId" >
+                                <span v-if="scope.row.stockUnitId==item.unitId">
+                                    {{item.unitName}}
+                                </span>
+                            </span>
+                </template>
+                <!-- <template slot-scope="scope">
                     <span v-if="scope.row.unitId == 1">盒</span>
                     <span v-else-if="scope.row.stockUnitId == 2">瓶</span>
                     <span v-else-if="scope.row.stockUnitId == 3">袋</span>
                     <span v-else-if="scope.row.stockUnitId == 4">杯</span>
                     <span v-else-if="scope.row.stockUnitId == 5">件</span>
-                </template></el-table-column>
+                </template> -->
+            </el-table-column>
             <el-table-column label="规格" prop="goodsSpecifications" width="90px" align="center"></el-table-column>
             <el-table-column label="选择件数" width="200px" align="center" fixed="right">
                 <template slot-scope="scope">
@@ -91,29 +93,22 @@
             <!-- 批发购物车信息表单 -->
             <el-table :data="cardListAll" border stripe>
                 <el-table-column type="index"></el-table-column>
-                <el-table-column label="商品图片" prop="goodsPicture"></el-table-column>
+                <el-table-column label="商品图片" prop="goodsPicture">
+                    <template slot-scope="scope">
+                        <img :src="'http://localhost:8080'+scope.row.goodsPicture"  alt="图片" class="all_img">
+                    </template>
+                </el-table-column>
                 <el-table-column label="商品编号" prop="stockGoodsId" width="240"></el-table-column>
                 <el-table-column label="商品名称" prop="goodsName" width="140px"></el-table-column>
                 <el-table-column label="商品类别" prop="goodsCategoryId" width="80px" align="center"> 
-                <template slot-scope="scope">
-                    <span v-if="scope.row.goodsCategoryId == 1">方便速食</span>
-                    <span v-else-if="scope.row.goodsCategoryId == 2">生鲜水果</span>
-                    <span v-else-if="scope.row.goodsCategoryId == 3">休闲零食</span>
-                    <span v-else-if="scope.row.goodsCategoryId == 4">粮油米面</span>
-                    <span v-else-if="scope.row.goodsCategoryId == 5">乳饮酒水</span>
-                    <span v-else-if="scope.row.goodsCategoryId == 6">日用百货</span>
-                    <span v-else-if="scope.row.goodsCategoryId == 7">母婴用品</span>
-                    <span v-else-if="scope.row.goodsCategoryId == 8">个人护理</span>
-                    <span v-else-if="scope.row.goodsCategoryId == 9">纸品家清</span>
-                    <span v-else-if="scope.row.goodsCategoryId == 10">美容护肤</span>
-                    <span v-else-if="scope.row.goodsCategoryId == 11">酒水饮料</span>
-                    <span v-else-if="scope.row.goodsCategoryId == 12">童装童鞋</span>
-                    <span v-else-if="scope.row.goodsCategoryId == 13">家纺内衣</span>
-                    <span v-else-if="scope.row.goodsCategoryId == 14">宠物生活</span>
-                    <span v-else-if="scope.row.goodsCategoryId == 15">电器数码</span>
-                    <span v-else-if="scope.row.goodsCategoryId == 16">进口保健</span>
-                    <span v-else-if="scope.row.goodsCategoryId == 17">医药保健</span>
-                </template></el-table-column>
+                    <template slot-scope="scope">
+                        <span v-for="item in category" :key="item.categoryId" >
+                            <span v-if="scope.row.goodsCategoryId==item.categoryId">
+                                {{item.categoryName}}
+                            </span>
+                        </span>
+                    </template>
+                </el-table-column> 
                 <el-table-column label="品牌名称" prop="goodsBrand" width="85px"></el-table-column>
                 <el-table-column label="商品单价/元" prop="stockGoodsPrice" width="120px"></el-table-column>
                 <el-table-column label="批发单价/元" width="120px">
@@ -132,7 +127,10 @@
                 </el-form-item>
                 <el-form-item style="float:right" >
                     <el-button type="primary" @click="shoppingCartDialog = false" size="mini">返回</el-button>
-                    <el-button type="success" @click="confirm()" size="mini">确认</el-button>
+                    <el-button-group v-for="func in functionList_two" :key="func.functionId">
+                        <el-button :type="func.btnType" size="mini"  @click="confirm()">确认</el-button>
+                    </el-button-group>
+                    <!-- <el-button type="success" @click="confirm()" size="mini">确认</el-button> -->
                 </el-form-item>
             </el-form>
             <!--span slot="footer" class="dialog-footer">
@@ -141,12 +139,19 @@
             </span-->
         </el-dialog>
         
-        <el-pagination
+        <el-pagination v-if="!searchFlag"
         :current-page="queryInfo.pageIndex" :page-sizes="[queryInfo.infoCount]" 
         :page-size="queryInfo.infoCount" :total="queryInfo.total"
         @current-change="currentChange"
         layout="total, sizes, prev, pager, next, jumper">
         </el-pagination>
+        <el-pagination v-if="searchFlag"
+        :current-page="searchQueryInfo.pageIndex" :page-sizes="[searchQueryInfo.infoCount]" 
+        :page-size="searchQueryInfo.infoCount" :total="searchQueryInfo.total"
+        @current-change="currentChange"
+        layout="total, sizes, prev, pager, next, jumper">
+        </el-pagination>
+        
         <div class="shopping_cart_icon"  @click="showDialog()"></div>
         </el-card>
     </div>
@@ -173,6 +178,12 @@ export default {
             cartList:[],
             //是否已经渲染功能按钮
             isDraw:false,
+            //功能列表类别
+            category:'',
+            //单位
+            unit:'',
+            //判断是否是模糊盘点
+            searchFlag:false,
             //购物车弹框
             shoppingCartDialog:false,
             options: [{
@@ -241,12 +252,20 @@ export default {
                 goodsCategoryId:null,
                 goodsBrand:null
             },
-            //获取部分用户信息的先决条件
+            //获取初始化部分用户信息的先决条件
             queryInfo:{
                 total:0,
                 pageIndex:1,
-                infoCount:4
+                infoCount:5
             },
+            //模糊查询初始化页数
+            searchQueryInfo:{
+                total:0,
+                pageIndex:1,
+                infoCount:5
+            },
+            //判断模糊查询 页数是否初始化
+            init:true,
             secondaryMenuList:[],
             secondaryMenuId:'',
             cardListAll:[]
@@ -281,16 +300,21 @@ export default {
         //点击+-数量，刷新购物车
         addToCart(scope){
             let flag = false
+            
             for(let i = 0;i < this.cardListAll.length;i++){
+                //判断购物车数量是否为0
                 if (scope.row.stockGoodsId == this.cardListAll[i].stockGoodsId) {
-                    this.cardListAll[i].num = scope.row.num
-                    flag = true
+                        this.cardListAll[i].num = scope.row.num
+                        if(scope.row.num==0){
+                            this.cardListAll.splice(i,1)
+                        }
+                        flag = true
                 }
             }
             if (!flag) {
                 this.cardListAll.push(scope.row)
+                // this.$delete(this.cardListAll)
             }
-            //console.log(this.cardListAll)
         },
         //判断批发单价输入框合法性
         onPriceChange(info){
@@ -342,8 +366,16 @@ export default {
         },
         //获取指定页面的信息
         currentChange(currentPage){
-            this.queryInfo.pageIndex = currentPage
-            this.getGoodList()
+            
+            if(this.searchFlag){
+                //得到模糊查询的分页
+                this.searchQueryInfo.pageIndex = currentPage
+                this.searchGood()
+            }else{
+                this.queryInfo.pageIndex = currentPage
+                this.getGoodList()
+            }
+            
         },
         //连接多页商品的购物车
         getCartList(){
@@ -376,7 +408,8 @@ export default {
             }
         },
         getGoodList(){
-            // console.log(window.sessionStorage.getItem('staffId'))
+            //将模糊查询设为false
+            this.searchFlag=false
             // 获取当前二级菜单的id
             this.secondaryMenuList = window.sessionStorage.getItem('secondaryMenuList')
             this.secondaryMenuList = JSON.parse(this.secondaryMenuList)
@@ -389,6 +422,7 @@ export default {
             }
 
             let data = {
+                staffId:window.sessionStorage.staffId,
                 pageIndex:this.queryInfo.pageIndex-1,
                 pageSize:this.queryInfo.infoCount,
                 secondaryMenuId:this.secondaryMenuId
@@ -400,11 +434,12 @@ export default {
             })
             .then((res) => {
                 console.log(res.data)
+                this.category=res.data.categoryList
                 this.goodList = res.data.goodsStockAList
                 this.allData = res.data
                 this.functionList = res.data.functionList
                 // console.log(res)
-
+                this.unit=res.data.unitList
                 this.goodList.map((item) => {
                     let data = new Date(item.stockGoodsProductionDate)
                     item.stockGoodsProductionDate = data.getFullYear() + "-" + (data.getMonth() + 1) + "-" + data.getDate()
@@ -419,11 +454,12 @@ export default {
                     for (let i = 0; i < this.functionList.length; i++) {
                         if (this.functionList[i].functionId == 24) {
                             this.$set(this.functionList[i],"btnType","success")
-                            this.$set(this.functionList[i],"btnIcon","el-icon-edit")
-                            this.functionList_one.push(this.functionList[i])
+                            // this.$set(this.functionList[i],"btnIcon","el-icon-edit")
+                            this.functionList_two.push(this.functionList[i])
                         } 
                         this.isDraw = true                        
                     }
+                    // console.log(this.functionList_two)
                 }
             })
             .catch((err) => {
@@ -476,14 +512,24 @@ export default {
                 this.shoppingCartDialog = false
             })
         },
+        //查询按钮点击时
+        getSearchGood(){
+            //点击按钮的时候初始化请求查询页数
+            this.init=true
+            this.searchGood()
+        },
         searchGood(){
-            this.queryInfo.total=0
-            this.queryInfo.pageIndex=1
+            this.searchFlag=true
+            if(this.init){
+                this.searchQueryInfo.total=0
+                this.searchQueryInfo.pageIndex=1
+            }
+            this.init=false
             let data={
                 staffId:window.sessionStorage.staffId,
                 goods:this.selected,
-                pageIndex: this.queryInfo.pageIndex - 1,
-                pageSize: this.queryInfo.infoCount,
+                pageIndex: this.searchQueryInfo.pageIndex - 1,
+                pageSize: this.searchQueryInfo.infoCount,
                 secondaryMenuId: this.secondaryMenuId,
             }
             if(data.goods.goodsId==''){
@@ -519,7 +565,7 @@ export default {
                         this.$set(item,"pfPrice",0)
                     })
                     this.searchExistGoods()
-                    this.queryInfo.total = res.data.recordSum
+                    this.searchQueryInfo.total = res.data.recordSum
                 })
                 .catch((err) => {
                     this.$message.error(err.message)
@@ -566,5 +612,8 @@ export default {
 }
 .input{
     width: 203px;
+}
+.all_img{
+    width: 100px;
 }
 </style>

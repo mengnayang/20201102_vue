@@ -46,14 +46,14 @@
                     </el-select>
                 </el-col>
                 <el-col :span="4">
-                    <el-button type="primary" size="small" @click="searchGood()">查询</el-button>
+                    <el-button type="primary" size="small" @click="getSearchGood()">查询</el-button>
                 </el-col>
             </el-row>
             <!-- 列表区域 -->
             <el-table :data="dataList.stockingGoodsList" border>
                 <el-table-column label="商品图片" fixed width="120" align="center">
                     <template slot-scope="scope">
-                        <img :src="'http://localhost:8080' + scope.row.goodsPicture" alt="图片" class="all_img"> 
+                        <img :src="'http://localhost:8080'+scope.row.goodsPicture"  alt="图片" class="all_img">
                     </template>
                 </el-table-column>
                 <el-table-column label="商品编号" prop="stockGoodsId" fixed width="240" align="center"></el-table-column>
@@ -93,7 +93,7 @@
                             <el-form-item label="货品图片"> 
                                 <!-- eslint-disable-next-line -->
                                 <template slot-scope="scope">
-                                    <img :src="'http://localhost:8080' + currentStoreList.goods.goodsPicture" alt="图片" class="all_img"> 
+                                    <img :src="'http://localhost:8080'+currentStoreList.goods.goodsPicture" alt="图片" class="all_imag">
                                 </template>
                             </el-form-item>
                         </el-col>
@@ -184,9 +184,15 @@
                 </span>
             </el-dialog>
         </el-card>
-        <el-pagination
+        <el-pagination v-if="!searchFlag"
         :current-page="queryInfo.pageIndex" :page-sizes="[queryInfo.infoCount]" 
         :page-size="queryInfo.infoCount" :total="queryInfo.total"
+        @current-change="currentChange"
+        layout="total, sizes, prev, pager, next, jumper">
+        </el-pagination>
+        <el-pagination v-if="searchFlag"
+        :current-page="searchQueryInfo.pageIndex" :page-sizes="[searchQueryInfo.infoCount]" 
+        :page-size="searchQueryInfo.infoCount" :total="searchQueryInfo.total"
         @current-change="currentChange"
         layout="total, sizes, prev, pager, next, jumper">
         </el-pagination>
@@ -215,6 +221,7 @@
                     stockGoodsId:null,
                     stocktakingStatus:null,
                 },
+                
                 //查询列表的盘点状态
                 status:null,
                 //设置查看商品信息的弹窗是否可见
@@ -269,9 +276,19 @@
                 //分页信息
                 queryInfo:{
                     pageIndex:1,
-                    infoCount:4,
+                    infoCount:5,
                     total:0
-                }
+                },
+                //模糊查询初始化页数
+                searchQueryInfo:{
+                    total:0,
+                    pageIndex:1,
+                    infoCount:5
+                },
+                //判断是否是模糊盘点
+                searchFlag:false,
+                //判断模糊查询 页数是否初始化
+                init:true,
             }
         },
         created(){
@@ -282,6 +299,8 @@
         methods:{
              //初始获取部分用户信息
             getStoreList() {
+                //将模糊查询设为false
+                this.searchFlag=false
                  // 获取当前二级菜单的id
                 this.secondaryMenuList = window.sessionStorage.getItem('secondaryMenuList')
                 this.secondaryMenuList = JSON.parse(this.secondaryMenuList)
@@ -357,13 +376,24 @@
                     this.currentStoreList.stocktaking.stocktakingNum=this.currentStoreList.stocktaking.stockInventory
                 }
             },
+            getSearchGood(){
+                //点击按钮的时候初始化请求查询页数
+                this.init=true
+                this.searchGood()
+            },
             //查询指定需求的商品
             searchGood(){
+                 this.searchFlag=true
+                if(this.init){
+                    this.searchQueryInfo.total=0
+                    this.searchQueryInfo.pageIndex=1
+                }
+                this.init=false
                 let data={
                     userId:window.sessionStorage.staffId,
                     staffId:window.sessionStorage.staffId,
-                    pageIndex: this.queryInfo.pageIndex - 1,
-                    pageSize: this.queryInfo.infoCount,
+                    pageIndex: this.searchQueryInfo.pageIndex - 1,
+                    pageSize: this.searchQueryInfo.infoCount,
                     secondaryMenuId: this.secondaryMenuId,
                     stockingGoods: this.selected
                 }
@@ -410,7 +440,7 @@
                    if (res.data.functionList != undefined) {
                         this.functionList = res.data.functionList
                     }
-                    this.queryInfo.total = res.data.recordSum
+                    this.searchQueryInfo.total = res.data.recordSum
                     this.dataList=res.data
                     //渲染功能按钮
                     if(!this.isDraw) {
@@ -513,8 +543,14 @@
             },
            //根据指定页码获取相应的库存信息
             currentChange(currentPage) {
-                this.queryInfo.pageIndex = currentPage
-                this.getStoreList()
+                 if(this.searchFlag){
+                    //得到模糊查询的分页
+                    this.searchQueryInfo.pageIndex = currentPage
+                    this.searchGood()
+                }else{
+                    this.queryInfo.pageIndex = currentPage
+                    this.getStoreList()
+                }
             },
             //根据传来的盘点状态值显示
             stateFormat(row, column) {
@@ -580,4 +616,4 @@
 .all_img{
     width: 100px;
 }
-</style>
+</style>    

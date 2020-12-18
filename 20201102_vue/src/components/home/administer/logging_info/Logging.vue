@@ -30,27 +30,51 @@
                             <el-option v-for="item in staffAList" :key="item.staffId" :value="item.staffId" :label="item.staffName"></el-option>
                         </el-select>
                     </el-col>
-                    <el-col :span="2" :offset="1">
+                    <!-- <el-col :span="2" :offset="1">
                         <span>操作路径:</span>
                     </el-col>
                     <el-col :span="5">
-                        <el-input v-model="selected.selectedCheckUrl" size="mini"></el-input>
+                        <el-input v-model="selected.selectedCheckUrl" size="mini" placeholder="请输入查询的操作方法"></el-input>
+                    </el-col> -->
+                    <el-col :span="2" :offset="1">
+                        <span>访问IP:</span>
+                    </el-col>
+                    <el-col :span="5">
+                        <el-input v-model="selected.selectedCheckIP" size="mini" placeholder="请输入查询的用户IP"></el-input>
                     </el-col>
                 </el-row>
                 <el-row>
                     <el-col :span="2">
-                        <span>访问IP:</span>
+                        <span>操作功能:</span>
                     </el-col>
                     <el-col :span="5">
-                        <el-input v-model="selected.selectedCheckIP" size="mini"></el-input>
+                        <el-select v-model="selected.selectedFunction" size="mini">
+                            <el-option :key="1000" :value="1000" label="全部"></el-option>
+                            <el-option :key="1" :value="1" label="登陆操作"></el-option>
+                            <el-option :key="1" :value="1" label="退出操作"></el-option>
+                            <el-option :key="3" :value="3" label="查库存操作"></el-option>
+                            <el-option :key="4" :value="4" label="订单信息操作"></el-option>
+                            <el-option :key="5" :value="5" label="采购入库单操作"></el-option>
+                            <el-option :key="6" :value="6" label="批发出库单操作"></el-option>
+                            <el-option :key="7" :value="7" label="零售出库单操作"></el-option>
+                            <el-option :key="8" :value="8" label="盘点管理操作"></el-option>
+                            <el-option :key="9" :value="9" label="盘点设置操作"></el-option>
+                            <el-option :key="10" :value="10" label="批发收银操作"></el-option>
+                            <el-option :key="11" :value="11" label="零售收银操作"></el-option>
+                            <el-option :key="12" :value="12" label="批发退货操作"></el-option>
+                            <el-option :key="13" :value="13" label="零售退货操作"></el-option>
+                            <el-option :key="14" :value="14" label="货品盘点操作"></el-option>
+                            <el-option :key="15" :value="15" label="入库检查操作"></el-option>
+                            <el-option :key="16" :value="16" label="用户列表操作"></el-option>
+                            <el-option :key="17" :value="17" label="用户权限列表操作"></el-option>
+                            <el-option :key="18" :value="18" label="商品信息维护操作"></el-option>    
+                            <el-option :key="19" :value="19" label="类别信息维护操作"></el-option>
+                            <el-option :key="20" :value="20" label="单位信息维护操作"></el-option>
+                            <el-option :key="21" :value="21" label="日志记录操作"></el-option>
+                            <el-option :key="21" :value="21" label="错误日志操作"></el-option>
+                        </el-select>
                     </el-col>
-                    <el-col :span="2" :offset="2">
-                        <span>日志级别:</span>
-                    </el-col>
-                    <el-col :span="5">
-                        <el-input v-model="selected.selectedLevelString" size="mini"></el-input>
-                    </el-col>
-                    <el-col :span="5" :offset="1">
+                    <el-col :span="5" :offset="2">
                         <el-button type="primary" size="mini" @click="searchLogging()">查询</el-button>
                     </el-col>
                 </el-row>
@@ -58,17 +82,17 @@
             
             <!-- 列表区域 -->
             <el-table :data="isLazzy ? loggingEventList_lazzy :loggingEventList" border>
-                <el-table-column label="日志日期" prop="timestmp"  width="120" align="center"></el-table-column>
-                <el-table-column label="操作员工" width="120" align="center">
+                <el-table-column label="日志日期" prop="timestmp"  width="150" align="center"></el-table-column>
+                <el-table-column label="操作员工" width="150" align="center">
                     <template slot-scope="scope">
                         <span v-for="(item,index) in staffAList" :key="index">
                             <span v-if="item.staffId == scope.row.staffId">{{item.staffName}}</span>
                         </span>
                     </template>
                 </el-table-column>
-                <el-table-column label="操作路径" prop="check_url" align="center" width="350px"></el-table-column>
-                <el-table-column label="访问ip" prop="check_ip" width="130" align="center"></el-table-column>
-                <el-table-column label="日志级别" width="120" align="center">
+                <el-table-column label="操作路径" prop="check_url" align="center"></el-table-column>
+                <el-table-column label="访问ip" prop="check_ip" width="150" align="center"></el-table-column>
+                <el-table-column label="日志级别" width="150" align="center">
                     <template slot-scope="scope">
                         <el-tag v-if="scope.row.levelString == 'INFO'" type="success">INFO</el-tag>
                         <el-tag v-else-if="scope.row.levelString == 'WARN'" type="warning">WARN</el-tag>
@@ -92,7 +116,6 @@
                 layout="total, sizes, prev, pager, next, jumper">
             </el-pagination>
         </el-card>
-        
     </div>
 </template>
 
@@ -104,7 +127,7 @@
                 //指定日志需求
                 selected:{
                     selectedTimestmp:'',
-                    selectedLevelString:'',
+                    selectedFunction:'',
                     selectedCheckUrl:'',
                     selectedCheckIP:'',
                     selectedStaffId:1000
@@ -127,8 +150,7 @@
                 isLazzy:false,
                 isDraw:false,
                 staffAList:[]
-            };
-                    
+            }       
         },
         created(){
             this.getLoggingEvent()
@@ -172,16 +194,15 @@
                         let temp_url = []
                         let temp_ip = []
                         for (let i = 0; i < this.loggingEventList.length; i++) {
-                                let array = this.loggingEventList[i].formattedMessage.split("||")
-
-                                this.$set(this.loggingEventList[i],"staffId",array[0].split("：")[1])
-                                this.$set(this.loggingEventList[i],"check_url",array[1].split(",")[0].split(" : ")[1])
-                                this.$set(this.loggingEventList[i],"check_ip",array[1].split(",")[2].split(" : ")[1])
-
-                                temp_staffList = array[0].split("：")[1]
-                                temp_url = array[1].split(",")[0].split(" : ")[1]
-                                temp_ip = array[1].split(",")[2].split(" : ")[1]
+                            let array = this.loggingEventList[i].formattedMessage.split("||")
                             
+                            this.$set(this.loggingEventList[i],"staffId",array[0].split("：")[1])
+                            this.$set(this.loggingEventList[i],"check_url",array[1].split(",")[0].split(" : ")[1])
+                            this.$set(this.loggingEventList[i],"check_ip",array[1].split(",")[2].split(" : ")[1])
+
+                            temp_staffList = array[0].split("：")[1]
+                            temp_url = array[1].split(",")[0].split(" : ")[1]
+                            temp_ip = array[1].split(",")[2].split(" : ")[1]
                         }                       
 
                         this.staffAList = res.data.staffAList
@@ -226,25 +247,71 @@
             searchLogging(){
                 this.isLazzy = true
 
-                let temp = ''
-                if (this.selected.selectedTimestmp == '' || this.selected.selectedTimestmp == null) {
-                    this.selected.selectedTimestmp = null
-                } 
-
                 // 时间处理（时间戳）
                 let true_time = new Date(this.selected.selectedTimestmp)
                 let time_test = true_time.getFullYear() + "-" + (true_time.getMonth()+1) + "-" + true_time.getDate()
                 true_time = new Date(time_test).getTime()
                 true_time = parseInt(new Date(time_test).getTime()/100000000)
 
+                if (true_time == '' || true_time == null || true_time == 0) {
+                    true_time = null
+                } 
+
+
                 // 存储需要模糊查询的选项
                 let index = []
-                if (this.selected.selectedStaffId != "" || this.selected.selectedStaffId == 1000) {
+                if (this.selected.selectedStaffId != "" && this.selected.selectedStaffId != 1000) {
                     index.push(this.selected.selectedStaffId)
                 }
-                if (this.selected.selectedCheckUrl != "") {
-                    index.push(this.selected.selectedCheckUrl)
+                if (this.selected.selectedFunction == 1) {
+                    index.push('/staff/login')
+                } else if (this.selected.selectedFunction == 2) {
+                    index.push('/staff/logout')
+                } else if (this.selected.selectedFunction == 3) {
+                    index.push('/showinventory')
+                } else if (this.selected.selectedFunction == 4) {
+                    index.push('/orderInformation')
+                } else if (this.selected.selectedFunction == 5) {
+                    index.push('/purchaselist')
+                } else if (this.selected.selectedFunction == 6) {
+                    index.push('/wholesaledeliverylist')
+                } else if (this.selected.selectedFunction == 7) {
+                    index.push('/retaildeliverylist')
+                } else if (this.selected.selectedFunction == 8) {
+                    index.push('/stocktaking')
+                } else if (this.selected.selectedFunction == 9) {
+                    index.push('/stocktaking/viewStocktakingRules')
+                } else if (this.selected.selectedFunction == 10) {
+                    index.push('/deliverycashier')
+                } else if (this.selected.selectedFunction == 11) {
+                    index.push('/retailcashier')
+                } else if (this.selected.selectedFunction == 12) {
+                    index.push('/deliveryreturn')
+                } else if (this.selected.selectedFunction == 13) {
+                    index.push('/retailreturn')
+                } else if (this.selected.selectedFunction == 14) {
+                    index.push('/stocktaking/viewStocktakingGoodsList')
+                } else if (this.selected.selectedFunction == 15) {
+                    index.push('/exportinspect')
+                } else if (this.selected.selectedFunction == 16) {
+                    index.push('/stafflist')
+                } else if (this.selected.selectedFunction == 17) {
+                    index.push('/stafflistjurisdiction')
+                } else if (this.selected.selectedFunction == 18) {
+                    index.push('/goodsinformation')
+                } else if (this.selected.selectedFunction == 19) {
+                    index.push('/categoryinformation')
+                } else if (this.selected.selectedFunction == 20) {
+                    index.push('/unitinformation')
+                } else if (this.selected.selectedFunction == 21) {
+                    index.push('/logging')
+                } else if (this.selected.selectedFunction == 22) {
+                    index.push('/logging/findByConditions')
                 }
+
+                // if (this.selected.selectedCheckUrl != "") {
+                //     index.push(this.selected.selectedCheckUrl)
+                // }
                 if (this.selected.selectedCheckIP != "") {
                     index.push(this.selected.selectedCheckIP)
                 }
@@ -385,10 +452,6 @@
 .el-pagination{
     margin-top: 10px;
     padding-left: 120px;
-}
-
-.sinput{
-    width: 180px;
 }
 
 </style>

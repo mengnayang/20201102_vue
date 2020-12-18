@@ -40,7 +40,7 @@
             <el-table :data="deliveryGoodList" border >
                 <el-table-column label="商品图片" fixed width="100" align="center">
                     <template slot-scope="scope">
-                        <img :src="scope.row.goodsPicture" width="30px" height="20px" alt="图片">
+                        <img :src="'http://localhost:8080'+scope.row.goodsPicture" alt="图片" class="all_img">
                     </template>
                 </el-table-column>
                 <el-table-column label="商品编号" prop="deliveryStockGoodsId" fixed width="180" align="center"></el-table-column>
@@ -151,7 +151,7 @@
                 queryInfo:{
                     total:0,
                     pageIndex:1,
-                    infoCount:4
+                    infoCount:5
                 },
                 //二级菜单列表
                 secondaryMenuList:[],
@@ -371,5 +371,7 @@
 .sinput{
     width: 180px;
 }
-
+.all_img{
+    width: 100px;
+}
 </style>

@@ -101,7 +101,7 @@
                 //分页信息
                 queryInfo:{
                     pageIndex:1,
-                    infoCount:3,
+                    infoCount:5,
                     total:50
                 }
             }

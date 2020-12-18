@@ -22,7 +22,7 @@
                     </el-select>
                 </el-col>
                 <el-col :span="4">
-                    <el-button type="primary" size="small" @click="searchGood()">查询</el-button>
+                    <el-button type="primary" size="small" @click="getSearchGood()">查询</el-button>
                 </el-col>
             </el-row>
             <!-- 列表区域 -->
@@ -54,11 +54,17 @@
                 </el-table-column>
             </el-table>
             <div style="float:left">
-                <el-pagination
-                    :current-page="queryInfo.pageIndex" :page-sizes="[queryInfo.infoCount]" 
-                    :page-size="queryInfo.infoCount" :total="queryInfo.total"
-                    @current-change="currentChange"
-                    layout="total, sizes, prev, pager, next, jumper">
+                <el-pagination v-if="!searchFlag"
+                :current-page="queryInfo.pageIndex" :page-sizes="[queryInfo.infoCount]" 
+                :page-size="queryInfo.infoCount" :total="queryInfo.total"
+                @current-change="currentChange"
+                layout="total, sizes, prev, pager, next, jumper">
+                </el-pagination>
+                <el-pagination v-if="searchFlag"
+                :current-page="searchQueryInfo.pageIndex" :page-sizes="[searchQueryInfo.infoCount]" 
+                :page-size="searchQueryInfo.infoCount" :total="searchQueryInfo.total"
+                @current-change="currentChange"
+                layout="total, sizes, prev, pager, next, jumper">
                 </el-pagination>
             </div>
             <!-- 退货信息弹框 -->
@@ -144,8 +150,18 @@
                 queryInfo:{
                     total:0,
                     pageIndex:1,
-                    infoCount:4
+                    infoCount:5
                 },
+                //模糊查询初始化页数
+                searchQueryInfo:{
+                    total:0,
+                    pageIndex:1,
+                    infoCount:5
+                },
+                //判断是否是模糊盘点
+                searchFlag:false,
+                //判断模糊查询 页数是否初始化
+                init:true,
                 //二级菜单列表
                 secondaryMenuList:[],
                 //当前二级菜单的id
@@ -190,6 +206,8 @@
         methods:{
             //初始获取部分信息
             getRetailReturnList() {
+                //将模糊查询设为false
+                this.searchFlag=false
                  // 获取当前二级菜单的id
                 this.secondaryMenuList = window.sessionStorage.getItem('secondaryMenuList')
                 this.secondaryMenuList = JSON.parse(this.secondaryMenuList)
@@ -251,18 +269,27 @@
                     return'已退款'
                 }
             },
+            getSearchGood(){
+                //点击按钮的时候初始化请求查询页数
+                this.init=true
+                this.searchGood()
+            },
             //查询指定需求的商品
             searchGood(){
-                this.queryInfo.total=0
-                this.queryInfo.pageIndex=1
+                this.searchFlag=true
+                if(this.init){
+                    this.searchQueryInfo.total=0
+                    this.searchQueryInfo.pageIndex=1
+                }
+                this.init=false
                 let data={
                     staffId:window.sessionStorage.staffId,
                     retailRecord:this.selected,
-                    pageIndex: this.queryInfo.pageIndex - 1,
-                    pageSize: this.queryInfo.infoCount,
+                    pageIndex: this.searchQueryInfo.pageIndex - 1,
+                    pageSize: this.searchQueryInfo.infoCount,
                     secondaryMenuId: this.secondaryMenuId,
                 }
-                console.log(this.retailRefundStatus)
+                // console.log(this.retailRefundStatus)
                 if(this.retailRefundStatus=='未退款'){
                     data.retailRecord.retailRefundStatus=0
                 }else if(this.retailRefundStatus=='已退款'){
@@ -276,7 +303,7 @@
                     data.retailRecord.retailId=null
                 }
                 data.retailRecord=JSON.stringify(data.retailRecord)
-                console.log(data)
+                // console.log(data)
                 this.$axios.post('/retailreturn/findByConditions', this.$qs.stringify(data),{
                     headers:{
                         staffToken: window.sessionStorage.getItem('staffToken')
@@ -285,7 +312,7 @@
                 .then((res) => {
                     console.log(res.data)
                     if (res.data.success) {
-                        this.queryInfo.total = res.data.recordSum
+                        this.searchQueryInfo.total = res.data.recordSum
                         this.retailReturnList=res.data.retailRecordList   
                         this.retailReturnList.map((item) => {
                             let data = new Date(item.retailTime)
@@ -322,8 +349,14 @@
             },
             //获取指定页面的信息
             currentChange(currentPage){
-                this.queryInfo.pageIndex = currentPage
-                this.getRetailReturnList()
+                 if(this.searchFlag){
+                    //得到模糊查询的分页
+                    this.searchQueryInfo.pageIndex = currentPage
+                    this.searchGood()
+                }else{
+                    this.queryInfo.pageIndex = currentPage
+                    this.getRetailReturnList()
+                }
             }
         }
     
