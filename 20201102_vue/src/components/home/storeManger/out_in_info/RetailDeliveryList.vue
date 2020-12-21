@@ -14,7 +14,7 @@
                     <span>订单编号</span>
                 </el-col>
                 <el-col :span="5">   
-                    <el-input v-model="selected.selectedRetailId" size="mini"></el-input>
+                    <el-input maxlength="100" v-model="selected.selectedRetailId" size="mini" placeholder="请输入查询的订单编号" clearable></el-input>
                 </el-col>
                 <el-col :span="2" :offset="1">
                     <span>收款员工</span>
@@ -72,12 +72,15 @@
                 </el-table-column>
             </el-table>
             <!-- 二级 -->
-            <el-table :data="retailList" border stripe v-show="isSecond">
-                <el-table-column label="订单编号" prop="retailId" width="200" align="center"></el-table-column>
-                <el-table-column label="商品编号" prop="retailStockGoodsId" width="200" align="center"></el-table-column>
-                <el-table-column label="订单数量" prop="retailNum"  width="200" align="center"></el-table-column>
-                <el-table-column label="订单价格" prop="retailPrice"  width="180" align="center"></el-table-column>
-                <el-table-column label="操作" fixed="right" width="150" align="center">
+            <el-table :data="retailGoodsList" border stripe v-show="isSecond">
+                <el-table-column label="商品编号" prop="retailStockGoodsId" fixed  width="180" align="center"></el-table-column>
+                <el-table-column label="商品名称" prop="goodsName" width="180" align="center"></el-table-column>
+                <el-table-column label="商品类别" prop="categoryName" width="120" align="center"></el-table-column>
+                <el-table-column label="品牌名称" prop="goodsBrand"  width="120" align="center"></el-table-column>
+                <el-table-column label="订单数量" prop="retailNum"  width="120" align="center"></el-table-column>
+                <el-table-column label="价格" prop="retailPrice"  width="120" align="center"></el-table-column>
+                <el-table-column label="单位" prop="unitName"  width="120" align="center"></el-table-column>
+                <el-table-column label="操作" fixed="right" width="120" align="center">
                     <template slot-scope="scope">
                         <el-button-group v-for="func in functionList_two" :key="func.functionId">
                             <el-tooltip effect="light" placement="top" :content="func.functionName" :enterable="false">
@@ -109,19 +112,19 @@
                     </el-col>
                 </el-row>
                 <el-row>
-                    <el-col :span="7" :offset="1">
+                    <el-col :span="4" :offset="1">
                         <el-form-item label="仓库编号：">
                             {{currentRetail.stock.stockId}}
                         </el-form-item>
                     </el-col>
-                    <el-col :span="7" :offset="1">
+                    <el-col :span="10" :offset="1">
                         <el-form-item label="入库编号：">
                             {{currentRetail.stock.stockExportBillId}}
                         </el-form-item>
                     </el-col>
                     <el-col :span="7" :offset="1">
                         <el-form-item label="产品批号：">
-                            {{currentRetail.stock.stockGoodsBatchNumber }}
+                            {{currentRetail.stock.stockGoodsBatchNumber}}
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -281,7 +284,7 @@
                 // 模糊查询列表
                 retailRecordList_lazzy:[],
                 // 二层存储
-                retailList:[],
+                retailGoodsList:[],
                 // 存储第一层的信息
                 currentRowInfo:'',
                 lookGoodDialog:false
@@ -444,8 +447,8 @@
                     if (res.data.success) {
                         this.isFirst = false
                         this.isSecond = true
-                        this.retailList = res.data.retailList
-                        // this.queryInfo2.total = res.data.recordSum
+                        this.retailGoodsList = res.data.retailGoodsList
+                        this.queryInfo2.total = res.data.recordSum
                     } else {
                         this.$message.error(res.data.errMsg)
                     }
@@ -456,9 +459,10 @@
             },
             //查看商品详情
             lookDialogInfo(rowInfo) {
+                console.log(rowInfo)
                 this.lookGoodDialog = true
                 let data = {
-                    retailId:rowInfo.retailId,
+                    retailId:this.currentRowInfo.retailId,
                     retailStockGoodsId:rowInfo.retailStockGoodsId,
                 }
                 this.$axios.post('/retaildeliverylist/retailgoodsdetails', this.$qs.stringify(data), {

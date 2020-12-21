@@ -105,7 +105,7 @@
             </el-table>
             <el-form :inline="true" class="jsb">
                 <el-form-item :span="6" label="应付款：">
-                    <el-input type="text" id="sumPrice" width="70px" :disabled="true" v-model.number="newRetailRecord.retailTotalPrice"></el-input>
+                    <el-input type="text" id="sumPrice" width="70px" :disabled="true" v-model="newRetailRecord.retailTotalPrice"></el-input>
                 </el-form-item>
                 <el-form-item style="float:right" >
                         <el-button type="primary" @click="shoppingCartDialog = false" size="mini">返回</el-button>

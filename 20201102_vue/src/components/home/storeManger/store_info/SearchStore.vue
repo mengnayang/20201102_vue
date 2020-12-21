@@ -14,13 +14,13 @@
                     <span>商品编号:</span>
                 </el-col>
                 <el-col :span="5">
-                    <el-input v-model="selected.selectedGoodsId" size="mini"></el-input>
+                    <el-input v-model="selected.selectedGoodsId" maxlength="100" size="mini" placeholder="请输入查询的商品编号" clearable></el-input>
                 </el-col>
                 <el-col :span="2" :offset="1">
                     <span>商品名称:</span>
                 </el-col>
                 <el-col :span="5">
-                    <el-input v-model="selected.selectedGoodsName" size="mini"></el-input>
+                    <el-input v-model="selected.selectedGoodsName" maxlength="100" size="mini" placeholder="请输入查询的商品名称" clearable></el-input>
                 </el-col>
                 <el-col :span="7" :offset="1">
                     <span>商品类别:</span>
@@ -35,7 +35,7 @@
                     <span>品牌类别:</span>
                 </el-col>
                 <el-col :span="5">
-                    <el-input v-model="selected.selectedGoodsBrand" size="mini"></el-input>
+                    <el-input v-model="selected.selectedGoodsBrand" maxlength="100" size="mini" placeholder="请输入查询的品牌类别" clearable></el-input>
                 </el-col>
                 <el-col :span="12" :offset="1">
                     <el-button type="primary" size="mini" @click="searchGood()">查询</el-button>
@@ -260,14 +260,14 @@
                         </el-col>
                         <el-col :span="10" :offset="1">
                             <el-form-item label="售价/元:" prop="stockGoodsPrice"> 
-                                <el-input type="number" auto-complete="off" v-model.number="currentGood.stockGoodsPrice"></el-input>
+                                <el-input type="number" maxlength="100" auto-complete="off" v-model.number="currentGood.stockGoodsPrice"></el-input>
                             </el-form-item>
                         </el-col>
                     </el-row>
                     <el-row>
                         <el-col :span="10">
                             <el-form-item label="规格:"> 
-                                <el-input auto-complete="off" v-model="currentGood.goodsSpecifications" disabled></el-input>
+                                <el-input auto-complete="off" maxlength="100" v-model="currentGood.goodsSpecifications" disabled></el-input>
                             </el-form-item>
                         </el-col>
                         <el-col :span="10" :offset="1">
@@ -292,19 +292,19 @@
                     <el-row>
                         <el-col :span="11">
                             <el-form-item label="商品编号:" prop="goodsId">
-                                <el-input v-model.number="currentGood.goodsId" auto-complete="off"></el-input>
+                                <el-input maxlength="100" v-model.number="currentGood.goodsId" auto-complete="off"></el-input>
                             </el-form-item>
                         </el-col>
                         <el-col :span="11" :offset="1">
                             <el-form-item label="商品名称:" prop="goodsName">
-                                 <el-input v-model="currentGood.goodsName" auto-complete="off"></el-input>
+                                 <el-input maxlength="100" v-model="currentGood.goodsName" auto-complete="off" clearable></el-input>
                             </el-form-item>
                         </el-col>
                     </el-row>
                     <el-row>
                         <el-col :span="11">
                             <el-form-item label="品牌名称:" prop="goodsBrand">
-                                <el-input v-model="currentGood.goodsBrand" auto-complete="off"></el-input>
+                                <el-input maxlength="100" v-model="currentGood.goodsBrand" auto-complete="off" clearable></el-input>
                             </el-form-item>
                         </el-col>
                         <el-col :span="11" :offset="1">
@@ -329,14 +329,14 @@
                         </el-col>
                         <el-col :span="11" :offset="1">
                             <el-form-item label="规格:">
-                                <el-input v-model="currentGood.goodsSpecifications" auto-complete="off"></el-input>
+                                <el-input maxlength="100" v-model="currentGood.goodsSpecifications" auto-complete="off"></el-input>
                             </el-form-item>
                         </el-col>
                     </el-row>
                     <el-row>
                         <el-col :span="11">
                             <el-form-item label="订货量:">
-                                <el-input v-model="currentGood.stockOrderNum" auto-complete="off" :min="0"></el-input>
+                                <el-input maxlength="100" v-model="currentGood.stockOrderNum" auto-complete="off" :min="0"></el-input>
                             </el-form-item>
                         </el-col>
                         <el-col :span="11" :offset="1">
@@ -357,19 +357,19 @@
                     <el-row>
                         <el-col :span="11">
                             <el-form-item label="商品编号:">
-                                <el-input v-model="currentGood.goodsId" auto-complete="off" disabled></el-input>
+                                <el-input maxlength="100" v-model="currentGood.goodsId" auto-complete="off" disabled></el-input>
                             </el-form-item>
                         </el-col>
                         <el-col :span="11" :offset="1">
                             <el-form-item label="商品名称:">
-                                 <el-input v-model="currentGood.goodsName" auto-complete="off" disabled></el-input>
+                                 <el-input maxlength="100" v-model="currentGood.goodsName" auto-complete="off" disabled></el-input>
                             </el-form-item>
                         </el-col>
                     </el-row>
                     <el-row>
                         <el-col :span="11">
                             <el-form-item label="品牌名称:">
-                                <el-input v-model="currentGood.goodsBrand" auto-complete="off" disabled></el-input>
+                                <el-input maxlength="100" v-model="currentGood.goodsBrand" auto-complete="off" disabled></el-input>
                             </el-form-item>
                         </el-col>
                         <el-col :span="11" :offset="1">
@@ -394,19 +394,19 @@
                         </el-col>
                         <el-col :span="11" :offset="1">
                             <el-form-item label="规格:">
-                                <el-input v-model="currentGood.goodsSpecifications" auto-complete="off"></el-input>
+                                <el-input maxlength="100" v-model="currentGood.goodsSpecifications" auto-complete="off"></el-input>
                             </el-form-item>
                         </el-col>
                     </el-row>
                     <el-row>
                         <el-col :span="11">
                             <el-form-item label="库存量">
-                                <el-input v-model="currentGood.stockInventoryNum" auto-complete="off" disabled></el-input>
+                                <el-input maxlength="100" v-model="currentGood.stockInventoryNum" auto-complete="off" disabled></el-input>
                             </el-form-item>
                         </el-col>
                         <el-col :span="11" :offset="1">
                             <el-form-item label="订货量" required>
-                                <el-input type="number" v-model.number="currentGood.stockOrderNum" auto-complete="off"></el-input>
+                                <el-input maxlength="100" type="number" v-model.number="currentGood.stockOrderNum" auto-complete="off"></el-input>
                             </el-form-item>
                         </el-col>
                     </el-row>
@@ -641,27 +641,8 @@
                 })
                 this.addNewGoodDialog = true
             },
-            handImage(e) {
-            //     let self = this;
-            //     let reader = new FileReader();
-            //     reader.readAsDataURL(e.target.files[0]);
-            //     reader.onload = function (e) {
-            //         self.headImg = e.target.result; 
-            //         self.currentGood.goodsPicture = self.headImg
-            //     }   
-            console.log(e)
-                console.log(e.target.files[0])
-                this.currentGood.goodsPicture=e.target.files[0]
-            },
-            dataURItoBlob(dataURI) {
-                var byteString = atob(dataURI.split(',')[1]);
-                var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-                var ab = new ArrayBuffer(byteString.length);
-                var ia = new Uint8Array(ab);
-                for (var i = 0; i < byteString.length; i++) {
-                    ia[i] = byteString.charCodeAt(i);
-                }
-                return new Blob([ab], {type: mimeString});
+            handImage(e) { 
+                this.currentGood.goodsPicture = e.target.files[0]
             },
             //新货补充
             addNewGood() {
@@ -685,16 +666,24 @@
                 if (flag == -1) {
                     return
                 }
-                // var fd = new FormData();
-                // var blob = this.dataURItoBlob(this.currentGood.goodsPicture);
-                
+                flag = this.onNumChange('商品类别',this.currentGood.goodsCategoryId)
+                if (flag == -1) {
+                    return
+                }
+                flag = this.onNumChange('商品单位',this.currentGood.goodsUnit)
+                if (flag == -1) {
+                    return
+                }
+                flag = this.onNumChange('商品图片',this.currentGood.goodsPicture)
+                if (flag == -1) {
+                    return
+                }
                 let goods = {
                     goodsId: this.currentGood.goodsId,
                     goodsName: this.currentGood.goodsName,
                     goodsCategoryId:this.currentGood.goodsCategoryId,
                     goodsBrand:this.currentGood.goodsBrand,
                     goodsSpecifications:this.currentGood.goodsSpecifications,
-                    // goodsPicture:blob
                     goodsPicture:null
                 }
                 let coupon = {
@@ -711,13 +700,10 @@
                 let config = {
                     headers: {
                         staffToken: window.sessionStorage.getItem('staffToken'),
-                        // processData : false,  //必须false才会避开jQuery对 formdata 的默认处理   
-                        // contentType : false,  //必须false才会自动加上正确的Content-Type
                     }
                 }
                 var formData = new FormData();
                 formData.append('image',this.currentGood.goodsPicture);
-                console.log(this.currentGood.goodsPicture);
                 formData.append('staffId', window.sessionStorage.getItem('staffId'));
                 formData.append('goods', JSON.stringify(goods));
                 formData.append('coupon', JSON.stringify(coupon));
@@ -726,11 +712,6 @@
                     formData,
                     config
                 )
-                // fd.append('goods',JSON.stringify(goods))
-                // fd.append('coupon',JSON.stringify(coupon))
-                // fd.append('staffId',window.sessionStorage.getItem('staffId'))
-                // console.log(fd.get('goods'))
-                //this.$axios.post('/showinventory/newgoodscommit',this.$qs.stringify(data),config)
                 .then((res) => {
                     if (res.data.success) {
                         this.$message.success('添加成功')
@@ -891,7 +872,6 @@
                 .then((res) => {
                     if (res.data.success) {
                         this.unitList = res.data.unitList
-                        this.currentGood.goodsUnit = 1
                     } else {
                         this.$message.error(res.data.errMsg)
                     }
@@ -907,36 +887,41 @@
                 this.flag = this.onNumChange('订货量', this.currentGood.stockOrderNum)
                 if (this.flag == -1) {
                     return 
-                } else if (this.flag == 0) {
-                    let coupon = {
-                        couponGoodsId:this.currentGood.goodsId,
-                        couponUnitId:this.currentGood.goodsUnit,
-                        couponNum:this.currentGood.stockOrderNum,
-                        couponStaffId: window.sessionStorage.getItem('staffId')
-                    }
-                    let data = {
-                        staffId: window.sessionStorage.getItem('staffId'),
-                        coupon: JSON.stringify(coupon)
-                    }
-                    this.$axios.post('/replenishmentapplication/replenishmentcommit', this.$qs.stringify(data), {
-                        headers:{
-                            staffToken: window.sessionStorage.getItem('staffToken')
-                        }
-                    })
-                    .then((res) => {
-                        if (res.data.success) {
-                            this.$message.success('补货申请提交成功')
-                            this.getPartGood()
-                            this.flag = 0
-                        } else {
-                            this.$message.error(res.data.errMsg)
-                        }
-                    })
-                    .catch((err) => {
-                    this.$message.error(err.message)
-                    })
-                    this.addOldGoodDialog = false
+                } 
+                this.flag = this.onNumChange('商品单位', this.currentGood.goodsUnit)
+                if (this.flag == -1) {
+                    return 
+                } 
+
+                let coupon = {
+                    couponGoodsId:this.currentGood.goodsId,
+                    couponUnitId:this.currentGood.goodsUnit,
+                    couponNum:this.currentGood.stockOrderNum,
+                    couponStaffId: window.sessionStorage.getItem('staffId')
                 }
+                let data = {
+                    staffId: window.sessionStorage.getItem('staffId'),
+                    coupon: JSON.stringify(coupon)
+                }
+                this.$axios.post('/replenishmentapplication/replenishmentcommit', this.$qs.stringify(data), {
+                    headers:{
+                        staffToken: window.sessionStorage.getItem('staffToken')
+                    }
+                })
+                .then((res) => {
+                    if (res.data.success) {
+                        this.$message.success('补货申请提交成功')
+                        this.getPartGood()
+                        this.flag = 0
+                    } else {
+                        this.$message.error(res.data.errMsg)
+                    }
+                })
+                .catch((err) => {
+                this.$message.error(err.message)
+                })
+                this.addOldGoodDialog = false
+                
             },
             //获取指定页面的信息
             currentChange(currentPage){
@@ -954,7 +939,49 @@
                         this.$message.error(name + "不能为空")
                         return -1
                     } else if(isNaN(text_number)) {
-                        this.$message.error("请输入数字")
+                        this.$message.error(name + "存在不合法输入")
+                        return -1
+                    } else if (parseInt(text_number) != text_number) {
+                        this.$message.error(name + "存在非法整数")
+                        return -1
+                    } else if (text_number <= 0 || text_number > 1000) {
+                        this.$message.error(name + "必须在1~100之间")
+                        return -1
+                    } else {
+                        return  0
+                    }
+                } else if (name == '售价') {
+                    if(text_number == '' || text_number == null){
+                        this.$message.error(name + "不能为空")
+                        return -1
+                    } else if(isNaN(text_number)) {
+                        this.$message.error(name + "存在不合法输入")
+                        return -1
+                    } else if (text_number <= 0 || text_number > 10000) {
+                        this.$message.error(name + "必须在0~10000之间")
+                        return -1
+                    } else {
+                        return  0
+                    }
+                } else if (name == '商品单位' || name == '商品类别' || name == '商品图片') {
+                    if (text_number == undefined || text_number == '') {
+                        this.$message.error(name + "不能为空")
+                        return -1
+                    } else {
+                        return 0
+                    }
+                } else if (name == '商品编号') {
+                    if(text_number == '' || text_number == null){
+                        this.$message.error(name + "不能为空")
+                        return -1
+                    } else if(isNaN(text_number)) {
+                        this.$message.error(name + "存在不合法输入")
+                        return -1
+                    } else if (text_number <= 0) {
+                        this.$message.error(name + "必须大于0")
+                        return -1
+                    } else if (text_number.length > 14 || text_number < 14) {
+                        this.$message.error(name + "的长度必须为14位")
                         return -1
                     } else {
                         return  0
@@ -962,6 +989,9 @@
                 } else {
                     if(text_number == '' || text_number == null){
                         this.$message.error(name + "不能为空")
+                        return -1
+                    } else if (text_number.length > 100) {
+                        this.$message.error(name + "长度过大")
                         return -1
                     } else {
                         return  0

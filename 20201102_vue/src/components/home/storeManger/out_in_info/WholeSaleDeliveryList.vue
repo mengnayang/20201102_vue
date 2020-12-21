@@ -9,12 +9,12 @@
         <!-- 卡片区域 -->
         <el-card>
             <!-- 功能区域 -->
-            <el-row>
+            <el-row v-show="isFirst">
                 <el-col :span="2">
                     <span>出库编号:</span>
                 </el-col>
                 <el-col :span="5">
-                    <el-input v-model="selected.selectedDeliveryId" size="mini"></el-input>
+                    <el-input maxlength="100" v-model="selected.selectedDeliveryId" size="mini" placeholder="请输入查询的出库编号" clearable></el-input>
                 </el-col>
                 <el-col :span="7" :offset="1">
                     <span>出库状态:</span>
@@ -35,7 +35,7 @@
                 </el-col>
             </el-row>
             <el-row>
-                <el-col :span="8">
+                <el-col :span="8" v-show="isFirst">
                     <span>退款状态：</span>
                     <el-select size="mini" v-model="selected.selectedDeliveryRefundStatus">
                         <el-option :key="100" :value="100" label="全部"></el-option>
@@ -43,7 +43,7 @@
                         <el-option :key="1" :value="1" label="已发生退款"></el-option>
                     </el-select>
                 </el-col>
-                <el-col :span="2">
+                <el-col :span="2" v-show="isFirst">
                     <el-button type="primary" size="mini" @click="searchDelivery()">查询</el-button>
                 </el-col>
                 <el-col :span="4">
@@ -128,14 +128,14 @@
                     </el-col>
                 </el-row>
                 <el-row>
-                    <el-col :span="6" :offset="2">
+                    <el-col :span="7" :offset="2">
                         <el-form-item label="出库编号：">{{currentInfo.delivery.deliveryId}}</el-form-item> 
                     </el-col>
-                    <el-col :span="6" :offset="2">
+                    <el-col :span="7" :offset="1">
                         <el-form-item label="产品批号：">{{currentInfo.delivery.deliveryId}}</el-form-item> 
                     </el-col>
-                    <el-col :span="6" :offset="2">
-                        <el-form-item label="批发单价：">{{currentInfo.delivery.deliveryPrice}}</el-form-item> 
+                    <el-col :span="4" :offset="1">
+                        <el-form-item label="批发单价/元：">{{currentInfo.delivery.deliveryPrice}}</el-form-item> 
                     </el-col>
                 </el-row>
                 <el-row>
@@ -146,21 +146,13 @@
                         <el-form-item label="已结账项：">{{currentInfo.deliveryRecord.deliveryPaid}}</el-form-item> 
                     </el-col>
                     <el-col :span="6" :offset="2">
-                        <el-form-item label="总价格：">{{currentInfo.deliveryRecord.deliveryTotalPrice}}</el-form-item> 
+                        <el-form-item label="发起职工：">{{staffMap[currentInfo.deliveryRecord.deliveryLaunchedStaffId]}}</el-form-item> 
                     </el-col>
                 </el-row>
                 <el-row>
-                    <el-col :span="6" :offset="2">
-                        <el-form-item label="发起职工：">{{staffMap[currentInfo.deliveryRecord.deliveryLaunchedStaffId]}}</el-form-item> 
-                    </el-col>
-                    <el-col :span="6" :offset="2">
-                        <el-form-item label="处理职工：">{{staffMap[currentInfo.deliveryRecord.deliveryHandleStaffId]}}</el-form-item> 
-                    </el-col>
                     <el-col :span="6" :offset="2">
                         <el-form-item label="创建时间：">{{currentInfo.deliveryRecord.deliveryCreateDate}}</el-form-item> 
                     </el-col>
-                </el-row>
-                <el-row>
                     <el-col :span="6" :offset="2">
                         <el-form-item label="结账状态：">
                             <template>
@@ -520,6 +512,7 @@
                         this.isFirst = false
                         this.isSecond = true
                         this.deliveryGoodsList = res.data.deliveryGoodsList
+                        this.queryInfo.total = res.data.recordSum
                     } else {
                         this.$message.error(res.data.errMsg)
                     }

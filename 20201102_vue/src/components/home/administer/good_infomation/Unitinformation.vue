@@ -8,12 +8,13 @@
         </el-breadcrumb>
         <!-- 卡片区域 -->
         <el-card>
+            <el-button v-for="func in functionList_one" :key="func.functionId" :type="func.btnType" size="mini" @click="getButtonStatus(null,func.functionWeight)">新增商品单位</el-button>
             <el-table :data="unitList" border>
                 <el-table-column label="单位编号" width="300px" prop="unitId" align="center"></el-table-column>
                 <el-table-column label="单位名称" width="300px" prop="unitName" align="center"></el-table-column>
                 <el-table-column label="操作"  fixed="right" align="center">
                     <template slot-scope="scope">
-                        <el-button-group v-for="func in functionList" :key="func.functionId">
+                        <el-button-group v-for="func in functionList_two" :key="func.functionId">
                             <el-tooltip effect="light" placement="top" :content="func.functionName" :enterable="false">
                                 <el-button :type="func.btnType" size="mini" :icon="func.btnIcon" @click="getButtonStatus(scope.row,func.functionWeight)"></el-button>
                             </el-tooltip>
@@ -32,14 +33,14 @@
                 <el-row>
                     <el-col :span="15" :offset="3">
                         <el-form-item label="单位编号:">
-                            <el-input v-model="currentUnit.unitId" auto-complete="off" disabled></el-input>
+                            <el-input maxlength="100" v-model="currentUnit.unitId" auto-complete="off" disabled></el-input>
                         </el-form-item>
                     </el-col>
                 </el-row>
                 <el-row>
                     <el-col :span="15" :offset="3">
                         <el-form-item label="单位名称:">
-                            <el-input v-model="currentUnit.unitName" auto-complete="off"></el-input>
+                            <el-input maxlength="100" v-model="currentUnit.unitName" auto-complete="off"></el-input>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -54,7 +55,7 @@
                 <el-row>
                     <el-col :span="15" :offset="3">
                         <el-form-item label="单位名称:">
-                            <el-input v-model="currentUnit.unitName" auto-complete="off"></el-input>
+                            <el-input maxlength="100" v-model="currentUnit.unitName" auto-complete="off"></el-input>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -84,6 +85,10 @@
                 unitList:[],
                 // 功能列表
                 functionList:[],
+                // 一层（新增）
+                functionList_one:[],
+                // 一层 （修改）
+                functionList_two:[],
                 //是否已经渲染功能按钮
                 isDraw:false,
                 // 修改商品维护弹框
@@ -102,8 +107,6 @@
         },
         methods:{
             getProtectUnit() {
-                this.isDraw = false
-
                 // 获取当前二级菜单的id
                 this.secondaryMenuList = window.sessionStorage.getItem('secondaryMenuList')
                 this.secondaryMenuList = JSON.parse(this.secondaryMenuList)
@@ -147,9 +150,11 @@
                         if (this.functionList[i].functionWeight == 1) {
                             this.$set(this.functionList[i],"btnType","success")
                             this.$set(this.functionList[i],"btnIcon","iconfont icon_edit")
+                            this.functionList_two.push(this.functionList[i])
                         } else if (this.functionList[i].functionWeight == 2) {
                             this.$set(this.functionList[i],"btnType","danger")
                             this.$set(this.functionList[i],"btnIcon","iconfont icon_add")
+                            this.functionList_one.push(this.functionList[i])
                         } 
                         this.isDraw = true
                     }
@@ -193,7 +198,7 @@
                         if (res.data.success) {
                             this.addProtectUnitDialog = false
                             this.getProtectUnit()
-                            this.$message.success('商品单位修改成功')
+                            this.$message.success('商品单位信息添加成功')
                         } else {
                             this.$message.error(res.data.errMsg)
                         }
@@ -232,7 +237,7 @@
                         if (res.data.success) {
                             this.editProtectUnitDialog = false
                             this.getProtectUnit()
-                            this.$message.success('商品单位添加成功')
+                            this.$message.success('商品单位信息修改成功')
                         } else {
                             this.$message.error(res.data.errMsg)
                         }
@@ -274,5 +279,8 @@
 .el-pagination{
     width: 50%;
     margin: 10px auto;
+}
+.el-table{
+    margin-top: 10px;
 }
 </style>

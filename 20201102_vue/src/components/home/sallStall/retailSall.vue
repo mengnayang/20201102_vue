@@ -32,9 +32,7 @@
                 <el-table-column label="商品总价" prop="retailTotalPrice"  width="200" align="center"></el-table-column>
                 <el-table-column label="付款时间" prop="retailTime"  width="200" align="center"></el-table-column>
                 <el-table-column label="退款状态"  :formatter="stateFormat" prop="retailRefundStatus"  width="200" align="center"></el-table-column>
-
-                <!-- <el-table-column label="订单编号" prop="retailId" fixed width="110" align="center"></el-table-column>
-                <el-table-column label="商品编号" prop="retailStockGoodsId" fixed width="110" align="center"></el-table-column>
+                <!-- <el-table-column label="商品编号" prop="retailStockGoodsId" fixed width="110" align="center"></el-table-column>
                 <el-table-column label="商品名称" prop="goodsName" fixed width="110" align="center"></el-table-column>
                 <el-table-column label="商品类别" prop="goodsCategoryIName" width="110" align="center"></el-table-column>
                 <el-table-column label="品牌名称" prop="goodsBrand" width="110" align="center"></el-table-column>
@@ -42,7 +40,7 @@
                 <el-table-column label="退货日期" prop="refundCustomerTime" width="140" align="center"></el-table-column>
                 <el-table-column label="售价/元" prop="refundCustomerPrice" width="100" align="center"></el-table-column>
                 <el-table-column label="退货单价" prop="refundCustomerPrice" width="100" align="center"></el-table-column>
-                <el-table-column label="退款状态" prop="refundCustomerStatus" width="100" align="center"></el-table-column> -->
+                <el-table-column label="退款状态" prop="refundCustomerStatus" width="100" align="center"></el-table-column> --> -->
                 <el-table-column label="操作" fixed="right" width="200" align="center">
                      <template slot-scope="scope">
                         <el-button-group v-for="func in functionList_one" :key="func.functionId">

@@ -153,7 +153,7 @@
                         </el-col> -->
                         <el-col :span="16">
                             <el-form-item label="审核备注"> 
-                                <el-input type="textarea" :rows="3" placeholder="请输入内容" v-model="currentInboundBill.exportBill.exportBillMark"></el-input>
+                                <el-input type="textarea" :rows="3" maxlength="100" placeholder="请输入内容" v-model="currentInboundBill.exportBill.exportBillMark"></el-input>
                             </el-form-item>
                         </el-col>
                         <!-- <el-col :span="8">

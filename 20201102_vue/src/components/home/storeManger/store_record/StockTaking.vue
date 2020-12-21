@@ -86,7 +86,7 @@
             <el-row v-show="isSecond">
                 <el-col :span="2">商品编号:</el-col>
                 <el-col :span="5">
-                    <el-input v-model="value.goodsId" size="mini"></el-input>
+                    <el-input maxlength="100" v-model="value.goodsId" size="mini"></el-input>
                 </el-col>
                 <el-col :span="1" :offset="1">盈亏:</el-col>
                 <el-col :span="5">
@@ -178,7 +178,7 @@
             <el-table :data="isLazzy2 ? stockingGoodsList_lazzy : stockingGoodsList" border stripe v-show="isSecond">
                 <el-table-column label="商品图片" fixed align="center" width="120px">
                     <template slot-scope="scope">
-                        <img :src="'http:localhost:8080' + scope.row.goodsPicture" alt="">
+                        <img :src="'http://localhost:8080' + scope.row.goodsPicture" alt="商品图片" class="all_img">
                     </template>
                 </el-table-column>
                 <el-table-column label="盘点编号" prop="stocktakingId" fixed align="center" width="120px"></el-table-column>
@@ -211,7 +211,7 @@
                 <el-table-column type="selection" width="60" align="center"></el-table-column>
                 <el-table-column label="商品图片" prop="goodsPicture" fixed align="center" width="150px">
                     <template slot-scope="scope">
-                        <img :src="'http:localhost:8080' + scope.row.goodsPicture" alt="商品图片" class="all_img">
+                        <img :src="'http://localhost:8080' + scope.row.goodsPicture" alt="商品图片" class="all_img">
                     </template>
                 </el-table-column>
                 <el-table-column label="商品编号" prop="goodsId" fixed align="center" width="150px"></el-table-column>
@@ -224,18 +224,10 @@
                     </template>
                 </el-table-column>
                 <el-table-column label="品牌名称" width="120px" prop="goodsBrand" align="center"></el-table-column>
-                <el-table-column label="产品批号" width="120px" prop="stockGoodsBatchNumber" align="center"></el-table-column>
                 <el-table-column label="生产日期" width="120px" prop="stockGoodsProductionDate" align="center"></el-table-column>
                 <el-table-column label="实时库存量" width="120px" prop="stockInventory" align="center"></el-table-column>
                 <el-table-column label="售价" width="120px" prop="stockGoodsPrice" align="center"></el-table-column>
                 <el-table-column label="产品规格" width="120px" prop="goodsSpecifications" align="center"></el-table-column>
-                <el-table-column label="盘点员工" width="120px" prop="goodsSpecifications" align="center">
-                    <template slot-scope="scope">
-                        <span v-for="item in categoryList" :key="item.categoryId">
-                            <span v-if="scope.row.goodsCategoryId == item.categoryId">{{item.stocktakingStaffId}}</span>
-                        </span>
-                    </template>
-                </el-table-column>
             </el-table>
             <span v-show="isThird">*注：全部选项框默认选择当前页面的全部类别，若选择全部类别，请进行分页选择</span>
         </el-card>
@@ -353,7 +345,7 @@
                 <el-row>
                     <el-col :span="6" :offset="2">
                         <el-form-item label="商品图片:">
-                            <img :src="'http:localhost:8080' + current.goods.goodsPicture" alt="商品图片">
+                            <img :src="'http://localhost:8080' + current.goods.goodsPicture" alt="商品图片" class="all_img">
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -393,7 +385,7 @@
                     </el-col>
                     <el-col :span="6" :offset="1">
                         <el-form-item label="盘点数量:">
-                            <el-input type="number" v-model.number="current.stocktaking.stocktakingNum" auto-complete="off"></el-input>
+                            <el-input type="number" maxlength="100" v-model.number="current.stocktaking.stocktakingNum" auto-complete="off"></el-input>
                         </el-form-item>
                     </el-col>  
                     <el-col :span="6" :offset="1">
@@ -410,7 +402,7 @@
                     </el-col>
                     <el-col :span="10" :offset="1">
                         <el-form-item label="盘点备注:">
-                            <el-input type="textarea" v-model="current.stocktaking.stocktakingRemarks" auto-complete="off"></el-input>
+                            <el-input type="textarea" maxlength="100" v-model="current.stocktaking.stocktakingRemarks" auto-complete="off"></el-input>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -473,7 +465,7 @@
                     </el-col>
                     <el-col :span="9" :offset="1">
                         <el-form-item label="商品图片:">
-                            <img :src="'http:localhost:8080' + current.goods.goodsPicture" alt="图片" class="all_img">
+                            <img :src="'http://localhost:8080' + current.goods.goodsPicture" alt="图片" class="all_img">
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -1251,5 +1243,8 @@
 .el-pagination{
     width: 50%;
     margin: 10px auto;
+}
+.all_img{
+    width: 100px;
 }
 </style>

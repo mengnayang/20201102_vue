@@ -36,7 +36,6 @@
                 </el-form-item>
             </el-form> -->
             <!-- 列表区域 -->
-            <el-scrollbar style="height:100%;width: 1540px"> <!-- 滚动条 -->
             <el-table :data="deliveryGoodList" border >
                 <el-table-column label="商品图片" fixed width="100" align="center">
                     <template slot-scope="scope">
@@ -64,22 +63,23 @@
                 <!-- <el-table-column label="商品总价" prop="refundCustomerStatus"  width="120" align="center"></el-table-column> -->
                 <!-- <el-table-column label="已退款项" prop="refundStaffId" fixed='right' width="123" align="center"></el-table-column> -->
             </el-table>
-            </el-scrollbar>
-            <div style="float:left">
+            <!-- <div style="float:left">
                 <el-pagination
                     :current-page="queryInfo.pageIndex" :page-sizes="[queryInfo.infoCount]" 
                     :page-size="queryInfo.infoCount" :total="queryInfo.total"
                     @current-change="currentChange"
                     layout="total, sizes, prev, pager, next, jumper">
                 </el-pagination>
-            </div>
+            </div> -->
             <div style="float:right">
+                <el-tooltip effect="light" placement="top" content="返回">
+                    <el-button type="primary" icon="el-icon-back" @click="back" size="mini"></el-button>
+                </el-tooltip>
                 <el-tooltip effect="light" placement="top" content="提交退货">
                         <!-- 根据状态判断是否按钮可用 -->
-                        <el-button :disabled='flag' type="success" icon="el-icon-check" @click="dialogVisible=true" size="mini"></el-button>
+                        <el-button :disabled='flag' type="success" icon="el-icon-check" @click="openDialog" size="mini"></el-button>
                         <!-- <el-button  type="success" icon="el-icon-check" @click="dialogVisible=true" ></el-button> -->
                 </el-tooltip>
-                <!-- <el-button type="primary" @click="deleteBy()">提交退货</el-button> -->
             </div>
         </el-card>
         <!-- 提交退货原因弹窗 -->
@@ -87,7 +87,7 @@
             title="退货原因"
             :visible.sync="dialogVisible"
             width="30%">
-            <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" placeholder="请输入内容" v-model="refundCustomerRecord.refundCustomerReason" clearable></el-input>
+            <el-input type="textarea" maxlength="100" :autosize="{ minRows: 2, maxRows: 4}" placeholder="请输入内容" v-model="refundCustomerRecord.refundCustomerReason" clearable></el-input>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="dialogVisible = false" size="mini">取 消</el-button>
                 <el-button type="primary" @click="commitReturn" size="mini">提 交</el-button>
@@ -115,7 +115,7 @@
                 //     refundCustomerNum:'',
                 //     refundCustomerPrice:'',
                 // },
-                deliveryGoodList:'',
+                deliveryGoodList:[],
                 //退货详情单对象
                 refundCustomerRecord:{
                     //订单编号
@@ -191,10 +191,16 @@
             getParams(){
                 // 取到路由带过来的参数
                 const routerParams = this.$route.query.RowInfo
+                console.log(routerParams)
+                if(routerParams.deliveryStatus==0){
+                    this.flag=true
+                }else{
+                    this.flag=false
+                }
                 // 将数据放在当前组件的数据内
                 this.deliveryId= routerParams.deliveryId
                 // console.log(routerParams)
-                // //订单编号
+                // //订单编号   
                 this.refundCustomerRecord.refundCustomerOrderId=routerParams.deliveryId
                 // //退货员工编号
                 this.refundCustomerRecord.refundStaffId=window.sessionStorage.staffId
@@ -208,6 +214,7 @@
             // },
             getDeliveryList() {
                 let data = {
+                    staffId:window.sessionStorage.staffId,
                     deliveryId:this.deliveryId
                 }
                 // console.log(data)
@@ -223,11 +230,11 @@
                         if(res.data.deliveryGoodsReturnList!=undefined){
                             //返回的是deliveryGoodsReturnList
                             //发生退款
-                            this.flag=true
+                            // this.flag=true
                             this.deliveryGoodList=res.data.deliveryGoodsReturnList                        
                         }else if(res.data.deliveryGoodsList!=undefined){
                             //返回的是DeliveryGoodsList
-                            this.flag=false
+                            // this.flag=false
                             this.deliveryGoodList=res.data.deliveryGoodsList 
                             this.deliveryGoodList.map((item) => {
                                 // item.refundCustomerNum=0
@@ -239,6 +246,7 @@
                             // console.log(this.deliveryGoodList)
 
                         }
+                        
                         //返回的数据没有分页
                         // this.queryInfo.total = res.data.recordSum
                         // this.functionList = res.data.functionList
@@ -258,6 +266,30 @@
                 // this.queryInfo.pageIndex = currentPage
                 // this.getPartGood()
             },
+             openDialog(){
+                let flag=false;
+                let flag2=false;
+                let num = 0;
+                for(let i =0;i<this.deliveryGoodList.length;i++){
+
+                    if(this.deliveryGoodList[i].refundCustomerNum>0&&(this.deliveryGoodList[i].refundCustomerPrice<=0||this.deliveryGoodList[i].refundCustomerPrice>this.deliveryGoodList[i].deliveryPrice)){
+                        this.$message.info(this.deliveryGoodList[i].goodsName+"的退货价格有误")
+                        flag2=true
+                        break
+                    }else if(this.deliveryGoodList[i].refundCustomerNum>0&&this.deliveryGoodList[i].refundCustomerPrice>0){
+                        num++
+                    }
+                }
+                if(num>0){
+                    flag=true
+                }else{
+                    if(!flag2){
+                        this.$message.info("退货商品为空")
+                    }
+                    
+                }
+                this.dialogVisible=flag
+            },
             //判断是否是数字
             isValueNumber(val){
                 let value = val.replace('/(^\s*)|(\s*$)','')  //去除字符串前后空格
@@ -274,18 +306,18 @@
             onPriceChange(info){
                 if(info.refundCustomerPrice>info.deliveryPrice){
                     this.$message.error("退货单价不能大于批发单价")
-                    info.refundCustomerPrice=info.deliveryPrice
+                    // info.refundCustomerPrice=info.deliveryPrice
                     return
                 }
                 if(info.refundCustomerPrice<0){
                     this.$message.error("退货单价不能为负")
-                    info.refundCustomerPrice=0
+                    // info.refundCustomerPrice=0
                     return
                 }
                 
                 if(!this.isValueNumber(info.refundCustomerPrice)){
                     this.$message.error("请输入数字")
-                    info.refundCustomerPrice=null
+                    // info.refundCustomerPrice=null
                     return
                 }
             },
@@ -293,17 +325,17 @@
             onNumChange(info){
                 if(info.refundCustomerNum>info.deliveryNum){
                     this.$message.error("退货数量不能大于批发数量")
-                    info.refundCustomerNum=info.deliveryNum
+                    // info.refundCustomerNum=info.deliveryNum
                     return
                 }
                 if(info.refundCustomerNum<0){
                     this.$message.error("退货数量不能为负")
-                    info.refundCustomerNum=0
+                    // info.refundCustomerNum=0
                     return
                 }
                 if(!this.isValueNumber(info.refundCustomerNum)){
                     this.$message.error("请输入数字")
-                    info.refundCustomerNum=0
+                    // info.refundCustomerNum=0
                     return
                 }
             },
@@ -347,6 +379,9 @@
                     this.$message.error(err.message)
                 })
             },
+            back(){
+                this.$router.go(-1)
+            }
         }
     
   };

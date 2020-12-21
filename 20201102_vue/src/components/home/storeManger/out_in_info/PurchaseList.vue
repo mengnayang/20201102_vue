@@ -14,13 +14,13 @@
                     <span>入库编号:</span>
                 </el-col>
                 <el-col :span="5">
-                    <el-input v-model="selected.selectedExportBillId" size="mini"></el-input>
+                    <el-input maxlength="100" v-model="selected.selectedExportBillId" size="mini" placeholder="请输入查询的入库编号" clearable></el-input>
                 </el-col>
                 <el-col :span="2" :offset="1">
                     <span>订单编号:</span>
                 </el-col>
                 <el-col :span="5">
-                    <el-input v-model="selected.selectedExportBillCouponId" size="mini"></el-input>
+                    <el-input maxlength="100" v-model="selected.selectedExportBillCouponId" size="mini" placeholder="请输入查询的订单编号" clearable></el-input>
                 </el-col>
                 <el-col :span="8" :offset="1">
                     <span>入库状态</span>
@@ -62,7 +62,7 @@
                 <el-table-column label="入库日期" prop="exportBillTime" width="100" align="center"></el-table-column>
                 <el-table-column label="确认职工" prop="exportConfirmStaffId" width="80" align="center"></el-table-column>
                 <el-table-column label="提交职工" prop="exportSubmitStaffId" width="80" align="center"></el-table-column>
-                <el-table-column label="备注" prop="exportBillRemark" width="150" align="center"></el-table-column>
+                <el-table-column label="备注" prop="exportBillMark" width="150" align="center"></el-table-column>
                 <el-table-column label="操作" fixed="right" width="260" align="center">
                     <template slot-scope="scope">
                         <el-button-group v-for="func in functionList_one" :key="func.functionId">
@@ -81,7 +81,7 @@
         layout="total, sizes, prev, pager, next, jumper">
         </el-pagination>
         <!-- 采购入库单的信息弹框 -->
-        <el-dialog title="采购入库单" :visible.sync="lookDialog" width="900px">
+        <el-dialog title="采购入库单" :visible.sync="lookDialog" width="800px">
             <el-form>
                 <el-row>
                     <el-col :span="11" :offset="11" class="title">
@@ -89,18 +89,18 @@
                     </el-col>
                 </el-row>
                 <el-row>
-                    <el-col :span="6" :offset="2">
+                    <el-col :span="7" :offset="2">
+                        <el-form-item label="入库日期：">{{exportBill.exportBillTime}}</el-form-item> 
+                    </el-col>
+                    <el-col :span="14" :offset="1">
                         <el-form-item label="入库编号：">{{exportBill.exportBillId}}</el-form-item> 
-                    </el-col>
-                    <el-col :span="6" :offset="2">
-                        <el-form-item label="产品批号：">{{exportBill.exportBillGoodsBatchNumber}}</el-form-item> 
-                    </el-col>
-                    <el-col :span="6" :offset="2">
-                        <el-form-item label="供货编号：">{{exportBill.exportBillSupplierId}}</el-form-item> 
                     </el-col>
                 </el-row>
                 <el-row>
-                    <el-col :span="6" :offset="2">
+                    <el-col :span="7" :offset="2">
+                        <el-form-item label="已付款项/元：">{{exportBill.exportBillPaid}}</el-form-item> 
+                    </el-col>
+                    <el-col :span="14" :offset="1">
                         <el-form-item label="入库状态：">
                             <template>
                                 <span v-if="exportBill.exportBillStatus == 0">刚生成入库单</span>
@@ -112,21 +112,12 @@
                             </template>
                         </el-form-item> 
                     </el-col>
-                    <el-col :span="6" :offset="2">
-                        <el-form-item label="已付款项：">{{exportBill.exportBillPaid}}</el-form-item> 
-                    </el-col>
-                    <el-col :span="6" :offset="2">
-                        <el-form-item label="入库日期：">{{exportBill.exportBillTime}}</el-form-item> 
-                    </el-col>
                 </el-row>
                 <el-row>
-                    <el-col :span="6" :offset="2">
+                    <el-col :span="7" :offset="2">
                         <el-form-item label="确认职工：">{{exportBill.exportConfirmStaffId}}</el-form-item> 
                     </el-col>
-                    <el-col :span="6" :offset="2">
-                        <el-form-item label="提交职工：">{{exportBill.exportSubmitStaffId}}</el-form-item> 
-                    </el-col>
-                    <el-col :span="6" :offset="2">
+                    <el-col :span="14" :offset="1">
                         <el-form-item label="入库备注：">{{exportBill.exportBillRemark}}</el-form-item> 
                     </el-col>
                 </el-row>
@@ -174,28 +165,35 @@
                     </el-col>
                 </el-row>
                 <el-row>
-                    <el-col :span="6" :offset="2">
+                    <el-col :span="7" :offset="2">
                         <el-form-item label="商品编号:">
                             {{goods.goodsId}}
                         </el-form-item>
                     </el-col>
-                    <el-col :span="6" :offset="2">
+                    <el-col :span="14" :offset="1">
                         <el-form-item label="商品名称:">
                             {{goods.goodsName}}
                         </el-form-item>
                     </el-col>
-                    <el-col :span="6" :offset="2">
+                </el-row>
+                <el-row>
+                    <el-col :span="7" :offset="2">
                         <el-form-item label="商品类别：">
                             {{category.categoryName}}
                         </el-form-item>
                     </el-col>
-                </el-row>
-                <el-row>
-                    <el-col :span="6" :offset="2">
+                    <el-col :span="7" :offset="1">
                         <el-form-item label="品牌名称：">
                             {{goods.goodsBrand}}
                         </el-form-item>
                     </el-col>
+                    <el-col :span="6" :offset="1">
+                        <el-form-item label="生产日期：">
+                            {{exportBill.exportBillProductionDate}}
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+                <el-row>
                     <el-col :span="6" :offset="2">
                         <el-form-item label="商品规格：">
                             {{goods.goodsSpecifications}}
@@ -206,26 +204,7 @@
                             <span>{{unit.unitName}}</span>
                         </el-form-item>
                     </el-col>
-                </el-row>
-                <el-row>
-                     <el-col :span="6" :offset="2">
-                        <el-form-item label="生产日期：">
-                            {{exportBill.exportBillProductionDate}}
-                        </el-form-item>
-                    </el-col>
                     <el-col :span="6" :offset="2">
-                        <el-form-item label="保质期：">
-                            {{exportBill.exportBillShelfLife}}
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="6" :offset="2">
-                        <el-form-item label="供货价格：">
-                            {{exportBill.exportBillPrice}}
-                        </el-form-item>
-                    </el-col>
-                </el-row>
-                <el-row>
-                    <el-col :span="16" :offset="2">
                         <el-form-item label="商品图片：">
                             <img :src="'http://localhost:8080' + goods.goodsPicture" alt="图片" class="all_img">  
                         </el-form-item>
@@ -238,7 +217,7 @@
         </el-dialog>
         <!-- 修改采购入库单的信息弹框 -->
         <el-dialog title="修改采购入库单" :visible.sync="editDialog" width="800px">
-            <el-form label-width="100px">
+            <el-form label-width="110px">
                 <el-row>
                     <el-col :span="11" :offset="11" class="title">
                         入库信息
@@ -250,42 +229,42 @@
                     </el-col>
                     <el-col :span="12">
                         <el-form-item label="产品批号：">
-                            <el-input v-model="exportBill.exportBillGoodsBatchNumber" size="small"></el-input>
+                            <el-input maxlength="100" v-model="exportBill.exportBillGoodsBatchNumber" size="small"></el-input>
                         </el-form-item> 
                     </el-col>
                 </el-row>
                 <el-row>
                     <el-col :span="7">
                         <el-form-item label="供货编号：">
-                            <el-input v-model="exportBill.exportBillSupplierId" size="small"></el-input>
+                            <el-input maxlength="100" type="number" v-model="exportBill.exportBillSupplierId" size="small"></el-input>
                         </el-form-item> 
                     </el-col>
                     <el-col :span="10">
                         <el-form-item label="入库状态：">
                             <el-select v-model="exportBill.exportBillStatus">
-                                <el-option :value="0" label="刚生成入库单">刚生成入库单</el-option>
-                                <el-option :value="1" label="库房管理员已完善信息">库房管理员已完善信息</el-option>
-                                <el-option :value="2" label="职工已检查通过">职工已检查通过</el-option>
-                                <el-option :value="-2" label="职工已检查未通过">职工已检查未通过</el-option>
-                                <el-option :value="-1" label="库房管理员审核不通过">库房管理员审核不通过</el-option>
+                                <el-option :key="0" :value="0" label="刚生成入库单"></el-option>
+                                <el-option :key="1" :value="1" label="库房管理员已完善信息"></el-option>
+                                <el-option :key="2" :value="2" label="职工已检查通过"></el-option>
+                                <el-option :key="-2" :value="-2" label="职工已检查未通过"></el-option>
+                                <el-option :key="-1" :value="-1" label="库房管理员审核不通过"></el-option>
                             </el-select>
                         </el-form-item> 
                     </el-col>
                     <el-col :span="7">
-                        <el-form-item label="已付款项：">
-                            <el-input v-model="exportBill.exportBillPaid" size="small"></el-input>  
+                        <el-form-item label="已付款项/元：">
+                            <el-input maxlength="100" type="number" v-model.number="exportBill.exportBillPaid" size="small"></el-input>  
                         </el-form-item> 
                     </el-col>
                 </el-row>
                 <el-row>
-                    <el-col :span="7">
+                    <el-col :span="7" v-show="false">
                         <el-form-item label="确认职工：">
-                            <el-input v-model="exportBill.exportConfirmStaffId" size="small"></el-input>  
+                            <el-input maxlength="100" v-model="exportBill.exportConfirmStaffId" size="small"></el-input>  
                         </el-form-item> 
                     </el-col>
-                    <el-col :span="17">
+                    <el-col :span="24">
                         <el-form-item label="入库备注：">
-                            <el-input type="textarea" placeholder="暂无" v-model="exportBill.exportBillRemark" size="small"></el-input>
+                            <el-input type="textarea" maxlength="100" placeholder="暂无" v-model="exportBill.exportBillMark" size="small"></el-input>
                         </el-form-item> 
                     </el-col>
                 </el-row>
@@ -364,23 +343,23 @@
                         </el-form-item>
                     </el-col>
                     <el-col :span="8">
-                        <el-form-item label="供货价格：">
-                            <el-input v-model="exportBill.exportBillPrice" size="small"></el-input>
+                        <el-form-item label="供货价格/元：">
+                            <el-input maxlength="100" type="number" v-model.number="exportBill.exportBillPrice" size="small"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :span="8">
-                        <el-form-item label="保质期：">
-                            <el-input v-model="exportBill.exportBillShelfLife" size="small"></el-input>
+                        <el-form-item label="保质期/天：">
+                            <el-input maxlength="100" type="number" v-model.number="exportBill.exportBillShelfLife" size="small"></el-input>
                         </el-form-item>
                     </el-col>
                 </el-row>
                 <el-row>
-                    <el-col :span="16">
+                    <el-col :span="10">
                         <el-form-item label="生产日期：">
                             <el-date-picker v-model="exportBill.exportBillProductionDate"></el-date-picker>
                         </el-form-item>
                     </el-col>
-                    <el-col :span="8">
+                    <el-col :span="8" :offset="1">
                         <el-form-item label="商品图片：">
                             <img :src="'http://localhost:8080' + goods.goodsPicture" alt="图片" class="all_img">  
                         </el-form-item>
@@ -473,10 +452,12 @@
                         this.exportBillList = res.data.exportBillList
                         this.queryInfo.total = res.data.recordSum
                         this.exportBillList.map((item) => {
-                            let date = new Date(item.exportBillProductionDate)
-                            item.exportBillProductionDate = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate()
-                            date = new Date(item.exportBillTime)
-                            item.exportBillTime = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate()
+                            if(item.exportBillProductionDate != null) {
+                                let date = new Date(item.exportBillProductionDate)
+                                item.exportBillProductionDate = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate()
+                                date = new Date(item.exportBillTime)
+                                item.exportBillTime = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate()
+                            }
                         })
                         this.drawBtn()
                     } else {
@@ -568,12 +549,13 @@
                         this.exportBillList_lazzy = res.data.exportBillList
                         this.queryInfo.total = res.data.recordSum
 
-
                         this.exportBillList_lazzy.map((item) => {
-                            let date = new Date(item.exportBillProductionDate)
-                            item.exportBillProductionDate = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate()
-                            date = new Date(item.exportBillTime)
-                            item.exportBillTime = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate()
+                            if (item.exportBillProductionDate != null) {
+                                let date = new Date(item.exportBillProductionDate)
+                                item.exportBillProductionDate = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate()
+                                date = new Date(item.exportBillTime)
+                                item.exportBillTime = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate()
+                            }
                         })
 
                     } else {
@@ -639,10 +621,6 @@
                         this.goods = res.data.goods
                         this.unit = res.data.unit
 
-                        if (this.exportBill.exportBillStatus == -1) {
-                            this.exportBill.exportBillStatus = '库房管理员审核不通过'
-                        }
-
                         // let date = new Date(this.coupon.couponTime)
                         // this.coupon.couponTime = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate()
                         // date = new Date(this.exportBill.exportBillProductionDate)
@@ -679,6 +657,13 @@
                 if (flag == -1) {
                     return
                 }
+                flag = this.onNumChange('生产日期',this.exportBill.exportBillProductionDate)
+                if (flag == -1) {
+                    return
+                }
+                this.exportBill.exportBillProductionDate = new Date(this.exportBill.exportBillProductionDate).getTime()
+                this.exportBill.exportBillTime = new Date().getTime()
+                
 
                 let data = {
                     exportBill:JSON.stringify(this.exportBill)
@@ -692,7 +677,11 @@
                 .then((res) => {
                     if (res.data.success) {
                         this.$message.success('信息修改成功')
-                        this.getPurchaseList()
+                        if (this.isLazzy) {
+                            this.searchExportBill()
+                        } else {
+                            this.getPurchaseList()
+                        }
                     } else {
                         this.$message.error(res.data.errMsg)
                     }
@@ -710,7 +699,13 @@
                 } else if (status == -1) {
                     this.$message.error('入库失败, 库房管理员审核不通过')
                 } else {
-                    const confirmResult = await this.$confirm('确认相关入库信息已正确填写？','确认入库',{
+                    let temp = ''
+                    if (status == -2) {
+                        temp = '职工审核不通过, ' 
+                    } else if (status == 0) {
+                        temp = '职工未审核, '
+                    }
+                    const confirmResult = await this.$confirm(temp + '是否确认入库？','确认入库',{
                         confirmButtonText:'入库',
                         showCancelButton:true,
                         type: 'success'
@@ -784,15 +779,61 @@
             },
             //判断合法性
             onNumChange(name, text_number){
-                if (name == '产品批号' || name == '供货价格' || name == '供货编号' || name == '已付款项' ||  name == '保质期') {
+                if (name == '供货编号'  ||  name == '保质期') {
                     if(text_number == '' || text_number == null){
                         this.$message.error(name + "不能为空")
                         return -1
                     } else if(isNaN(text_number)) {
                         this.$message.error(name + "存在不合法的输入")
                         return -1
+                    } else if (text_number <= 0) {
+                        this.$message.error(name + "必须大于0")
+                        return -1
+                    } else if (parseInt(text_number) != text_number) {
+                        this.$message.error(name + "存在非法整数")
+                        return -1
                     } else {
                         return  0
+                    }
+                } else if (name == '产品批号') {
+                    console.log(text_number.length)
+                    if(text_number == '' || text_number == null){
+                        this.$message.error(name + "不能为空")
+                        return -1
+                    } else if(isNaN(text_number)) {
+                        this.$message.error(name + "存在不合法的输入")
+                        return -1
+                    } else if (text_number <= 0) {
+                        this.$message.error(name + "必须大于0")
+                        return -1
+                    } else if (parseInt(text_number) != text_number) {
+                        this.$message.error(name + "存在非法整数")
+                        return -1
+                    } else if (text_number.length > 8 || text_number < 6) {
+                        this.$message.error(name + "必须位于6~8位之间")
+                        return -1
+                    } else {
+                        return  0
+                    }
+                } else if (name == '供货价格' || name == '已付款项') {
+                    if(text_number == '' || text_number == null){
+                        this.$message.error(name + "不能为空")
+                        return -1
+                    } else if(isNaN(text_number)) {
+                        this.$message.error(name + "存在不合法的输入")
+                        return -1
+                    } else if (text_number <= 0) {
+                        this.$message.error(name + "必须大于0")
+                        return -1
+                    } else {
+                        return  0
+                    }
+                } else if (name == '生产日期') {
+                    if (text_number == undefined) {
+                        this.$message.error(name + "不能为空")
+                        return -1
+                    } else {
+                        return 0
                     }
                 } else {
                     if(text_number == '' || text_number == null){

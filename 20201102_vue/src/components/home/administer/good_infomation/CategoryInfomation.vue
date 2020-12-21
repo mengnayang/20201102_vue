@@ -8,6 +8,7 @@
         </el-breadcrumb>
         <!-- 卡片区域 -->
         <el-card>
+            <el-button v-for="func in functionList_one" :key="func.functionId" :type="func.btnType" size="mini" @click="getButtonStatus(null,func.functionWeight)">新增商品类别</el-button>
             <el-table :data="categoryList" border>
                 <el-table-column label="类别编号" prop="categoryId" width="180px" align="center"></el-table-column>
                 <el-table-column label="商品类别" prop="categoryName" width="180px" align="center"></el-table-column>
@@ -30,7 +31,7 @@
                 </el-table-column>
                 <el-table-column label="操作" width="150px" fixed="right" align="center">
                     <template slot-scope="scope">
-                        <el-button-group v-for="func in functionList" :key="func.functionId">
+                        <el-button-group v-for="func in functionList_two" :key="func.functionId">
                             <el-tooltip effect="light" placement="top" :content="func.functionName" :enterable="false">
                                 <el-button :type="func.btnType" size="mini" :icon="func.btnIcon" @click="getButtonStatus(scope.row,func.functionWeight)"></el-button>
                             </el-tooltip>
@@ -49,7 +50,7 @@
                 <el-row>
                     <el-col :span="14" :offset="5">
                         <el-form-item label="商品类别:">
-                            <el-input v-model="currentCategory.categoryName" auto-complete="off"></el-input>
+                            <el-input maxlength="100" v-model="currentCategory.categoryName" auto-complete="off"></el-input>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -75,7 +76,7 @@
                 <el-row>
                     <el-col :span="14" :offset="3">
                         <el-form-item label="商品类别:">
-                            <el-input v-model="currentCategory.categoryName" auto-complete="off"></el-input>
+                            <el-input maxlength="100" v-model="currentCategory.categoryName" auto-complete="off"></el-input>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -107,7 +108,7 @@
                 queryInfo:{
                     pageIndex:1,
                     total:0,
-                    infoCount:4
+                    infoCount:5
                 },
                 //二级菜单列表
                 secondaryMenuList:[],
@@ -118,6 +119,10 @@
                 categoryList:[],
                 // 功能列表
                 functionList:[],
+                // 一层（新增）
+                functionList_one:[],
+                // 一层 （修改）
+                functionList_two:[],
                 //是否已经渲染功能按钮
                 isDraw:false,
                 // 修改商品维护弹框
@@ -137,8 +142,6 @@
         },
         methods:{
             getProtectCategory() {
-                this.isDraw = false
-
                 // 获取当前二级菜单的id
                 this.secondaryMenuList = window.sessionStorage.getItem('secondaryMenuList')
                 this.secondaryMenuList = JSON.parse(this.secondaryMenuList)
@@ -183,9 +186,11 @@
                         if (this.functionList[i].functionWeight == 1) {
                             this.$set(this.functionList[i],"btnType","success")
                             this.$set(this.functionList[i],"btnIcon","iconfont icon_edit")
+                            this.functionList_two.push(this.functionList[i])
                         } else if (this.functionList[i].functionWeight == 2) {
                             this.$set(this.functionList[i],"btnType","danger")
                             this.$set(this.functionList[i],"btnIcon","iconfont icon_add")
+                            this.functionList_one.push(this.functionList[i])
                         } 
                         this.isDraw = true
                     }
@@ -234,7 +239,7 @@
                     if (res.data.success) {
                         this.addProtectCategoryDialog = false
                         this.getProtectCategory()
-                        this.$message.success('类别信息添加成功')
+                        this.$message.success('商品类别信息添加成功')
                     } else {
                         this.$message.error(res.data.errMsg)
                     }
@@ -275,7 +280,7 @@
                         if (res.data.success) {
                             this.editProtectCategoryDialog = false
                             this.getProtectCategory()
-                            this.$message.success('类别信息更新成功')
+                            this.$message.success('商品类别信息修改成功')
                         } else {
                             this.$message.error(res.data.errMsg)
                         }
@@ -313,6 +318,9 @@
     .el-button{
         margin: 0 3px;
     }
+}
+.el-table{
+    margin-top: 10px;
 }
 .el-pagination{
     width: 50%;

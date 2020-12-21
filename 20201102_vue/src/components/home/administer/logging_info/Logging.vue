@@ -49,8 +49,6 @@
                 <el-col :span="5">
                     <el-select v-model="selected.selectedFunction" size="mini">
                         <el-option :key="1000" :value="1000" label="全部"></el-option>
-                        <el-option :key="1" :value="1" label="登陆操作"></el-option>
-                        <el-option :key="2" :value="2" label="退出操作"></el-option>
                         <el-option :key="3" :value="3" label="查库存操作"></el-option>
                         <el-option :key="4" :value="4" label="订单信息操作"></el-option>
                         <el-option :key="5" :value="5" label="采购入库单操作"></el-option>

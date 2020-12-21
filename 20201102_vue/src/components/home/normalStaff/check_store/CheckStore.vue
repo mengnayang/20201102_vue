@@ -167,7 +167,7 @@
                         </el-col>
                         <el-col :span="15">
                             <el-form-item label="盘点备注"> 
-                                <el-input type="textarea" :rows="4" placeholder="请输入内容" v-model="currentStoreList.stocktaking.stocktakingRemarks"></el-input>
+                                <el-input type="textarea" :rows="4" maxlength="100" placeholder="请输入内容" v-model="currentStoreList.stocktaking.stocktakingRemarks"></el-input>
                             </el-form-item>
                         </el-col>
                     </el-row>

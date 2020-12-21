@@ -113,7 +113,7 @@
                 <el-table-column label="商品单价/元" prop="stockGoodsPrice" width="120px"></el-table-column>
                 <el-table-column label="批发单价/元" width="120px">
                     <template slot-scope="scope">
-                        <el-input type="text" v-model.number="scope.row.pfPrice" @input="sum()" @blur="onPriceChange(scope.row)"></el-input>
+                        <el-input type="text" v-model="scope.row.pfPrice" @input="sum()" @blur="onPriceChange(scope.row)"></el-input>
                     </template>
                 </el-table-column>
                 <el-table-column label="件数" prop="num"></el-table-column>
@@ -123,7 +123,7 @@
                     <el-input type="text" id="sumPrice" clearable width="70px" :disabled="true" v-model="newDeliveryRecord.deliveryTotalPrice"></el-input>
                 </el-form-item>
                 <el-form-item :span="6" label="已付款项：">
-                    <el-input type="text" v-model.number="newDeliveryRecord.deliveryPaid" @blur="onTotalPriceChange(newDeliveryRecord.deliveryPaid)"></el-input>
+                    <el-input type="text" v-model="newDeliveryRecord.deliveryPaid" @blur="onTotalPriceChange(newDeliveryRecord.deliveryPaid)"></el-input>
                 </el-form-item>
                 <el-form-item style="float:right" >
                     <el-button type="primary" @click="shoppingCartDialog = false" size="mini">返回</el-button>
@@ -319,19 +319,24 @@ export default {
         //判断批发单价输入框合法性
         onPriceChange(info){
             if(info.pfPrice>info.stockGoodsPrice){
-                this.$message.error("批发单价不能大于商品单价")
+                this.$message.error(info.goodsName+"批发单价不能大于商品单价")
+                info.pfPrice=info.stockGoodsPrice
+                return
+            }
+            if(info.pfPrice==0){
+                this.$message.error(info.goodsName+"批发单价不能为零")
                 info.pfPrice=info.stockGoodsPrice
                 return
             }
             if(info.pfPrice<0){
-                this.$message.error("批发单价不能为负")
-                info.pfPrice=0
+                this.$message.error(info.goodsName+"批发单价不能为负")
+                info.pfPrice=info.stockGoodsPrice
                 return
             }
             if(!this.isValueNumber(info.pfPrice)){
                 // console.log('输入错误')
                 this.$message.error("输入错误")
-                info.pfPrice=0
+                info.pfPrice=info.stockGoodsPrice
             }
         },
         //判断是否是数字

@@ -14,13 +14,13 @@
                     <span>订单编号:</span>
                 </el-col>
                 <el-col :span="5">
-                    <el-input v-model="selected.selectedCouponId" size="mini"></el-input>
+                    <el-input v-model="selected.selectedCouponId" size="mini" placeholder="请输入查询的订单编号" clearable></el-input>
                 </el-col>
                 <el-col :span="2" :offset="1">
                     <span>商品编号:</span>
                 </el-col>
                 <el-col :span="5">
-                    <el-input v-model="selected.selectedCouponGoodsId" size="mini"></el-input>
+                    <el-input v-model="selected.selectedCouponGoodsId" size="mini" placeholder="请输入查询的商品编号" clearable></el-input>
                 </el-col>
                 <el-col :span="8" :offset="1">
                     <span>订货状态</span>

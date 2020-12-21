@@ -46,7 +46,7 @@
                 </el-table-column>
                 <el-table-column label="商品编号" prop="retailStockGoodsId" fixed width="180" align="center"></el-table-column>
                 <el-table-column label="商品名称" prop="goodsName"  width="160" align="center"></el-table-column>
-                <el-table-column label="商品类别" prop="categoryName"  width="160" align="center"></el-table-column>
+                <!-- <el-table-column label="商品类别" prop="goodsCategoryName"  width="160" align="center"></el-table-column> -->
                 <el-table-column label="品牌名称" prop="goodsBrand"  width="160" align="center"></el-table-column>
                 <el-table-column label="零售单价" prop="retailPrice" width="140" align="center"></el-table-column>
                 <el-table-column label="零售数量" prop="retailNum"  width="160" align="center"></el-table-column>
@@ -65,18 +65,21 @@
                 <!-- <el-table-column label="已退款项" prop="refundStaffId" fixed='right' width="123" align="center"></el-table-column> -->
             </el-table>
             <!-- </el-scrollbar> -->
-            <div style="float:left">
+            <!-- <div style="float:left">
                 <el-pagination
                     :current-page="queryInfo.pageIndex" :page-sizes="[queryInfo.infoCount]" 
                     :page-size="queryInfo.infoCount" :total="queryInfo.total"
                     @current-change="currentChange"
                     layout="total, sizes, prev, pager, next, jumper">
                 </el-pagination>
-            </div>
+            </div> -->
             <div style="float:right">
+                <el-tooltip effect="light" placement="top" content="返回">
+                    <el-button type="primary" icon="el-icon-back" @click="back" size="mini"></el-button>
+                </el-tooltip>
                 <el-tooltip effect="light" placement="top" content="提交退货">
                         <!-- 根据状态判断是否按钮可用 -->
-                        <el-button :disabled='flag' type="success" icon="el-icon-check" @click="dialogVisible=true" size="mini"></el-button>
+                        <el-button :disabled='flag' type="success" icon="el-icon-check" @click="openDialog" size="mini"></el-button>
                         <!-- <el-button  type="success" icon="el-icon-check" @click="dialogVisible=true" ></el-button> -->
 
                 </el-tooltip>
@@ -88,7 +91,7 @@
             title="退货原因"
             :visible.sync="dialogVisible"
             width="30%">
-            <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" placeholder="请输入内容" v-model="refundCustomerRecord.refundCustomerReason" clearable></el-input>
+            <el-input type="textarea" maxlength="100" :autosize="{ minRows: 2, maxRows: 4}" placeholder="请输入内容" v-model="refundCustomerRecord.refundCustomerReason" clearable></el-input>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="dialogVisible = false" size="mini">取 消</el-button>
                 <el-button type="primary" @click="commitReturn" size="mini">提 交</el-button>
@@ -116,7 +119,7 @@
                 //     refundCustomerNum:'',
                 //     refundCustomerPrice:'',
                 // },
-                deliveryGoodList:'',
+                deliveryGoodList:[],
                 //退货详情单对象
                 refundCustomerRecord:{
                     //订单编号
@@ -209,9 +212,9 @@
             // },
             getDeliveryList() {
                 let data = {
+                    staffId:window.sessionStorage.staffId,
                     retailId:this.retailId
                 }
-                console.log('=========')
                 console.log(data)
                 this.$axios.post('/retailreturn/retaildetails', this.$qs.stringify(data),{
                     headers:{
@@ -239,18 +242,36 @@
                             
                             })
                        }
-                        //返回的数据没有分页
-                        // this.queryInfo.total = res.data.recordSum
-                        // this.functionList = res.data.functionList
                     }   
-                    // this.deliveryList.map((item) => {
-                    //         let data = new Date(item.deliveryCreateDate)
-                    //         item.deliveryCreateDate = data.getFullYear() + "-" + (data.getMonth()+1) + "-" + data.getDate()
-                    // })
+
                 })
                 .catch((err) => {
                     this.$message.error(err.message)
                 })
+            },
+            openDialog(){
+                let flag=false;
+                let flag2=false;
+                let num = 0;
+                for(let i =0;i<this.deliveryGoodList.length;i++){
+
+                    if(this.deliveryGoodList[i].refundCustomerNum>0&&(this.deliveryGoodList[i].refundCustomerPrice<=0||this.deliveryGoodList[i].refundCustomerPrice>this.deliveryGoodList[i].retailPrice)){
+                        this.$message.info(this.deliveryGoodList[i].goodsName+"的退货价格有误")
+                        flag2=true
+                        break
+                    }else if(this.deliveryGoodList[i].refundCustomerNum>0&&this.deliveryGoodList[i].refundCustomerPrice>0){
+                        num++
+                    }
+                }
+                if(num>0){
+                    flag=true
+                }else{
+                    if(!flag2){
+                        this.$message.info("退货商品为空")
+                    }
+                    
+                }
+                this.dialogVisible=flag
             },
             //判断是否是数字
             isValueNumber(val){
@@ -270,16 +291,16 @@
                 
                 if(info.refundCustomerPrice>info.retailPrice){
                     this.$message.error("退货单价不能大于零售单价")
-                    info.refundCustomerPrice=info.retailPrice
+                    // info.refundCustomerPrice=info.retailPrice
                     return
                 }
                 if(info.refundCustomerPrice<0){
                     this.$message.error("退货单价不能为负")
-                    info.refundCustomerPrice=0
+                    // info.refundCustomerPrice=info.retailPrice
                 }
                 if(!this.isValueNumber(info.refundCustomerPrice)){
                     this.$message.error("请输入数字")
-                    info.refundCustomerPrice=0
+                    // info.refundCustomerPrice=info.retailPrice
                     return
                 }
                 
@@ -287,17 +308,18 @@
             onNumChange(info){
                 if(info.refundCustomerNum>info.retailNum){
                     this.$message.error("退货数量不能大于零售数量")
-                    info.refundCustomerNum=info.retailNum
+                    // info.refundCustomerNum=info.retailNum
                     return
               }
                 if(info.refundCustomerNum<0){
                     this.$message.error("退货数量不能为负")
-                    info.refundCustomerNum=0
+                    // info.refundCustomerNum=info.retailNum
                     return
                 }
+               
                 if(!this.isValueNumber(info.refundCustomerNum)){
                     this.$message.error("请输入数字")
-                    info.refundCustomerNum=0
+                    // info.refundCustomerNum=info.retailNum
                 }
             },
             //获取指定页面的信息
@@ -346,6 +368,9 @@
                     this.$message.error(err.message)
                 })
             },
+            back(){
+                this.$router.go(-1)
+            }
         }
     
   };
