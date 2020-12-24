@@ -554,7 +554,7 @@
                 // 调用 callback 返回建议列表的数据
                 cb(results);
             },
-            createFilterGoodsName(queryString1) {
+            createFilterGoodsName(queryString) {
                 return (goodListItem) => {
                 return (goodListItem.goodsName.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
                 };

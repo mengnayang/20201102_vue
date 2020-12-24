@@ -264,38 +264,38 @@
             },
             // 动态请求数据
             querySearchGoodsId(queryString, cb) {
-                var goodList = this.goodList;
-                var results = queryString ? goodList.filter(this.createFilterGoodsId(queryString)) : goodList;
+                var goodsList = this.goodsList;
+                var results = queryString ? goodsList.filter(this.createFilterGoodsId(queryString)) : goodsList;
                 // 调用 callback 返回建议列表的数据
                 cb(results);
             },
             createFilterGoodsId(queryString) {
-                return (goodListItem) => {
-                return (goodListItem.goodsId.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+                return (goodsListItem) => {
+                    return (goodsListItem.goodsId.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
                 };
             },
             // 动态请求数据
             querySearchGoodsName(queryString, cb) {
-                var goodList = this.goodList;
-                var results = queryString ? goodList.filter(this.createFilterGoodsName(queryString)) : goodList;
+                var goodsList = this.goodsList;
+                var results = queryString ? goodsList.filter(this.createFilterGoodsName(queryString)) : goodsList;
                 // 调用 callback 返回建议列表的数据
                 cb(results);
             },
-            createFilterGoodsName(queryString1) {
-                return (goodListItem) => {
-                return (goodListItem.goodsName.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+            createFilterGoodsName(queryString) {
+                return (goodsListItem) => {
+                    return (goodsListItem.goodsName.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
                 };
             },
             // 动态请求数据
-            querySearchBrandsName(queryString, cb) {
-                var goodList = this.goodList;
-                var results = queryString ? goodList.filter(this.createFilterBrandsName(queryString)) : goodList;
+            querySearchGoodsBrand(queryString, cb) {
+                var goodsList = this.goodsList;
+                var results = queryString ? goodsList.filter(this.createFilterGoodsBrand(queryString)) : goodsList;
                 // 调用 callback 返回建议列表的数据
                 cb(results);
             },
-            createFilterBrandsName(queryString) {
-                return (goodListItem) => {
-                return (goodListItem.goodsBrand.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+            createFilterGoodsBrand(queryString) {
+                return (goodsListItem) => {
+                    return (goodsListItem.goodsBrand.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
                 };
             },
             //动态渲染按钮
