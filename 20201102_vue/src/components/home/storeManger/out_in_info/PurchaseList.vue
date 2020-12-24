@@ -206,7 +206,7 @@
                     </el-col>
                     <el-col :span="6" :offset="2">
                         <el-form-item label="商品图片：">
-                            <img :src="'http://localhost:8080' + goods.goodsPicture" alt="图片" class="all_img">  
+                            <img :src="$store.state.imgBaseURL + goods.goodsPicture" alt="图片" class="all_img">  
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -361,7 +361,7 @@
                     </el-col>
                     <el-col :span="8" :offset="1">
                         <el-form-item label="商品图片：">
-                            <img :src="'http://localhost:8080' + goods.goodsPicture" alt="图片" class="all_img">  
+                            <img :src="$store.state.imgBaseURL + goods.goodsPicture" alt="图片" class="all_img">  
                         </el-form-item>
                     </el-col>
                 </el-row>

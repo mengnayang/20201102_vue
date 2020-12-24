@@ -50,7 +50,7 @@
             <el-table :data="isLazzy ? goodsStockNumList : goodList" border v-show="isFirst">
                 <el-table-column label="商品图片" fixed width="220" align="center">
                     <template slot-scope="scope">
-                        <img :src="'http://localhost:8080' + scope.row.goodsPicture" alt="图片" class="all_img">  
+                        <img :src="$store.state.imgBaseURL + scope.row.goodsPicture" alt="图片" class="all_img">  
                     </template>
                 </el-table-column>
                 <el-table-column label="商品编号" prop="goodsId" fixed width="140" align="center"></el-table-column>
@@ -109,7 +109,7 @@
                         <el-col :span="12">
                             <el-form-item label="商品图片"> 
                                 <template>
-                                    <img :src="'http://localhost:8080' + currentGood.goodsPicture" alt="图片" class="all_img">  
+                                    <img :src="$store.state.imgBaseURL + currentGood.goodsPicture" alt="图片" class="all_img">  
                                 </template>
                             </el-form-item>
                         </el-col>
@@ -197,7 +197,7 @@
                         <el-col :span="12">
                             <el-form-item label="商品图片"> 
                                 <template>
-                                    <img :src="'http://localhost:8080' + currentGood.goodsPicture" alt="图片" class="all_img">  
+                                    <img :src="$store.state.imgBaseURL + currentGood.goodsPicture" alt="图片" class="all_img">  
                                 </template>
                             </el-form-item>
                         </el-col>

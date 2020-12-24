@@ -9,13 +9,16 @@ import './assets/css/global.css'
 import './plugins/element.js'
 //引入axios并挂载
 import axios from 'axios'
-axios.defaults.baseURL='http://localhost:8080';
+axios.defaults.baseURL='http://124.70.60.62:8080';
 Vue.prototype.$axios = axios
 //引入mockjs
 import '../mock/mock.js'
+
+//引入全局变量
+import store from '../src/store/globalValue'
 //引入echarts
-import echarts from 'echarts'
-Vue.prototype.$echarts = echarts
+// import echarts from 'echarts'
+// Vue.prototype.$echarts = echarts
 
 import qs from 'qs'
 Vue.prototype.$qs = qs
@@ -41,6 +44,7 @@ Vue.config.productionTip = false
 new Vue({
   el: '#app',
   router,
+  store,
   components: { App },
   template: '<App/>'
 })

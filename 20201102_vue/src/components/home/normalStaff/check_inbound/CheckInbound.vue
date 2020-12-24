@@ -78,7 +78,7 @@
                             <el-form-item label="货品图片"> 
                                 <!-- eslint-disable-next-line -->
                                 <template slot-scope="scope">
-                                    <img :src="'http://localhost:8080'+currentInboundBill.goods.goodsPicture" alt="图片">
+                                    <img :src="$store.state.imgBaseURL+currentInboundBill.goods.goodsPicture" alt="图片">
                                 </template>
                             </el-form-item>
                         </el-col>

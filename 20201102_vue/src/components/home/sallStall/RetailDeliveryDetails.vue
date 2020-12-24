@@ -41,7 +41,7 @@
             <el-table :data="deliveryGoodList" border>
                 <el-table-column label="商品图片" fixed width="100" align="center">
                     <template slot-scope="scope">
-                        <img :src="'http://localhost:8080'+scope.row.goodsPicture"  alt="图片" class="all_img">
+                        <img :src="$store.state.imgBaseURL+scope.row.goodsPicture"  alt="图片" class="all_img">
                     </template>
                 </el-table-column>
                 <el-table-column label="商品编号" prop="retailStockGoodsId" fixed width="180" align="center"></el-table-column>

@@ -175,7 +175,7 @@
                 <el-row>
                     <el-col :offset="1">
                         <el-form-item label="商品图片：">
-                            <img :src="'http://localhost:8080' + currentRetail.goods.goodsPicture" alt="图片" class="all_img">  
+                            <img :src="$store.state.imgBaseURL + currentRetail.goods.goodsPicture" alt="图片" class="all_img">  
                         </el-form-item>
                     </el-col>
                 </el-row>

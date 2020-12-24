@@ -139,7 +139,7 @@
                     <el-col :span="12" :offset="2">
                         <el-form-item label="商品图片:">
                             <template>
-                                <img :src="'http://localhost:8080' + currentOrder.goods.goodsPicture" alt="图片" class="all_img">  
+                                <img :src="$store.state.imgBaseURL + currentOrder.goods.goodsPicture" alt="图片" class="all_img">  
                             </template>
                         </el-form-item>
                     </el-col>

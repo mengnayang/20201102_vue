@@ -53,7 +53,7 @@
             <el-table :data="dataList.stockingGoodsList" border>
                 <el-table-column label="商品图片" fixed width="120" align="center">
                     <template slot-scope="scope">
-                        <img :src="'http://localhost:8080'+scope.row.goodsPicture"  alt="图片" class="all_img">
+                        <img :src="$store.state.imgBaseURL+scope.row.goodsPicture"  alt="图片" class="all_img">
                     </template>
                 </el-table-column>
                 <el-table-column label="商品编号" prop="stockGoodsId" fixed width="240" align="center"></el-table-column>
@@ -93,7 +93,7 @@
                             <el-form-item label="货品图片"> 
                                 <!-- eslint-disable-next-line -->
                                 <template slot-scope="scope">
-                                    <img :src="'http://localhost:8080'+currentStoreList.goods.goodsPicture" alt="图片" class="all_imag">
+                                    <img :src="$store.state.imgBaseURL+currentStoreList.goods.goodsPicture" alt="图片" class="all_imag">
                                 </template>
                             </el-form-item>
                         </el-col>
