@@ -39,7 +39,7 @@
                     <span>访问IP：</span>
                 </el-col>
                 <el-col :span="5">
-                    <el-input v-model="selected.selectedCheckIP" size="mini" placeholder="请输入查询的用户IP"></el-input>
+                    <el-autocomplete v-model="selected.selectedCheckIP" :fetch-suggestions="querySearch" size="mini" placeholder="请输入查询的用户IP"></el-autocomplete>
                 </el-col>
             </el-row>
             <el-row>
@@ -208,6 +208,10 @@
                             let data = new Date(item.timestmp)
                             item.timestmp = data.getFullYear() + "-" + (data.getMonth()+1) + "-" + data.getDate()
                         })   
+
+                        for (let i = 0; i < this.loggingEventList.length; i++) {
+                            this.$set(this.loggingEventList[i],"value",this.loggingEventList[i].check_ip)
+                        }
                         this.drawBtn()               
                     } else {
                         this.$message.error(res.data.errMsg)
@@ -216,6 +220,18 @@
                 .catch((err) => {
                     this.$message.error(err.message)
                 })
+            },
+            // 动态请求数据
+            querySearch(queryString, cb) {
+                var loggingEventList = this.loggingEventList;
+                var results = queryString ? loggingEventList.filter(this.createFilter(queryString)) : loggingEventList;
+                // 调用 callback 返回建议列表的数据
+                cb(results);
+            },
+            createFilter(queryString) {
+                return (loggingEventListItem) => {
+                return (loggingEventListItem.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+                };
             },
             drawBtn() {
                 //渲染功能按钮

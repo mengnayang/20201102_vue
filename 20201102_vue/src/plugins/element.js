@@ -44,7 +44,8 @@ Checkbox,
 CheckboxGroup,
 InputNumber,
 Carousel,
-CarouselItem
+CarouselItem,
+Autocomplete
 } from 'element-ui'
 Vue.use(Form)
 Vue.use(FormItem)
@@ -86,6 +87,7 @@ Vue.use(CheckboxGroup)
 Vue.use(InputNumber)
 Vue.use(Carousel)
 Vue.use(CarouselItem)
+Vue.use(Autocomplete)
 
 //全局挂载
 Vue.prototype.$message = Message

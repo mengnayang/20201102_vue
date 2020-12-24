@@ -14,13 +14,13 @@
                     <span>商品编号:</span>
                 </el-col>
                 <el-col :span="5">
-                    <el-input v-model="selected.selectedGoodsId" maxlength="100" size="mini" placeholder="请输入查询的商品编号" clearable></el-input>
+                    <el-autocomplete v-model="selected.selectedGoodsId" :fetch-suggestions="querySearchGoodsId" :maxlength="100" size="mini" placeholder="请输入查询的商品编号" clearable></el-autocomplete>
                 </el-col>
                 <el-col :span="2" :offset="1">
                     <span>商品名称:</span>
                 </el-col>
                 <el-col :span="5">
-                    <el-input v-model="selected.selectedGoodsName" maxlength="100" size="mini" placeholder="请输入查询的商品名称" clearable></el-input>
+                    <el-autocomplete v-model="selected.selectedGoodsName" :fetch-suggestions="querySearchGoodsName" :maxlength="100" size="mini" placeholder="请输入查询的商品名称" clearable></el-autocomplete>
                 </el-col>
                 <el-col :span="7" :offset="1">
                     <span>商品类别:</span>
@@ -35,7 +35,7 @@
                     <span>品牌类别:</span>
                 </el-col>
                 <el-col :span="5">
-                    <el-input v-model="selected.selectedGoodsBrand" maxlength="100" size="mini" placeholder="请输入查询的品牌类别" clearable></el-input>
+                    <el-autocomplete v-model="selected.selectedGoodsBrand" :fetch-suggestions="querySearchBrandsName" :maxlength="100" size="mini" placeholder="请输入查询的品牌类别" clearable></el-autocomplete>
                 </el-col>
                 <el-col :span="12" :offset="1">
                     <el-button type="primary" size="mini" @click="searchGood()">查询</el-button>
@@ -431,6 +431,9 @@
             return{
                 //商品信息
                 goodList:[],
+                // 同goodList，实现动态搜索
+                goodList1:[],
+                goodList2:[],
                 //详细商品信息
                 goodDetailList:[],
                 //单位列表
@@ -523,6 +526,24 @@
                         this.queryInfo.total = res.data.recordSum
                         this.functionList = res.data.functionList
                         this.categoryList = res.data.categoryList
+
+                        this.goodList1 = this.goodList
+                        this.goodList2 = this.goodList
+
+                        for (let i = 0; i < this.goodList.length; i++) {
+                            this.$set(this.goodList[i],"value",this.goodList[i].goodsId)
+                        }
+                        
+                        for (let i = 0; i < this.goodList1.length; i++) {
+                            this.$set(this.goodList1[i],"value",this.goodList1[i].goodsName)
+                        }
+
+                        for (let i = 0; i < this.goodList2.length; i++) {
+                            this.$set(this.goodList2[i],"value",this.goodList2[i].goodsBrand)
+                        }
+                        console.log(this.goodList)
+                        console.log(this.goodList1)
+                        console.log(this.goodList2)
                         this.drawBtn()
                     } else {
                         this.$message.error(res.data.errMsg)
@@ -531,6 +552,42 @@
                 .catch((err) => {
                     this.$message.error(err.message)
                 })
+            },
+            // 动态请求数据
+            querySearchGoodsId(queryString, cb) {
+                var goodList = this.goodList;
+                var results = queryString ? goodList.filter(this.createFilterGoodsId(queryString)) : goodList;
+                // 调用 callback 返回建议列表的数据
+                cb(results);
+            },
+            createFilterGoodsId(queryString) {
+                return (goodListItem) => {
+                return (goodListItem.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+                };
+            },
+            // 动态请求数据
+            querySearchGoodsName(queryString1, cb1) {
+                var goodList1 = this.goodList1;
+                var results1 = queryString1 ? goodList1.filter(this.createFilterGoodsName(queryString1)) : goodList1;
+                // 调用 callback 返回建议列表的数据
+                cb1(results1);
+            },
+            createFilterGoodsName(queryString1) {
+                return (goodList1Item) => {
+                return (goodList1Item.value.toLowerCase().indexOf(queryString1.toLowerCase()) === 0);
+                };
+            },
+            // 动态请求数据
+            querySearchBrandsName(queryString2, cb2) {
+                var goodList2 = this.goodList2;
+                var results2 = queryString2 ? goodList2.filter(this.createFilterBrandsName(queryString2)) : goodList2;
+                // 调用 callback 返回建议列表的数据
+                cb2(results2);
+            },
+            createFilterBrandsName(queryString2) {
+                return (goodList2Item) => {
+                return (goodList2Item.value.toLowerCase().indexOf(queryString2.toLowerCase()) === 0);
+                };
             },
             //动态渲染按钮
             drawBtn() {

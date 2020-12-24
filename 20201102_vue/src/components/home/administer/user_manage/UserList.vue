@@ -10,10 +10,10 @@
         <el-card>
             <!-- 功能区域 -->
             <el-row :gutter="20">
-                <el-col :span="10">
-                    <el-input placeholder="请输入你要查询的用户" v-model="searchPartName" clearable>
+                <el-col :span="7">
+                    <el-autocomplete placeholder="请输入你要查询的用户" :fetch-suggestions="querySearch" v-model="searchPartName" clearable>
                         <el-button slot="append" icon="el-icon-search" @click="searchUserList(0)"></el-button>
-                    </el-input>
+                    </el-autocomplete>
                 </el-col>    
                 <el-col :span="4">
                     <el-button type="primary" @click="addUserDialog = true">添加用户</el-button>
@@ -283,10 +283,26 @@
                     this.queryInfo.total = res.data.recordSum
                     this.userList = res.data.staffAList
                     this.drawBtn()
+
+                    for (let i = 0; i < this.userList.length; i++) {
+                        this.$set(this.userList[i],"value",this.userList[i].staffName)
+                    }
                 })
                 .catch((err) => {
                     this.$message.error(err.message)
                 })
+            },
+            // 动态请求数据
+            querySearch(queryString, cb) {
+                var userList = this.userList;
+                var results = queryString ? userList.filter(this.createFilter(queryString)) : userList;
+                // 调用 callback 返回建议列表的数据
+                cb(results);
+            },
+            createFilter(queryString) {
+                return (userListItem) => {
+                return (userListItem.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+                };
             },
             //模糊查询
             searchUserList(flag){
