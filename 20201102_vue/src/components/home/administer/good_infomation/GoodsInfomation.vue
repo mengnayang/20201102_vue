@@ -14,13 +14,13 @@
                     <span>商品编号:</span>
                 </el-col>
                 <el-col :span="5">
-                    <el-input maxlength="100" v-model="selected.goodsId" size="mini" placeholder="请输入查询的商品编号" clearable></el-input>
+                    <el-autocomplete value-key="goodsId" :fetch-suggestions="querySearchGoodsId" :maxlength="100" v-model="selected.goodsId" size="mini" placeholder="请输入查询的商品编号" clearable></el-autocomplete>
                 </el-col>
                 <el-col :span="2" :offset="1">
                     <span>商品名称:</span>
                 </el-col>
                 <el-col :span="5">
-                    <el-input maxlength="100" v-model="selected.goodsName" size="mini" placeholder="请输入查询的商品名称" clearable></el-input>
+                    <el-autocomplete value-key="goodsName" :fetch-suggestions="querySearchGoodsName" :maxlength="100" v-model="selected.goodsName" size="mini" placeholder="请输入查询的商品名称" clearable></el-autocomplete>
                 </el-col>
                 <el-col :span="7" :offset="1">
                     <span>商品类别:</span>
@@ -35,7 +35,7 @@
                     <span>品牌类别:</span>
                 </el-col>
                 <el-col :span="5">
-                    <el-input maxlength="100" v-model="selected.goodsBrand" size="mini" placeholder="请输入查询的品牌类别" clearable></el-input>
+                    <el-autocomplete value-key="goodsBrand" :fetch-suggestions="querySearchGoodsBrand" :maxlength="100" v-model="selected.goodsBrand" size="mini" placeholder="请输入查询的品牌类别" clearable></el-autocomplete>
                 </el-col>
                 <el-col :span="12" :offset="1">
                     <el-button type="primary" size="mini" @click="searchGood()">查询</el-button>
@@ -261,6 +261,42 @@
                 .catch((err) => {
                     this.$message.error(err.message)
                 })
+            },
+            // 动态请求数据
+            querySearchGoodsId(queryString, cb) {
+                var goodList = this.goodList;
+                var results = queryString ? goodList.filter(this.createFilterGoodsId(queryString)) : goodList;
+                // 调用 callback 返回建议列表的数据
+                cb(results);
+            },
+            createFilterGoodsId(queryString) {
+                return (goodListItem) => {
+                return (goodListItem.goodsId.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+                };
+            },
+            // 动态请求数据
+            querySearchGoodsName(queryString, cb) {
+                var goodList = this.goodList;
+                var results = queryString ? goodList.filter(this.createFilterGoodsName(queryString)) : goodList;
+                // 调用 callback 返回建议列表的数据
+                cb(results);
+            },
+            createFilterGoodsName(queryString1) {
+                return (goodListItem) => {
+                return (goodListItem.goodsName.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+                };
+            },
+            // 动态请求数据
+            querySearchBrandsName(queryString, cb) {
+                var goodList = this.goodList;
+                var results = queryString ? goodList.filter(this.createFilterBrandsName(queryString)) : goodList;
+                // 调用 callback 返回建议列表的数据
+                cb(results);
+            },
+            createFilterBrandsName(queryString) {
+                return (goodListItem) => {
+                return (goodListItem.goodsBrand.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+                };
             },
             //动态渲染按钮
             drawBtn() {

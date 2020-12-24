@@ -14,13 +14,13 @@
                     <span>入库编号:</span>
                 </el-col>
                 <el-col :span="5">
-                    <el-input maxlength="100" v-model="selected.selectedExportBillId" size="mini" placeholder="请输入查询的入库编号" clearable></el-input>
+                    <el-autocomplete :maxlength="100" value-key="exportBillId" :fetch-suggestions="querySearchStoreId" v-model="selected.selectedExportBillId" size="mini" placeholder="请输入查询的入库编号" clearable></el-autocomplete>
                 </el-col>
                 <el-col :span="2" :offset="1">
                     <span>订单编号:</span>
                 </el-col>
                 <el-col :span="5">
-                    <el-input maxlength="100" v-model="selected.selectedExportBillCouponId" size="mini" placeholder="请输入查询的订单编号" clearable></el-input>
+                    <el-autocomplete :maxlength="100" value-key="exportBillCouponId" :fetch-suggestions="querySearchCouponId" v-model="selected.selectedExportBillCouponId" size="mini" placeholder="请输入查询的订单编号" clearable></el-autocomplete>
                 </el-col>
                 <el-col :span="8" :offset="1">
                     <span>入库状态</span>
@@ -467,6 +467,30 @@
                 .catch((err) => {
                     this.$message.error(err.message)
                 })
+            },
+            // 动态请求数据
+            querySearchStoreId(queryString, cb) {
+                var exportBillList = this.exportBillList;
+                var results = queryString ? exportBillList.filter(this.createFilterStoreId(queryString)) : exportBillList;
+                // 调用 callback 返回建议列表的数据
+                cb(results);
+            },
+            createFilterStoreId(queryString) {
+                return (exportBillListItem) => {
+                return (exportBillListItem.exportBillId.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+                };
+            },
+            // 动态请求数据
+            querySearchCouponId(queryString, cb) {
+                var exportBillList = this.exportBillList;
+                var results = queryString ? exportBillList.filter(this.createFilterCouponId(queryString)) : exportBillList;
+                // 调用 callback 返回建议列表的数据
+                cb(results);
+            },
+            createFilterCouponId(queryString) {
+                return (exportBillListItem) => {
+                return (exportBillListItem.exportBillCouponId.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+                };
             },
             //根据指定页码获取相应的库存信息
             currentChange(currentPage) {

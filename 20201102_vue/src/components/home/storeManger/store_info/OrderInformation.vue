@@ -14,13 +14,13 @@
                     <span>订单编号:</span>
                 </el-col>
                 <el-col :span="5">
-                    <el-input v-model="selected.selectedCouponId" size="mini" placeholder="请输入查询的订单编号" clearable></el-input>
+                    <el-autocomplete value-key="couponId" v-model="selected.selectedCouponId" :fetch-suggestions="querySearch" size="mini" placeholder="请输入查询的订单编号" clearable></el-autocomplete>
                 </el-col>
                 <el-col :span="2" :offset="1">
                     <span>商品编号:</span>
                 </el-col>
                 <el-col :span="5">
-                    <el-input v-model="selected.selectedCouponGoodsId" size="mini" placeholder="请输入查询的商品编号" clearable></el-input>
+                    <el-autocomplete value-key="couponGoodsId" v-model="selected.selectedCouponGoodsId" :fetch-suggestions="querySearch1" size="mini" placeholder="请输入查询的商品编号" clearable></el-autocomplete>
                 </el-col>
                 <el-col :span="8" :offset="1">
                     <span>订货状态</span>
@@ -242,6 +242,30 @@
                 .catch((err) => {
                     this.$message.error(err.message)
                 })
+            },
+            // 动态请求数据
+            querySearch(queryString, cb) {
+                var orderList = this.orderList;
+                var results = queryString ? orderList.filter(this.createFilter(queryString)) : orderList;
+                // 调用 callback 返回建议列表的数据
+                cb(results);
+            },
+            createFilter(queryString) {
+                return (orderListItem) => {
+                return (orderListItem.couponId.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+                };
+            },
+            // 动态请求数据
+            querySearch1(queryString, cb) {
+                var orderList = this.orderList;
+                var results = queryString ? orderList.filter(this.createFilter1(queryString)) : orderList;
+                // 调用 callback 返回建议列表的数据
+                cb(results);
+            },
+            createFilter1(queryString) {
+                return (orderListItem) => {
+                return (orderListItem.couponGoodsId.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+                };
             },
             drawBtn() {
                 //渲染功能按钮

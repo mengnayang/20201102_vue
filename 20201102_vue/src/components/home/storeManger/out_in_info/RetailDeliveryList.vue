@@ -14,7 +14,7 @@
                     <span>订单编号</span>
                 </el-col>
                 <el-col :span="5">   
-                    <el-input maxlength="100" v-model="selected.selectedRetailId" size="mini" placeholder="请输入查询的订单编号" clearable></el-input>
+                    <el-autocomplete value-key="retailId" :fetch-suggestions="querySearch" :maxlength="100" v-model="selected.selectedRetailId" size="mini" placeholder="请输入查询的订单编号" clearable></el-autocomplete>
                 </el-col>
                 <el-col :span="2" :offset="1">
                     <span>收款员工</span>
@@ -336,6 +336,18 @@
                 .catch((err) => {
                     this.$message.error(err.message)
                 })
+            },
+            // 动态请求数据
+            querySearch(queryString, cb) {
+                var retailRecordList = this.retailRecordList;
+                var results = queryString ? retailRecordList.filter(this.createFilter(queryString)) : retailRecordList;
+                // 调用 callback 返回建议列表的数据
+                cb(results);
+            },
+            createFilter(queryString) {
+                return (retailRecordListItem) => {
+                return (retailRecordListItem.retailId.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+                };
             },
             // 模糊查询
             searchRetail() {

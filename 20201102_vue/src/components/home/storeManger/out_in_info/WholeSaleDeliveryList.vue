@@ -14,7 +14,7 @@
                     <span>出库编号:</span>
                 </el-col>
                 <el-col :span="5">
-                    <el-input maxlength="100" v-model="selected.selectedDeliveryId" size="mini" placeholder="请输入查询的出库编号" clearable></el-input>
+                    <el-autocomplete value-key="deliveryId" :fetch-suggestions="querySearch" :maxlength="100" v-model="selected.selectedDeliveryId" size="mini" placeholder="请输入查询的出库编号" clearable></el-autocomplete>
                 </el-col>
                 <el-col :span="7" :offset="1">
                     <span>出库状态:</span>
@@ -352,6 +352,18 @@
                 .catch((err) => {
                     this.$message.error(err.message)
                 })
+            },
+            // 动态请求数据
+            querySearch(queryString, cb) {
+                var deliveryRecordList = this.deliveryRecordList;
+                var results = queryString ? deliveryRecordList.filter(this.createFilter(queryString)) : deliveryRecordList;
+                // 调用 callback 返回建议列表的数据
+                cb(results);
+            },
+            createFilter(queryString) {
+                return (deliveryRecordListItem) => {
+                return (deliveryRecordListItem.deliveryId.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+                };
             },
             //根据指定页码获取相应的库存信息
             currentChange(currentPage) {
